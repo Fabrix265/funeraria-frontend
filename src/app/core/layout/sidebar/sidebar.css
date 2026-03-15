@@ -1,0 +1,25 @@
+.sidebar {
+  width: 230px;
+  background: #1f2f63;
+  color: white;
+  padding: 20px;
+  transition: width 0.3s;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  margin-bottom: 12px;
+}
+
+.menu-section {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  opacity: 0.7;
+}

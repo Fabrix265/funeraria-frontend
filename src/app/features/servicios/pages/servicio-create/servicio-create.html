@@ -1,0 +1,149 @@
+<h2>Nuevo servicio funerario</h2>
+
+<form (ngSubmit)="guardar()" class="form">
+
+  <div class="grid">
+
+    <div>
+      <label>Contratante</label>
+
+      <select [(ngModel)]="form.id_contratante" name="id_contratante">
+
+        <option [ngValue]="null">Seleccionar</option>
+
+        <option *ngFor="let c of contratantes" [value]="c.id">
+          {{c.nombre}} - {{c.dni}}
+        </option>
+
+      </select>
+    </div>
+
+
+    <div>
+      <label>Fallecido</label>
+
+      <select [(ngModel)]="form.id_fallecido" name="id_fallecido">
+
+        <option [ngValue]="null">Seleccionar</option>
+
+        <option *ngFor="let f of fallecidos" [value]="f.id">
+          {{f.nombre}} - {{f.dni}}
+        </option>
+
+      </select>
+    </div>
+
+
+    <div>
+      <label>Capilla</label>
+
+      <select [(ngModel)]="form.id_capilla" name="id_capilla">
+
+        <option [ngValue]="null">Seleccionar</option>
+
+        <option *ngFor="let c of capillas" [value]="c.id">
+          {{c.modelo}} (stock {{c.stock}})
+        </option>
+
+      </select>
+    </div>
+
+
+    <div>
+      <label>Ataúd</label>
+
+      <select [(ngModel)]="form.id_ataud" name="id_ataud">
+
+        <option [ngValue]="null">Seleccionar</option>
+
+        <option *ngFor="let a of ataudes" [value]="a.id">
+          {{a.modelo}} - {{a.color}} ({{a.tipo}})
+        </option>
+
+      </select>
+    </div>
+
+  </div>
+
+  <h3>Vehículos</h3>
+
+  <div class="vehiculos">
+
+    <label *ngFor="let v of vehiculos">
+
+      <input
+        type="checkbox"
+        (change)="toggleVehiculo(v.id)"
+      >
+
+      {{v.tipo}}
+
+    </label>
+
+  </div>
+
+  <hr>
+
+  <div class="grid">
+
+    <div>
+      <label>Dirección velación</label>
+      <input [(ngModel)]="form.direccion_velacion" name="direccion_velacion">
+    </div>
+
+    <div>
+      <label>Fecha</label>
+      <input type="date" [(ngModel)]="form.fecha" name="fecha">
+    </div>
+
+    <div>
+      <label>Tipo de pago</label>
+
+      <select [(ngModel)]="form.tipo_pago" name="tipo_pago">
+
+        <option value="directo">Directo</option>
+        <option value="seguro">Seguro</option>
+        <option value="mixto">Mixto</option>
+
+      </select>
+
+    </div>
+
+    <div>
+      <label>Costo</label>
+      <input type="number" [(ngModel)]="form.costo" name="costo">
+    </div>
+
+  </div>
+
+  <div class="checks">
+
+    <label>
+      <input type="checkbox" [(ngModel)]="form.arreglo_flora" name="arreglo_flora">
+      Arreglo floral
+    </label>
+
+    <label>
+      <input type="checkbox" [(ngModel)]="form.director_sepelio" name="director_sepelio">
+      Director de sepelio
+    </label>
+
+  </div>
+
+  <div>
+
+    <label>Cantidad cargadores</label>
+
+    <input
+      type="number"
+      [(ngModel)]="form.cantidad_cargadores"
+      name="cantidad_cargadores"
+    >
+
+  </div>
+
+  <button type="submit">
+    Crear servicio
+  </button>
+
+</form>

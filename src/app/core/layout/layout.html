@@ -1,0 +1,17 @@
+<div class="layout">
+
+  <app-navbar (toggleMenu)="toggleSidebar()"></app-navbar>
+
+  <div class="layout-body">
+
+    <app-sidebar
+      [open]="sidebarOpen">
+    </app-sidebar>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>
