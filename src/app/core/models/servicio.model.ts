@@ -1,37 +1,32 @@
-import { Ataud } from './ataud.model';
-import { Capilla } from './capilla.model';
-import { Vehiculo } from './vehiculo.model';
-import { Contratante } from './contratante.model';
-import { Fallecido } from './fallecido.model';
+import { Ataud } from './ataud.model'
+import { Capilla } from './capilla.model'
+import { Vehiculo } from './vehiculo.model'
+import { Fallecido } from './fallecido.model'
+import { Contratante } from './contratante.model'
 
-export type TipoPago = 'directo' | 'seguro' | 'mixto';
+export type TipoPago = 'directo' | 'seguro' | 'mixto'
 
 export interface Servicio {
-  id: number;
-  id_usuario: number;
 
-  direccion_velacion: string;
-  tipo_pago: TipoPago;
-  costo: number;
+  id: number
+  id_usuario: number
 
-  arreglo_flora: boolean;
-  fecha: string;
+  direccion_velacion: string
+  tipo_pago: TipoPago
+  costo: number
 
-  cantidad_cargadores?: number;
-  director_sepelio: boolean;
+  arreglo_flora: boolean
+  fecha: string
 
-  fallecido: Fallecido;
-  contratante: Contratante;
+  cantidad_cargadores?: number
+  director_sepelio: boolean
 
-  ataud?: Ataud;
-  capilla: Capilla;
+  fallecido: Fallecido
+  contratante: Contratante
 
-  vehiculos_asignados: Vehiculo[];
-}
+  ataud?: Ataud
+  capilla: Capilla
 
-export interface ServicioPaginado {
-  total: number;
-  offset: number;
-  limit: number;
-  data: Servicio[];
+  vehiculos_asignados: Vehiculo[]
+
 }

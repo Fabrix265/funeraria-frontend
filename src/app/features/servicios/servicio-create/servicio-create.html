@@ -1,0 +1,38 @@
+<div class="page">
+
+<h1>Crear Servicio</h1>
+
+<div class="form">
+
+<input
+placeholder="Dirección velación"
+[(ngModel)]="form.direccion_velacion"
+>
+
+<input
+type="date"
+[(ngModel)]="form.fecha"
+>
+
+<input
+type="number"
+placeholder="Costo"
+[(ngModel)]="form.costo"
+>
+
+<select [(ngModel)]="form.tipo_pago">
+
+<option value="">Tipo de pago</option>
+<option value="directo">Directo</option>
+<option value="seguro">Seguro</option>
+<option value="mixto">Mixto</option>
+
+</select>
+
+<button (click)="crear()">
+Crear servicio
+</button>
+
+</div>
+
+</div>

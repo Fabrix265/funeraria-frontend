@@ -1,5 +1,7 @@
 export interface Fallecido {
-  id: number;
-  nombre: string;
-  dni: string;
+
+  id: number
+  nombre: string
+  dni: string
+
 }

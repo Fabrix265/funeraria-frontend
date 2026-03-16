@@ -1,0 +1,77 @@
+<div class="layout">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar" [class.cerrado]="!sidebarAbierto">
+
+    <h2>Funeraria</h2>
+
+    <nav>
+
+      <a routerLink="/dashboard">Dashboard</a>
+
+      <a routerLink="/servicios">
+        Servicios
+      </a>
+
+      <a routerLink="/ataudes">
+        Ataúdes
+      </a>
+
+      <a routerLink="/capillas">
+        Capillas
+      </a>
+
+      <a routerLink="/vehiculos">
+        Vehículos
+      </a>
+
+      <a routerLink="/contratantes">
+        Contratantes
+      </a>
+
+      <a routerLink="/fallecidos">
+        Fallecidos
+      </a>
+
+      <a routerLink="/usuarios">
+        Usuarios
+      </a>
+
+      <a routerLink="/perfil">
+        Perfil
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- CONTENIDO -->
+
+  <div class="contenido">
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+      <button (click)="toggleSidebar()">
+        ☰
+      </button>
+
+      <button (click)="logout()">
+        Cerrar sesión
+      </button>
+
+    </header>
+
+    <!-- CONTENIDO DINÁMICO -->
+
+    <main>
+
+      <router-outlet></router-outlet>
+
+    </main>
+
+  </div>
+
+</div>

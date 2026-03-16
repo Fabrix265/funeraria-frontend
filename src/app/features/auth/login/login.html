@@ -1,1 +1,28 @@
-<p>login works!</p>
+<div class="login-container">
+
+  <div class="login-card">
+
+    <h2>Funeraria Aranzabal</h2>
+
+    <input
+      placeholder="Usuario"
+      [(ngModel)]="username"
+    >
+
+    <input
+      type="password"
+      placeholder="Contraseña"
+      [(ngModel)]="password"
+    >
+
+    <button (click)="login()">
+      Ingresar
+    </button>
+
+    <p class="error" *ngIf="error">
+      {{error}}
+    </p>
+
+  </div>
+
+</div>

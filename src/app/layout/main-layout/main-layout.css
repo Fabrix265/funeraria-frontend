@@ -1,0 +1,126 @@
+:root{
+
+  --color-primario:#0f172a;      /* azul muy oscuro */
+  --color-secundario:#1e293b;    /* azul oscuro */
+  --color-acento:#334155;        /* azul gris */
+  --color-fondo:#f8fafc;         /* fondo claro */
+  --color-borde:#e2e8f0;
+  --color-texto:#0f172a;
+
+}
+
+.layout{
+  display:flex;
+  height:100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background:var(--color-fondo);
+}
+
+/* SIDEBAR */
+
+.sidebar{
+  width:230px;
+  background:var(--color-primario);
+  color:white;
+  padding:25px 18px;
+  transition:0.3s;
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar.cerrado{
+  width:70px;
+}
+
+.sidebar h2{
+  font-size:20px;
+  letter-spacing:2px;
+  margin-bottom:30px;
+  text-align:center;
+  font-weight:500;
+}
+
+.sidebar nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.sidebar a{
+  color:white;
+  text-decoration:none;
+  padding:10px 12px;
+  border-radius:6px;
+  font-size:14px;
+  transition:0.2s;
+}
+
+.sidebar a:hover{
+  background:var(--color-secundario);
+}
+
+/* CONTENIDO */
+
+.contenido{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+/* NAVBAR */
+
+.navbar{
+  height:60px;
+  background:white;
+  border-bottom:1px solid var(--color-borde);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+}
+
+.navbar button{
+  background:var(--color-primario);
+  border:none;
+  color:white;
+  padding:7px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.navbar button:hover{
+  background:var(--color-secundario);
+}
+
+/* CONTENIDO */
+
+main{
+  flex:1;
+  padding:25px;
+  overflow:auto;
+}
+
+/* TARJETAS */
+
+.card{
+  background:white;
+  border-radius:10px;
+  padding:20px;
+  border:1px solid var(--color-borde);
+}
+
+/* BOTONES */
+
+.btn{
+  background:var(--color-primario);
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.btn:hover{
+  background:var(--color-secundario);
+}

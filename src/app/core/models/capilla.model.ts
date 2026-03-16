@@ -1,5 +1,7 @@
 export interface Capilla {
-  id: number;
-  modelo: string;
-  stock: number;
+
+  id: number
+  modelo: string
+  stock: number
+
 }

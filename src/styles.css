@@ -1,49 +1,56 @@
-:root {
-  --primary: #0e1a3a;
-  --primary-light: #1f2f63;
-  --background: #f4f6fb;
-  --card: #ffffff;
-  --accent: #d6d9e5;
-  --danger: #8b1e2d;
-  --warning: #b59a4a;
-  --text-main: #1a1a1a;
+.page{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
 }
 
-body {
-  background-color: var(--background);
-  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-  color: var(--text-main);
-  margin: 0;
+.page h1{
+  font-weight:500;
 }
 
-.btn-primary {
-  background-color: var(--primary);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 4px;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.form{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-width:500px;
 }
 
-.btn-primary:hover {
-  background-color: var(--primary-light);
+input, select{
+  padding:10px;
+  border-radius:6px;
+  border:1px solid #e2e8f0;
 }
 
-:root {
-
-  --color-primary: #0e1a3a;
-  --color-primary-light: #1f2f63;
-
-  --color-bg: #f4f6fb;
-
-  --color-card: #ffffff;
-
+button{
+  background:#0f172a;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-body {
-  margin: 0;
-  font-family: Inter, Arial, sans-serif;
-  background: var(--color-bg);
+button:hover{
+  background:#1e293b;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+}
+
+th{
+  background:#f1f5f9;
+  text-align:left;
+  padding:10px;
+}
+
+td{
+  padding:10px;
+  border-top:1px solid #e2e8f0;
+}
+
+tr:hover{
+  background:#f8fafc;
 }

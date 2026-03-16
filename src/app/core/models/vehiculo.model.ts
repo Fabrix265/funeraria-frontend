@@ -3,9 +3,11 @@ export type TipoVehiculo =
   | 'porta_flores'
   | 'mixto'
   | 'auto'
-  | 'microbus';
+  | 'microbus'
 
 export interface Vehiculo {
-  id: number;
-  tipo: TipoVehiculo;
+
+  id: number
+  tipo: TipoVehiculo
+
 }

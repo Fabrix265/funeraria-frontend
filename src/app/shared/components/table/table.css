@@ -1,0 +1,21 @@
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+}
+
+th{
+  text-align:left;
+  background:#f1f5f9;
+  padding:10px;
+  font-size:14px;
+}
+
+td{
+  padding:10px;
+  border-top:1px solid #e2e8f0;
+}
+
+tr:hover{
+  background:#f8fafc;
+}

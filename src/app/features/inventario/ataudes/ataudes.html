@@ -1,0 +1,27 @@
+<h1>Ataúdes</h1>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Modelo</th>
+<th>Color</th>
+<th>Stock</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr *ngFor="let a of ataudes">
+
+<td>{{a.id}}</td>
+<td>{{a.modelo}}</td>
+<td>{{a.color}}</td>
+<td>{{a.stock}}</td>
+
+</tr>
+
+</tbody>
+
+</table>
