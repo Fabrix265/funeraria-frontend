@@ -108,3 +108,56 @@
   color: var(--silver);
   transform: translateX(3px);
 }
+
+.stat-card--disabled {
+  cursor: pointer;
+  opacity: 0.6;
+  border-style: dashed;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+}
+.stat-card--disabled:hover {
+  opacity: 0.85;
+  border-color: var(--border-2);
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+}
+.stat-card__pill {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: rgba(184,202,216,.12);
+  color: var(--silver);
+  border: 1px solid rgba(184,202,216,.25);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.toast-prono {
+  position: fixed;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-2);
+  color: var(--text-light);
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 2000;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+.toast-prono.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

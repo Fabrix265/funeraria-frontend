@@ -38,6 +38,16 @@
         <span class="sidebar__link-label">Vehículos</span>
       </a>
 
+      <button class="sidebar__link sidebar__link--disabled" (click)="mostrarPronostico()">
+        <span class="sidebar__link-icon">📊</span>
+        <span class="sidebar__link-label">Pronóstico</span>
+        <span class="sidebar__link-pill">Pronto</span>
+      </button>
+
+      <div class="sidebar__toast" [class.visible]="mensajePronostico">
+        Módulo aún no disponible
+      </div>
+
       <span class="sidebar__section">Personas</span>
 
       <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active">
@@ -74,8 +84,6 @@
   </aside>
 
   <div class="contenido">
-
-   
 
     <main class="main-content">
       <router-outlet></router-outlet>

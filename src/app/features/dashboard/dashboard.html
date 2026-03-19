@@ -36,8 +36,17 @@
         <span class="stat-card__name">Vehículos</span>
         <span class="stat-card__arrow">→</span>
       </a>
+      <button class="stat-card stat-card--disabled" (click)="mostrarPronostico()">
+        <span class="stat-card__icon">📊</span>
+        <span class="stat-card__name">Pronóstico</span>
+        <span class="stat-card__pill">Próximamente</span>
+      </button>
     </div>
   </section>
+
+  <div class="toast-prono" [class.visible]="mensajePronostico">
+    <span>🔒</span> Módulo aún no disponible
+  </div>
 
   <section class="dash-section">
     <h2 class="dash-section__label">Personas</h2>

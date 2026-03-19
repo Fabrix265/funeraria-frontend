@@ -8,4 +8,13 @@ import { RouterLink } from '@angular/router'
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class Dashboard {}
+export class Dashboard {
+
+  mensajePronostico = false
+
+  mostrarPronostico(): void {
+    this.mensajePronostico = true
+    setTimeout(() => { this.mensajePronostico = false }, 3000)
+  }
+
+}

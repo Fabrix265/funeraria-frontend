@@ -15,6 +15,13 @@ export class MainLayout {
 
   constructor(private router: Router) {}
 
+  mensajePronostico = false
+
+  mostrarPronostico(): void {
+    this.mensajePronostico = true
+    setTimeout(() => { this.mensajePronostico = false }, 3000)
+  }
+
   toggleSidebar(): void {
     this.sidebarAbierto = !this.sidebarAbierto
   }
