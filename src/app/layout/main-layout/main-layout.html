@@ -1,75 +1,84 @@
-<div class="layout">
+<div class="layout" [class.sidebar-cerrado]="!sidebarAbierto">
 
-  <!-- SIDEBAR -->
+  <aside class="sidebar">
 
-  <aside class="sidebar" [class.cerrado]="!sidebarAbierto">
+    <div class="sidebar__brand">
+      <span class="sidebar__brand-logo">MA</span>
+      <span class="sidebar__brand-name">Aranzabal</span>
+    </div>
 
-    <h2>Funeraria</h2>
+    <nav class="sidebar__nav">
 
-    <nav>
+      <span class="sidebar__section">General</span>
 
-      <a routerLink="/dashboard">Dashboard</a>
-
-      <a routerLink="/servicios">
-        Servicios
+      <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">⊞</span>
+        <span class="sidebar__link-label">Dashboard</span>
       </a>
 
-      <a routerLink="/ataudes">
-        Ataúdes
+      <a class="sidebar__link" routerLink="/servicios" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">📋</span>
+        <span class="sidebar__link-label">Servicios</span>
       </a>
 
-      <a routerLink="/capillas">
-        Capillas
+      <span class="sidebar__section">Inventario</span>
+
+      <a class="sidebar__link" routerLink="/ataudes" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">⚰</span>
+        <span class="sidebar__link-label">Ataúdes</span>
       </a>
 
-      <a routerLink="/vehiculos">
-        Vehículos
+      <a class="sidebar__link" routerLink="/capillas" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">⛪</span>
+        <span class="sidebar__link-label">Capillas</span>
       </a>
 
-      <a routerLink="/contratantes">
-        Contratantes
+      <a class="sidebar__link" routerLink="/vehiculos" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">🚗</span>
+        <span class="sidebar__link-label">Vehículos</span>
       </a>
 
-      <a routerLink="/fallecidos">
-        Fallecidos
+      <span class="sidebar__section">Personas</span>
+
+      <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">👤</span>
+        <span class="sidebar__link-label">Contratantes</span>
       </a>
 
-      <a routerLink="/usuarios">
-        Usuarios
+      <a class="sidebar__link" routerLink="/fallecidos" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">🕊</span>
+        <span class="sidebar__link-label">Fallecidos</span>
       </a>
 
-      <a routerLink="/perfil">
-        Perfil
+      <span class="sidebar__section">Sistema</span>
+
+      <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">👥</span>
+        <span class="sidebar__link-label">Usuarios</span>
+      </a>
+
+      <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active">
+        <span class="sidebar__link-icon">⚙</span>
+        <span class="sidebar__link-label">Perfil</span>
       </a>
 
     </nav>
 
-  </aside>
+    <div class="sidebar__footer">
+      <button class="sidebar__logout" (click)="logout()">
+        <span class="sidebar__link-icon">↩</span>
+        <span class="sidebar__link-label">Cerrar sesión</span>
+      </button>
+    </div>
 
-  <!-- CONTENIDO -->
+  </aside>
 
   <div class="contenido">
 
-    <!-- NAVBAR -->
+   
 
-    <header class="navbar">
-
-      <button (click)="toggleSidebar()">
-        ☰
-      </button>
-
-      <button (click)="logout()">
-        Cerrar sesión
-      </button>
-
-    </header>
-
-    <!-- CONTENIDO DINÁMICO -->
-
-    <main>
-
+    <main class="main-content">
       <router-outlet></router-outlet>
-
     </main>
 
   </div>

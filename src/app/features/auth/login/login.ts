@@ -2,7 +2,7 @@ import { Component } from '@angular/core'
 import { Router } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
-import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common'
 
 @Component({
   selector: 'app-login',
@@ -12,26 +12,35 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./login.css']
 })
 export class Login {
-  username = ''
-  password = ''
-  error = ''
+
+  username  = ''
+  password  = ''
+  error     = ''
+  cargando  = false
+  mostrarPassword = false
 
   constructor(
     private auth: Auth,
     private router: Router
   ) {}
 
-  login() {
-    this.error = '';
+  login(): void {
+    this.error    = ''
+    this.cargando = true
 
     this.auth.login(this.username, this.password).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/dashboard'])
       },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Usuario o contraseña incorrectos';
+      error: () => {
+        this.error    = 'Usuario o contraseña incorrectos'
+        this.cargando = false
       }
-    });
+    })
   }
+
+  togglePassword(): void {
+    this.mostrarPassword = !this.mostrarPassword
+  }
+
 }

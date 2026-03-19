@@ -1,20 +1,96 @@
-<h1>Perfil</h1>
+<div class="page-wrapper">
 
-<div>
+  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
+    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    {{ mensaje }}
+  </div>
 
-<input
-placeholder="Nuevo usuario"
-[(ngModel)]="username"
->
+  <header class="page-header">
+    <div class="page-header__left">
+      <span class="page-header__icon">⚙</span>
+      <div>
+        <h1 class="page-header__title">Mi perfil</h1>
+        <p class="page-header__sub">Gestión de cuenta</p>
+      </div>
+    </div>
+  </header>
 
-<input
-type="password"
-placeholder="Nueva contraseña"
-[(ngModel)]="password"
->
+  <div class="perfil-grid">
 
-<button (click)="guardar()">
-Guardar
-</button>
+    <div class="card">
+      <h2 class="card__title">👤 Datos actuales</h2>
+      <div class="card__body">
+        <div class="info-row">
+          <span class="info-label">Usuario</span>
+          <span class="info-value">{{ usernameActual }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Cargo</span>
+          <span class="cargo-badge" [class.cargo-badge--admin]="cargoActual === 'administrador'">
+            {{ cargoActual | titlecase }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card__title">✎ Actualizar perfil</h2>
+      <div class="card__body">
+
+        <div class="field">
+          <label class="field__label">Nuevo nombre de usuario</label>
+          <input
+            class="field__input"
+            type="text"
+            [(ngModel)]="username"
+            placeholder="Dejar vacío para no cambiar"
+          />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Nueva contraseña</label>
+          <div class="field__password-wrap">
+            <input
+              class="field__input"
+              [type]="mostrarPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="Dejar vacío para no cambiar"
+            />
+            <button class="field__eye" type="button" (click)="togglePassword()">
+              {{ mostrarPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="field" *ngIf="password">
+          <label class="field__label">Confirmar contraseña</label>
+          <div class="field__password-wrap">
+            <input
+              class="field__input"
+              [type]="mostrarConfirmar ? 'text' : 'password'"
+              [(ngModel)]="confirmar"
+              placeholder="Repite la contraseña"
+            />
+            <button class="field__eye" type="button" (click)="toggleConfirmar()">
+              {{ mostrarConfirmar ? '🙈' : '👁' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="card__footer">
+          <button
+            class="btn btn--primary"
+            (click)="guardar()"
+            [disabled]="guardando"
+          >
+            <span class="btn-spinner" *ngIf="guardando"></span>
+            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 
 </div>

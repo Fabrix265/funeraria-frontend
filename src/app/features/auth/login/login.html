@@ -1,28 +1,74 @@
-<div class="login-container">
+<div class="login-wrapper">
 
-  <div class="login-card">
+  <div class="login-deco">
+    <div class="login-deco__content">
+      <span class="login-deco__initials">MA</span>
+      <p class="login-deco__name">Funeraria<br>Máximo Aranzabal</p>
+      <p class="login-deco__tagline">Servicio de pompas fúnebres</p>
+    </div>
+  </div>
 
-    <h2>Funeraria Aranzabal</h2>
+  <div class="login-panel">
+    <div class="login-card">
 
-    <input
-      placeholder="Usuario"
-      [(ngModel)]="username"
-    >
+      <div class="login-card__header">
+        <h1 class="login-card__title">Bienvenido</h1>
+        <p class="login-card__sub">Ingresa tus credenciales para continuar</p>
+      </div>
 
-    <input
-      type="password"
-      placeholder="Contraseña"
-      [(ngModel)]="password"
-    >
+      <div class="login-card__body">
 
-    <button (click)="login()">
-      Ingresar
-    </button>
+        <div class="field">
+          <label class="field__label">Usuario</label>
+          <input
+            class="field__input"
+            type="text"
+            placeholder="Nombre de usuario"
+            [(ngModel)]="username"
+            (keyup.enter)="login()"
+            autocomplete="username"
+          />
+        </div>
 
-    <p class="error" *ngIf="error">
-      {{error}}
-    </p>
+        <div class="field">
+          <label class="field__label">Contraseña</label>
+          <div class="field__password-wrap">
+            <input
+              class="field__input"
+              [type]="mostrarPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              [(ngModel)]="password"
+              (keyup.enter)="login()"
+              autocomplete="current-password"
+            />
+            <button
+              class="field__eye"
+              type="button"
+              (click)="togglePassword()"
+              [title]="mostrarPassword ? 'Ocultar' : 'Mostrar'"
+            >
+              {{ mostrarPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+        </div>
 
+        <div class="login-error" *ngIf="error">
+          <span class="login-error__icon">✕</span>
+          {{ error }}
+        </div>
+
+        <button
+          class="login-btn"
+          (click)="login()"
+          [disabled]="cargando || !username || !password"
+        >
+          <span class="login-btn__spinner" *ngIf="cargando"></span>
+          <span>{{ cargando ? 'Ingresando...' : 'Ingresar' }}</span>
+        </button>
+
+      </div>
+
+    </div>
   </div>
 
 </div>
