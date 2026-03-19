@@ -1,31 +1,62 @@
-import { Component,OnInit } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
-import { Servicio } from '../../../core/services/servicio'
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
+import { ActivatedRoute, RouterLink, Router } from '@angular/router'
 import { CommonModule } from '@angular/common'
+import { Servicio } from '../../../core/services/servicio'
 
 @Component({
-  selector:'app-servicio-detail',
-  imports:[CommonModule],
-  templateUrl:'./servicio-detail.html',
-  styleUrls:['./servicio-detail.css']
+  selector: 'app-servicio-detail',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  templateUrl: './servicio-detail.html',
+  styleUrls: ['./servicio-detail.css']
 })
-export class ServicioDetail implements OnInit{
+export class ServicioDetail implements OnInit {
 
-  servicio:any
+  servicio: any = null
+  cargando = true
+  modalEliminarAbierto = false
 
   constructor(
-    private route:ActivatedRoute,
-    private servicioService:Servicio
-  ){}
+    private route: ActivatedRoute,
+    private servicioService: Servicio,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
 
-  ngOnInit(){
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id')
+    if (idParam) {
+      this.servicioService.obtener(Number(idParam)).subscribe({
+        next: (res) => {
+          this.servicio = res
+          this.cargando = false
+          this.cdr.detectChanges()
+        },
+        error: () => {
+          this.cargando = false
+          this.cdr.detectChanges()
+        }
+      })
+    }
+  }
 
-    const id=this.route.snapshot.params['id']
+  abrirModalEliminar(): void { this.modalEliminarAbierto = true }
+  cerrarModalEliminar(): void { this.modalEliminarAbierto = false }
 
-    this.servicioService
-      .obtener(id)
-      .subscribe(res=>this.servicio=res)
+  confirmarEliminar(): void {
+    if (!this.servicio) return
+    this.servicioService.eliminar(this.servicio.id).subscribe({
+      next: () => this.router.navigate(['/servicios']),
+      error: () => this.cerrarModalEliminar()
+    })
+  }
 
+  etiquetaVehiculo(tipo: string): string {
+    const map: Record<string, string> = {
+      porta_ataud: 'Porta ataúd', porta_flores: 'Porta flores',
+      mixto: 'Mixto', auto: 'Auto', microbus: 'Microbús'
+    }
+    return map[tipo] ?? tipo
   }
 
 }

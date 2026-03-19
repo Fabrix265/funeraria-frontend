@@ -52,6 +52,11 @@ export const routes: Routes = [
     },
 
     {
+    path:'servicios/editar/:id',
+    component:ServicioCreate
+    },
+
+    {
       path:'servicios/:id',
       component:ServicioDetail
     },

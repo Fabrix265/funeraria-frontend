@@ -41,4 +41,8 @@ export class Servicio {
     return this.http.delete(`${this.api}/${id}`)
   }
 
+  actualizar(id: number, data: any) {
+    return this.http.patch(`${this.api}/${id}`, data);
+  }
+
 }

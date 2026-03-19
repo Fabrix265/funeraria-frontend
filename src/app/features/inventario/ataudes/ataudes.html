@@ -1,27 +1,218 @@
-<h1>Ataúdes</h1>
+<div class="page-wrapper">
 
-<table>
+  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
+    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    {{ mensaje }}
+  </div>
 
-<thead>
-<tr>
-<th>ID</th>
-<th>Modelo</th>
-<th>Color</th>
-<th>Stock</th>
-</tr>
-</thead>
+  <header class="page-header">
+    <div class="page-header__left">
+      <span class="page-header__icon">⚰</span>
+      <div>
+        <h1 class="page-header__title">Ataúdes</h1>
+        <p class="page-header__sub">Gestión de inventario</p>
+      </div>
+    </div>
+    <button class="btn btn--primary" (click)="abrirModalCrear()">
+      <span>+</span> Nuevo ataúd
+    </button>
+  </header>
 
-<tbody>
+  <section class="filtros-panel">
+    <h3 class="filtros-panel__titulo">Filtros</h3>
+    <div class="filtros-grid">
 
-<tr *ngFor="let a of ataudes">
+      <div class="filtro-group">
+        <label class="filtro-label">Modelo</label>
+        <div class="filtro-combo">
+          <input
+            class="filtro-input"
+            type="text"
+            placeholder="Buscar modelo..."
+            [(ngModel)]="modeloQuery"
+            (input)="onModeloInput()"
+            (focus)="abrirDropModelo()"
+            (blur)="cerrarDropModelo()"
+          />
+          <span class="filtro-combo__arrow">▾</span>
+          <ul class="filtro-dropdown" *ngIf="mostrarDropModelo && modelosFiltrados.length">
+            <li
+              *ngFor="let m of modelosFiltrados"
+              class="filtro-dropdown__item"
+              (mousedown)="seleccionarModelo(m)"
+            >{{ m }}</li>
+          </ul>
+        </div>
+      </div>
 
-<td>{{a.id}}</td>
-<td>{{a.modelo}}</td>
-<td>{{a.color}}</td>
-<td>{{a.stock}}</td>
+      <div class="filtro-group">
+        <label class="filtro-label">Color</label>
+        <div class="filtro-combo">
+          <input
+            class="filtro-input"
+            type="text"
+            placeholder="Buscar color..."
+            [(ngModel)]="colorQuery"
+            (input)="onColorInput()"
+            (focus)="abrirDropColor()"
+            (blur)="cerrarDropColor()"
+          />
+          <span class="filtro-combo__arrow">▾</span>
+          <ul class="filtro-dropdown" *ngIf="mostrarDropColor && coloresFiltrados.length">
+            <li
+              *ngFor="let c of coloresFiltrados"
+              class="filtro-dropdown__item"
+              (mousedown)="seleccionarColor(c)"
+            >{{ c }}</li>
+          </ul>
+        </div>
+      </div>
 
-</tr>
+      <div class="filtro-group">
+        <label class="filtro-label">Tipo</label>
+        <select class="filtro-select" [(ngModel)]="filtroTipo">
+          <option value="">Todos</option>
+          <option *ngFor="let t of tiposAtaud" [value]="t">{{ t | titlecase }}</option>
+        </select>
+      </div>
 
-</tbody>
+      <div class="filtro-group filtro-group--action">
+        <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
+        <button class="btn btn--secondary" (click)="aplicarFiltros()">Aplicar</button>
+      </div>
 
-</table>
+    </div>
+  </section>
+
+  <section class="table-section">
+    <div class="table-loader" *ngIf="cargando">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="empty-state" *ngIf="!cargando && ataudes.length === 0">
+      <span class="empty-state__icon">⚰</span>
+      <p>No se encontraron ataúdes</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!cargando && ataudes.length > 0">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Modelo</th>
+            <th>Color</th>
+            <th>Tipo</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of ataudes" class="tabla__fila">
+            <td class="tabla__id">#{{ a.id }}</td>
+            <td class="tabla__modelo">{{ a.modelo }}</td>
+            <td>
+              <span class="color-chip">
+                <span class="color-chip__dot" [style.background]="a.color.toLowerCase()"></span>
+                {{ a.color }}
+              </span>
+            </td>
+            <td>
+              <span class="badge"
+                [class.badge--vip]="a.tipo === 'vip'"
+                [class.badge--eco]="a.tipo === 'economico'">
+                {{ a.tipo | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span class="stock-num" [class.stock-num--low]="a.stock < 3">
+                {{ a.stock }}
+              </span>
+            </td>
+            <td class="tabla__acciones">
+              <button class="icon-btn icon-btn--edit"   title="Editar"   (click)="abrirModalEditar(a)">✎</button>
+              <button class="icon-btn icon-btn--stock"  title="Stock"    (click)="abrirModalStock(a)">⊞</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(a)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">{{ modoEdicion ? 'Editar ataúd' : 'Nuevo ataúd' }}</h2>
+      <button class="modal__close" (click)="cerrarModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="field">
+        <label class="field__label">Modelo *</label>
+        <input class="field__input" type="text" [(ngModel)]="form.modelo" placeholder="Ej: Clásico Premium" />
+      </div>
+      <div class="field">
+        <label class="field__label">Color *</label>
+        <input class="field__input" type="text" [(ngModel)]="form.color" placeholder="Ej: Negro" />
+      </div>
+      <div class="field">
+        <label class="field__label">Tipo *</label>
+        <select class="field__input" [(ngModel)]="form.tipo">
+          <option value="">Seleccionar tipo...</option>
+          <option *ngFor="let t of tiposAtaud" [value]="t">{{ t | titlecase }}</option>
+        </select>
+      </div>
+      <div class="field" *ngIf="!modoEdicion">
+        <label class="field__label">Stock inicial</label>
+        <input class="field__input" type="number" [(ngModel)]="form.stock" min="0" />
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardar()">{{ modoEdicion ? 'Guardar cambios' : 'Crear' }}</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalStockAbierto" (click)="cerrarModalStock()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Ajustar stock</h2>
+      <button class="modal__close" (click)="cerrarModalStock()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__info">
+        <strong>{{ ataudStock?.modelo }}</strong><br>
+        Stock actual: <strong>{{ ataudStock?.stock }}</strong>
+      </p>
+      <div class="field">
+        <label class="field__label">Cantidad (+ para sumar, − para restar)</label>
+        <input class="field__input" type="number" [(ngModel)]="cantidadStock" placeholder="Ej: 5 o -2" />
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalStock()">Cancelar</button>
+      <button class="btn btn--primary" (click)="actualizarStock()">Actualizar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalEliminarAbierto" (click)="cerrarModalEliminar()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">Confirmar eliminación</h2>
+      <button class="modal__close" (click)="cerrarModalEliminar()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Eliminar el ataúd <strong>{{ ataudEliminar?.modelo }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
+      <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>

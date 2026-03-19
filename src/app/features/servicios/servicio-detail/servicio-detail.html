@@ -1,17 +1,165 @@
-<div class="page" *ngIf="servicio">
+<div class="page-wrapper">
 
-<h1>Servicio {{servicio.id}}</h1>
+  <div class="table-loader" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
 
-<div class="card">
+  <ng-container *ngIf="!cargando && servicio">
 
-<p><b>Dirección:</b> {{servicio.direccion_velacion}}</p>
+    <header class="page-header">
+      <div class="page-header__left">
+        <a class="btn btn--ghost btn--back" routerLink="/servicios">← Volver</a>
+        <div>
+          <h1 class="page-header__title">Servicio <span class="page-header__id">#{{ servicio.id }}</span></h1>
+          <p class="page-header__sub">{{ servicio.fecha | date:"dd 'de' MMMM, yyyy" }}</p>
+        </div>
+      </div>
+      <div class="header-acciones">
+        <a class="btn btn--secondary" [routerLink]="['/servicios/editar', servicio.id]">✎ Editar</a>
+        <button class="btn btn--danger" (click)="abrirModalEliminar()">✕ Eliminar</button>
+      </div>
+    </header>
 
-<p><b>Fecha:</b> {{servicio.fecha}}</p>
+    <div class="detail-grid">
 
-<p><b>Costo:</b> {{servicio.costo}}</p>
+      <div class="card">
+        <h2 class="card__title">📋 Datos del servicio</h2>
+        <div class="card__body">
+          <div class="info-row">
+            <span class="info-label">Dirección de velación</span>
+            <span class="info-value">{{ servicio.direccion_velacion }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Fecha</span>
+            <span class="info-value">{{ servicio.fecha | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Costo</span>
+            <span class="info-value info-value--costo">S/ {{ servicio.costo | number:'1.2-2' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tipo de pago</span>
+            <span class="badge-pago" [ngClass]="'badge-pago--' + servicio.tipo_pago">
+              {{ servicio.tipo_pago | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
 
-<p><b>Tipo pago:</b> {{servicio.tipo_pago}}</p>
+      <div class="card">
+        <h2 class="card__title">🕊 Fallecido</h2>
+        <div class="card__body">
+          <div class="info-row">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ servicio.fallecido?.nombre }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">DNI</span>
+            <span class="info-value info-value--mono">{{ servicio.fallecido?.dni }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">👤 Contratante</h2>
+        <div class="card__body">
+          <div class="info-row">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ servicio.contratante?.nombre }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">DNI</span>
+            <span class="info-value info-value--mono">{{ servicio.contratante?.dni }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Teléfono</span>
+            <span class="info-value">{{ servicio.contratante?.telefono }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">⛪ Capilla</h2>
+        <div class="card__body">
+          <div class="info-row">
+            <span class="info-label">Modelo</span>
+            <span class="info-value">{{ servicio.capilla?.modelo }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">⚰ Ataúd</h2>
+        <div class="card__body">
+          <ng-container *ngIf="servicio.ataud; else sinAtaud">
+            <div class="info-row">
+              <span class="info-label">Modelo</span>
+              <span class="info-value">{{ servicio.ataud.modelo }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Color</span>
+              <span class="info-value">
+                <span class="color-chip">
+                  <span class="color-chip__dot" [style.background]="servicio.ataud.color.toLowerCase()"></span>
+                  {{ servicio.ataud.color }}
+                </span>
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Tipo</span>
+              <span class="badge"
+                [class.badge--vip]="servicio.ataud.tipo === 'vip'"
+                [class.badge--eco]="servicio.ataud.tipo === 'economico'">
+                {{ servicio.ataud.tipo | titlecase }}
+              </span>
+            </div>
+          </ng-container>
+          <ng-template #sinAtaud>
+            <p class="info-empty">Sin ataúd asignado</p>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="card card--full">
+        <h2 class="card__title">🚗 Vehículos asignados</h2>
+        <div class="card__body">
+          <div class="vehiculos-list" *ngIf="servicio.vehiculos_asignados?.length; else sinVehiculos">
+            <div class="vehiculo-item" *ngFor="let v of servicio.vehiculos_asignados">
+              <span class="v-badge" [ngClass]="'v-badge--' + v.tipo">
+                <span class="v-badge__dot"></span>
+                {{ etiquetaVehiculo(v.tipo) }}
+              </span>
+              <span class="vehiculo-id">#{{ v.id }}</span>
+            </div>
+          </div>
+          <ng-template #sinVehiculos>
+            <p class="info-empty">Sin vehículos asignados</p>
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
 
 </div>
 
+<div class="modal-overlay" *ngIf="modalEliminarAbierto" (click)="cerrarModalEliminar()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">Confirmar eliminación</h2>
+      <button class="modal__close" (click)="cerrarModalEliminar()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Eliminar el servicio <strong>#{{ servicio?.id }}</strong> de
+        <strong>{{ servicio?.fallecido?.nombre }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
+      <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
 </div>
