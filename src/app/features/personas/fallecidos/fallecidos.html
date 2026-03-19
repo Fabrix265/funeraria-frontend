@@ -1,19 +1,143 @@
-<h1>Fallecidos</h1>
+<div class="page-wrapper">
 
-<table>
+  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
+    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    {{ mensaje }}
+  </div>
 
-<tr>
-<th>ID</th>
-<th>Nombre</th>
-<th>DNI</th>
-</tr>
+  <header class="page-header">
+    <div class="page-header__left">
+      <span class="page-header__icon">🕊</span>
+      <div>
+        <h1 class="page-header__title">Fallecidos</h1>
+        <p class="page-header__sub">Registro de fallecidos</p>
+      </div>
+    </div>
+  </header>
 
-<tr *ngFor="let f of fallecidos">
+  <section class="filtros-panel">
+    <h3 class="filtros-panel__titulo">Filtros</h3>
+    <div class="filtros-grid">
 
-<td>{{f.id}}</td>
-<td>{{f.nombre}}</td>
-<td>{{f.dni}}</td>
+      <div class="filtro-group">
+        <label class="filtro-label">Nombre</label>
+        <div class="filtro-combo">
+          <input
+            class="filtro-input"
+            type="text"
+            placeholder="Buscar por nombre..."
+            [(ngModel)]="nombreQuery"
+            (input)="onNombreInput()"
+            (focus)="abrirDropNombre()"
+            (blur)="cerrarDropNombre()"
+          />
+          <span class="filtro-combo__arrow">▾</span>
+          <ul class="filtro-dropdown" *ngIf="mostrarDropNombre && nombresFiltrados.length">
+            <li
+              *ngFor="let n of nombresFiltrados"
+              class="filtro-dropdown__item"
+              (mousedown)="seleccionarNombre(n)"
+            >{{ n }}</li>
+          </ul>
+        </div>
+      </div>
 
-</tr>
+      <div class="filtro-group">
+        <label class="filtro-label">DNI</label>
+        <input
+          class="filtro-input"
+          type="text"
+          placeholder="Buscar por DNI..."
+          [(ngModel)]="dniQuery"
+          maxlength="8"
+        />
+      </div>
 
-</table>
+      <div class="filtro-group filtro-group--action">
+        <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
+        <button class="btn btn--secondary" (click)="aplicarFiltros()">Buscar</button>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="table-section">
+
+    <div class="table-loader" *ngIf="cargando">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="empty-state" *ngIf="!cargando && fallecidos.length === 0">
+      <span class="empty-state__icon">🕊</span>
+      <p>No se encontraron registros</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!cargando && fallecidos.length > 0">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>DNI</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of fallecidos" class="tabla__fila">
+            <td class="tabla__id">#{{ f.id }}</td>
+            <td class="tabla__nombre">{{ f.nombre }}</td>
+            <td class="tabla__mono">{{ f.dni }}</td>
+            <td class="tabla__acciones">
+              <button class="icon-btn icon-btn--edit"   title="Editar"   (click)="abrirModalEditar(f)">✎</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(f)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+</div>
+
+<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Editar fallecido</h2>
+      <button class="modal__close" (click)="cerrarModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="field">
+        <label class="field__label">Nombre *</label>
+        <input class="field__input" type="text" [(ngModel)]="form.nombre" placeholder="Nombre completo" />
+      </div>
+      <div class="field">
+        <label class="field__label">DNI *</label>
+        <input class="field__input" type="text" [(ngModel)]="form.dni" placeholder="00000000" maxlength="8" />
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardar()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalEliminarAbierto" (click)="cerrarModalEliminar()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">Confirmar eliminación</h2>
+      <button class="modal__close" (click)="cerrarModalEliminar()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Eliminar el registro de <strong>{{ fallecidoEliminar?.nombre }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
+      <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
