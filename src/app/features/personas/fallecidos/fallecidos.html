@@ -88,8 +88,8 @@
             <td class="tabla__nombre">{{ f.nombre }}</td>
             <td class="tabla__mono">{{ f.dni }}</td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   (click)="abrirModalEditar(f)">✎</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(f)">✕</button>
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(f)">✎</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(f)">✕</button>
             </td>
           </tr>
         </tbody>

@@ -12,6 +12,8 @@ import { PersonaService } from '../../../core/services/persona'
 })
 export class Fallecidos implements OnInit {
 
+  esAdmin = localStorage.getItem('cargo') === 'administrador'
+
   fallecidos: any[] = []
   cargando = false
   mensaje = ''
@@ -58,6 +60,7 @@ export class Fallecidos implements OnInit {
     })
   }
 
+
   onNombreInput(): void {
     this.nombresFiltrados  = this.nombresUnicos.filter(n =>
       n.toLowerCase().includes(this.nombreQuery.toLowerCase())
@@ -87,6 +90,7 @@ export class Fallecidos implements OnInit {
     this.cargar()
   }
 
+
   abrirModalEditar(f: any): void {
     this.fallecidoSeleccionado = f
     this.form = { nombre: f.nombre, dni: f.dni }
@@ -110,6 +114,7 @@ export class Fallecidos implements OnInit {
       error: () => this.mostrarMensaje('Error al actualizar', 'error')
     })
   }
+
 
   abrirModalEliminar(f: any): void {
     this.fallecidoEliminar    = f

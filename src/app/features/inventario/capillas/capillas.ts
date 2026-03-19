@@ -12,37 +12,40 @@ import { Capilla } from '../../../core/models/capilla.model'
   styleUrls: ['./capillas.css']
 })
 export class Capillas implements OnInit {
+
+  esAdmin = localStorage.getItem('cargo') === 'administrador'
+
   capillas: Capilla[] = []
   cargando = false
   mensaje = ''
   tipoMensaje: 'exito' | 'error' = 'exito'
- 
+
   modeloQuery   = ''
   modelosUnicos: string[] = []
   modelosFiltrados: string[] = []
   mostrarDrop   = false
- 
+
   modalAbierto  = false
   modoEdicion   = false
   capillaSeleccionada: Capilla | null = null
   form = { modelo: '', stock: 0 }
- 
+
   modalStockAbierto = false
   capillaStock: Capilla | null = null
   cantidadStock = 0
- 
+
   modalEliminarAbierto = false
   capillaEliminar: Capilla | null = null
- 
+
   constructor(
     private capillaService: CapillaService,
     private cdr: ChangeDetectorRef
   ) {}
- 
+
   ngOnInit(): void {
     this.cargar()
   }
- 
+
   cargar(): void {
     this.cargando = true
     this.capillaService.listar(this.modeloQuery || undefined).subscribe({
@@ -59,53 +62,51 @@ export class Capillas implements OnInit {
       }
     })
   }
-  
+
   onModeloInput(): void {
     this.modelosFiltrados = this.modelosUnicos.filter(m =>
       m.toLowerCase().includes(this.modeloQuery.toLowerCase())
     )
     this.mostrarDrop = true
   }
- 
+
   abrirDrop(): void {
     this.modelosFiltrados = [...this.modelosUnicos]
     this.mostrarDrop = true
   }
- 
+
   seleccionarModelo(m: string): void {
     this.modeloQuery = m
     this.mostrarDrop = false
   }
- 
+
   cerrarDrop(): void {
     setTimeout(() => { this.mostrarDrop = false }, 150)
   }
- 
-  aplicarFiltro(): void {
-    this.cargar()
-  }
- 
+
+  aplicarFiltro(): void { this.cargar() }
+
   limpiarFiltro(): void {
     this.modeloQuery = ''
     this.cargar()
   }
-  
+
   abrirModalCrear(): void {
     this.modoEdicion = false
     this.capillaSeleccionada = null
     this.form = { modelo: '', stock: 0 }
     this.modalAbierto = true
   }
- 
+
   abrirModalEditar(c: Capilla): void {
     this.modoEdicion = true
     this.capillaSeleccionada = c
     this.form = { modelo: c.modelo, stock: c.stock }
     this.modalAbierto = true
   }
- 
+
   cerrarModal(): void { this.modalAbierto = false }
- 
+
   guardar(): void {
     if (!this.form.modelo) {
       this.mostrarMensaje('El modelo es requerido', 'error')
@@ -123,17 +124,17 @@ export class Capillas implements OnInit {
       })
     }
   }
- 
+
   abrirModalEliminar(c: Capilla): void {
     this.capillaEliminar = c
     this.modalEliminarAbierto = true
   }
- 
+
   cerrarModalEliminar(): void {
     this.modalEliminarAbierto = false
     this.capillaEliminar = null
   }
- 
+
   confirmarEliminar(): void {
     if (!this.capillaEliminar) return
     this.capillaService.eliminar(this.capillaEliminar.id).subscribe({
@@ -141,19 +142,18 @@ export class Capillas implements OnInit {
       error: () => this.mostrarMensaje('Error al eliminar', 'error')
     })
   }
- 
- 
+
   abrirModalStock(c: Capilla): void {
     this.capillaStock   = c
     this.cantidadStock  = 0
     this.modalStockAbierto = true
   }
- 
+
   cerrarModalStock(): void {
     this.modalStockAbierto = false
     this.capillaStock = null
   }
- 
+
   actualizarStock(): void {
     if (!this.capillaStock) return
     this.capillaService.actualizarStock(this.capillaStock.id, this.cantidadStock).subscribe({
@@ -161,11 +161,11 @@ export class Capillas implements OnInit {
       error: () => this.mostrarMensaje('Error al actualizar stock', 'error')
     })
   }
- 
+
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
     this.mensaje = texto
     this.tipoMensaje = tipo
     setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges() }, 3500)
   }
- 
+
 }

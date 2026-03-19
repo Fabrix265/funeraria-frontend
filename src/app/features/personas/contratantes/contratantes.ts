@@ -13,6 +13,8 @@ import { Contratante } from '../../../core/models/contratante.model'
 })
 export class Contratantes implements OnInit {
 
+  esAdmin = localStorage.getItem('cargo') === 'administrador'
+
   contratantes: Contratante[] = []
   cargando = false
   mensaje = ''
@@ -59,6 +61,7 @@ export class Contratantes implements OnInit {
     })
   }
 
+
   onNombreInput(): void {
     this.nombresFiltrados = this.nombresUnicos.filter(n =>
       n.toLowerCase().includes(this.nombreQuery.toLowerCase())
@@ -88,6 +91,7 @@ export class Contratantes implements OnInit {
     this.cargar()
   }
 
+
   abrirModalEditar(c: Contratante): void {
     this.contratanteSeleccionado = c
     this.form = { nombre: c.nombre, dni: c.dni, telefono: c.telefono }
@@ -111,6 +115,7 @@ export class Contratantes implements OnInit {
       error: () => this.mostrarMensaje('Error al actualizar', 'error')
     })
   }
+
 
   abrirModalEliminar(c: Contratante): void {
     this.contratanteEliminar     = c

@@ -12,6 +12,8 @@ import { Servicio } from '../../../core/services/servicio'
 })
 export class ServicioDetail implements OnInit {
 
+  esAdmin = localStorage.getItem('cargo') === 'administrador'
+
   servicio: any = null
   cargando = true
   modalEliminarAbierto = false
@@ -32,10 +34,7 @@ export class ServicioDetail implements OnInit {
           this.cargando = false
           this.cdr.detectChanges()
         },
-        error: () => {
-          this.cargando = false
-          this.cdr.detectChanges()
-        }
+        error: () => { this.cargando = false; this.cdr.detectChanges() }
       })
     }
   }
@@ -58,5 +57,4 @@ export class ServicioDetail implements OnInit {
     }
     return map[tipo] ?? tipo
   }
-
 }

@@ -90,8 +90,8 @@
             <td class="tabla__mono">{{ c.dni }}</td>
             <td class="tabla__tel">{{ c.telefono }}</td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   (click)="abrirModalEditar(c)">✎</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(c)">✕</button>
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(c)">✎</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(c)">✕</button>
             </td>
           </tr>
         </tbody>

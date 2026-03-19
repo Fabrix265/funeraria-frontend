@@ -62,7 +62,7 @@
 
       <span class="sidebar__section">Sistema</span>
 
-      <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active" *ngIf="esAdmin">
         <span class="sidebar__link-icon">👥</span>
         <span class="sidebar__link-label">Usuarios</span>
       </a>

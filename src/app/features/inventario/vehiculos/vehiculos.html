@@ -13,7 +13,7 @@
         <p class="page-header__sub">Gestión de flota</p>
       </div>
     </div>
-    <button class="btn btn--primary" (click)="abrirModalCrear()">
+    <button class="btn btn--primary" *ngIf="esAdmin" (click)="abrirModalCrear()">
       <span>+</span> Nuevo vehículo
     </button>
   </header>
@@ -47,8 +47,8 @@
               </span>
             </td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   (click)="abrirModalEditar(v)">✎</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(v)">✕</button>
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(v)">✎</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(v)">✕</button>
             </td>
           </tr>
         </tbody>
@@ -58,7 +58,6 @@
 
 </div>
 
-<!-- Modal Crear/Editar -->
 <div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header">
@@ -81,7 +80,6 @@
   </div>
 </div>
 
-<!-- Modal Eliminar -->
 <div class="modal-overlay" *ngIf="modalEliminarAbierto" (click)="cerrarModalEliminar()">
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header modal__header--danger">

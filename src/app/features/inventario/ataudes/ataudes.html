@@ -13,7 +13,7 @@
         <p class="page-header__sub">Gestión de inventario</p>
       </div>
     </div>
-    <button class="btn btn--primary" (click)="abrirModalCrear()">
+    <button class="btn btn--primary" *ngIf="esAdmin" (click)="abrirModalCrear()">
       <span>+</span> Nuevo ataúd
     </button>
   </header>
@@ -129,9 +129,9 @@
               </span>
             </td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   (click)="abrirModalEditar(a)">✎</button>
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(a)">✎</button>
               <button class="icon-btn icon-btn--stock"  title="Stock"    (click)="abrirModalStock(a)">⊞</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(a)">✕</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(a)">✕</button>
             </td>
           </tr>
         </tbody>
