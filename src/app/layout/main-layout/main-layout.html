@@ -1,4 +1,8 @@
-<div class="layout" [class.sidebar-cerrado]="!sidebarAbierto">
+<div class="layout"
+  [class.sidebar-cerrado]="!sidebarAbierto"
+  [class.sidebar-mobile-abierto]="esMobile && sidebarAbierto">
+
+  <div class="sidebar-overlay" *ngIf="esMobile && sidebarAbierto" (click)="cerrarSidebarMobile()"></div>
 
   <aside class="sidebar">
 
@@ -11,29 +15,34 @@
 
       <span class="sidebar__section">General</span>
 
-      <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⊞</span>
         <span class="sidebar__link-label">Dashboard</span>
       </a>
 
-      <a class="sidebar__link" routerLink="/servicios" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/servicios" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">📋</span>
         <span class="sidebar__link-label">Servicios</span>
       </a>
 
       <span class="sidebar__section">Inventario</span>
 
-      <a class="sidebar__link" routerLink="/ataudes" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/ataudes" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⚰</span>
         <span class="sidebar__link-label">Ataúdes</span>
       </a>
 
-      <a class="sidebar__link" routerLink="/capillas" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/capillas" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⛪</span>
         <span class="sidebar__link-label">Capillas</span>
       </a>
 
-      <a class="sidebar__link" routerLink="/vehiculos" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/vehiculos" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">🚗</span>
         <span class="sidebar__link-label">Vehículos</span>
       </a>
@@ -50,24 +59,28 @@
 
       <span class="sidebar__section">Personas</span>
 
-      <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">👤</span>
         <span class="sidebar__link-label">Contratantes</span>
       </a>
 
-      <a class="sidebar__link" routerLink="/fallecidos" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/fallecidos" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">🕊</span>
         <span class="sidebar__link-label">Fallecidos</span>
       </a>
 
       <span class="sidebar__section">Sistema</span>
 
-      <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active" *ngIf="esAdmin">
+      <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active"
+        *ngIf="esAdmin" (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">👥</span>
         <span class="sidebar__link-label">Usuarios</span>
       </a>
 
-      <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active">
+      <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⚙</span>
         <span class="sidebar__link-label">Perfil</span>
       </a>
@@ -84,6 +97,15 @@
   </aside>
 
   <div class="contenido">
+
+    <header class="navbar">
+      <button class="navbar__toggle" (click)="toggleSidebar()" title="Menú">
+        <span class="navbar__toggle-bar"></span>
+        <span class="navbar__toggle-bar"></span>
+        <span class="navbar__toggle-bar"></span>
+      </button>
+      <span class="navbar__spacer"></span>
+    </header>
 
     <main class="main-content">
       <router-outlet></router-outlet>

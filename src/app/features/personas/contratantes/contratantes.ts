@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { PersonaService } from '../../../core/services/persona'
 import { Contratante } from '../../../core/models/contratante.model'
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-contratantes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './contratantes.html',
   styleUrls: ['./contratantes.css']
 })

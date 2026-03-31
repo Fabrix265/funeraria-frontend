@@ -2,11 +2,12 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { PersonaService } from '../../../core/services/persona'
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-fallecidos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './fallecidos.html',
   styleUrls: ['./fallecidos.css']
 })

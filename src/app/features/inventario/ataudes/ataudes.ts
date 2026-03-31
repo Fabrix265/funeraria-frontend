@@ -3,11 +3,12 @@ import { AtaudService } from '../../../core/services/ataud';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Ataud, TipoAtaud } from '../../../core/models/ataud.model'
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-ataudes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ataudes.html',
   styleUrls: ['./ataudes.css']
 })

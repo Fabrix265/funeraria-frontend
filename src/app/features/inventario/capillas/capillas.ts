@@ -3,11 +3,12 @@ import { CapillaService } from '../../../core/services/capilla';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Capilla } from '../../../core/models/capilla.model'
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-capillas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './capillas.html',
   styleUrls: ['./capillas.css']
 })

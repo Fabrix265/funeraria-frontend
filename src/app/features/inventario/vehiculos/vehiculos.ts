@@ -3,11 +3,12 @@ import { VehiculoService } from '../../../core/services/vehiculo';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Vehiculo, TipoVehiculo } from '../../../core/models/vehiculo.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-vehiculos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './vehiculos.html',
   styleUrls: ['./vehiculos.css']
 })

@@ -7,6 +7,7 @@
 
   <header class="page-header">
     <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">⊞</a>
       <span class="page-header__icon">⚙</span>
       <div>
         <h1 class="page-header__title">Mi perfil</h1>
@@ -38,7 +39,7 @@
       <div class="card__body">
 
         <div class="field">
-          <label class="field__label">Nuevo nombre de usuario</label>
+          <label class="field__label">Nuevo usuario</label>
           <input
             class="field__input"
             type="text"
@@ -57,7 +58,7 @@
               placeholder="Dejar vacío para no cambiar"
             />
             <button class="field__eye" type="button" (click)="togglePassword()">
-              {{ mostrarPassword ? '🙈' : '👁' }}
+              {{ mostrarPassword ? '👁️‍🗨️' : '👁' }}
             </button>
           </div>
         </div>
@@ -72,7 +73,7 @@
               placeholder="Repite la contraseña"
             />
             <button class="field__eye" type="button" (click)="toggleConfirmar()">
-              {{ mostrarConfirmar ? '🙈' : '👁' }}
+              {{ mostrarConfirmar ? '👁️‍🗨️' : '👁' }}
             </button>
           </div>
         </div>
