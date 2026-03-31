@@ -1,0 +1,21 @@
+<div class="overlay">
+
+  <div class="dialog">
+
+    <p>{{mensaje}}</p>
+
+    <div class="botones">
+
+      <button (click)="confirmar.emit()">
+        Confirmar
+      </button>
+
+      <button class="cancelar" (click)="cancelar.emit()">
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

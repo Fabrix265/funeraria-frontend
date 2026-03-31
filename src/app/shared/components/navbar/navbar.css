@@ -1,0 +1,27 @@
+.navbar{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  background:white;
+  border-bottom:1px solid #e2e8f0;
+}
+
+.titulo{
+  font-weight:500;
+  font-size:15px;
+}
+
+button{
+  background:#0f172a;
+  color:white;
+  border:none;
+  padding:7px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#1e293b;
+}

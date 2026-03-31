@@ -1,0 +1,104 @@
+<div class="page-wrapper">
+
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">⊞</a>
+      <span class="page-header__icon">📋</span>
+      <div>
+        <h1 class="page-header__title">Servicios</h1>
+        <p class="page-header__sub">Registro de servicios funerarios</p>
+      </div>
+    </div>
+    <a class="btn btn--primary" routerLink="/servicios/crear">
+      <span>+</span> Nuevo servicio
+    </a>
+  </header>
+
+  <section class="filtros-panel">
+    <h3 class="filtros-panel__titulo">Filtros</h3>
+    <div class="filtros-grid">
+
+      <div class="filtro-group">
+        <label class="filtro-label">Nombre fallecido / contratante</label>
+        <input class="filtro-input" type="text" placeholder="Buscar por nombre..."
+          [(ngModel)]="filtros.nombre" />
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">DNI</label>
+        <input class="filtro-input" type="text" placeholder="Buscar por DNI..."
+          [(ngModel)]="filtros.dni" />
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">Fecha</label>
+        <input class="filtro-input" type="date" [(ngModel)]="filtros.fecha" />
+      </div>
+
+      <div class="filtro-group filtro-group--action">
+        <button class="btn btn--ghost" (click)="limpiar()">✕ Limpiar</button>
+        <button class="btn btn--secondary" (click)="aplicarFiltros()">Buscar</button>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="table-loader" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="empty-state" *ngIf="!cargando && servicios.length === 0">
+    <span class="empty-state__icon">📋</span>
+    <p>No se encontraron servicios</p>
+  </div>
+
+  <section class="table-section" *ngIf="!cargando && servicios.length > 0">
+    <div class="table-wrapper">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fallecido</th>
+            <th>Contratante</th>
+            <th>Dirección</th>
+            <th>Fecha</th>
+            <th>Costo</th>
+            <th>Pago</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of servicios" class="tabla__fila">
+            <td class="tabla__id">#{{ s.id }}</td>
+            <td class="tabla__nombre">{{ s.fallecido?.nombre }}</td>
+            <td class="tabla__nombre tabla__nombre--muted">{{ s.contratante?.nombre }}</td>
+            <td class="tabla__dir">{{ s.direccion_velacion }}</td>
+            <td class="tabla__fecha">{{ s.fecha | date:'dd/MM/yyyy' }}</td>
+            <td class="tabla__costo">S/ {{ s.costo | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge-pago" [ngClass]="'badge-pago--' + s.tipo_pago">
+                {{ s.tipo_pago | titlecase }}
+              </span>
+            </td>
+            <td class="tabla__acciones">
+              <a class="icon-btn icon-btn--view" title="Ver detalle"
+                [routerLink]="['/servicios', s.id]">👁</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paginacion">
+      <button class="btn btn--ghost btn--sm" (click)="cambiarPagina(-limit)"
+        [disabled]="!hayAnterior">← Anterior</button>
+      <span class="paginacion__info">
+        Página <strong>{{ paginaActual }}</strong> de <strong>{{ totalPaginas }}</strong>
+        <span class="paginacion__total">({{ total }} registros)</span>
+      </span>
+      <button class="btn btn--ghost btn--sm" (click)="cambiarPagina(limit)"
+        [disabled]="!haySiguiente">Siguiente →</button>
+    </div>
+  </section>
+
+</div>

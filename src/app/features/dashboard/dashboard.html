@@ -1,0 +1,67 @@
+<div class="dash-wrapper">
+
+  <header class="dash-header">
+    <div>
+      <h1 class="dash-title">Panel de control</h1>
+      <p class="dash-sub">Funeraria Máximo Aranzabal</p>
+    </div>
+  </header>
+
+  <section class="dash-section">
+    <h2 class="dash-section__label">Servicios</h2>
+    <div class="dash-grid">
+      <a routerLink="/servicios" class="stat-card stat-card--primary">
+        <span class="stat-card__icon">📋</span>
+        <span class="stat-card__name">Servicios</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="dash-section">
+    <h2 class="dash-section__label">Inventario</h2>
+    <div class="dash-grid">
+      <a routerLink="/ataudes" class="stat-card">
+        <span class="stat-card__icon">⚰</span>
+        <span class="stat-card__name">Ataúdes</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
+      <a routerLink="/capillas" class="stat-card">
+        <span class="stat-card__icon">⛪</span>
+        <span class="stat-card__name">Capillas</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
+      <a routerLink="/vehiculos" class="stat-card">
+        <span class="stat-card__icon">🚗</span>
+        <span class="stat-card__name">Vehículos</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
+      <button class="stat-card stat-card--disabled" (click)="mostrarPronostico()">
+        <span class="stat-card__icon">📊</span>
+        <span class="stat-card__name">Pronóstico</span>
+        <span class="stat-card__pill">Próximamente</span>
+      </button>
+    </div>
+  </section>
+
+  <div class="toast-prono" [class.visible]="mensajePronostico">
+    <span>🔒</span> Módulo aún no disponible
+  </div>
+
+  <section class="dash-section">
+    <h2 class="dash-section__label">Personas</h2>
+    <div class="dash-grid">
+      <a routerLink="/contratantes" class="stat-card">
+        <span class="stat-card__icon">👤</span>
+        <span class="stat-card__name">Contratantes</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
+      <a routerLink="/fallecidos" class="stat-card">
+        <span class="stat-card__icon">🕊</span>
+        <span class="stat-card__name">Fallecidos</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+</div>
