@@ -1,0 +1,174 @@
+<div class="page-wrapper">
+
+  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
+    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    {{ mensaje }}
+  </div>
+
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn btn--ghost btn--back" routerLink="/servicios">← Volver</a>
+      <div>
+        <h1 class="page-header__title">{{ esEdicion ? 'Editar' : 'Nuevo' }} servicio</h1>
+        <p class="page-header__sub">{{ esEdicion ? 'Modifica los datos del servicio' : 'Registra un nuevo servicio funerario' }}</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="form-grid">
+
+    <div class="form-card">
+      <h2 class="form-card__title">📋 Datos del servicio</h2>
+      <div class="form-card__body">
+
+        <div class="field field--full">
+          <label class="field__label">Dirección de velación *</label>
+          <input class="field__input" type="text"
+            [(ngModel)]="form.direccion_velacion"
+            name="direccion"
+            placeholder="Ej: Av. Los Alamos 123, Trujillo" />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Fecha *</label>
+          <input class="field__input" type="date"
+            [(ngModel)]="form.fecha" name="fecha" />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Costo (S/)</label>
+          <input class="field__input" type="number"
+            [(ngModel)]="form.costo" name="costo" min="0" step="0.01" />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Tipo de pago</label>
+          <select class="field__input" [(ngModel)]="form.tipo_pago" name="tipo_pago">
+            <option *ngFor="let t of tiposPago" [value]="t">{{ t | titlecase }}</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="form-card__title">🕊 Fallecido</h2>
+      <div class="form-card__body">
+
+        <div class="field field--full">
+          <label class="field__label">Nombre completo</label>
+          <input class="field__input" type="text"
+            [(ngModel)]="form.fallecido.nombre"
+            name="fallecido_nombre"
+            placeholder="Nombre y apellidos" />
+        </div>
+
+        <div class="field">
+          <label class="field__label">DNI</label>
+          <input class="field__input" type="text"
+            [(ngModel)]="form.fallecido.dni"
+            name="fallecido_dni"
+            placeholder="00000000" maxlength="8" />
+        </div>
+
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="form-card__title">👤 Contratante</h2>
+      <div class="form-card__body">
+
+        <div class="field field--full">
+          <label class="field__label">Nombre completo</label>
+          <input class="field__input" type="text"
+            [(ngModel)]="form.contratante.nombre"
+            name="contratante_nombre"
+            placeholder="Nombre y apellidos" />
+        </div>
+
+        <div class="field">
+          <label class="field__label">DNI</label>
+          <input class="field__input" type="text"
+            [(ngModel)]="form.contratante.dni"
+            name="contratante_dni"
+            placeholder="00000000" maxlength="8" />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Teléfono</label>
+          <input class="field__input" type="tel"
+            [(ngModel)]="form.contratante.telefono"
+            name="contratante_tel"
+            placeholder="9XXXXXXXX" />
+        </div>
+
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="form-card__title">⛪ Capilla *</h2>
+      <div class="form-card__body">
+        <div class="field field--full">
+          <label class="field__label">Seleccionar capilla</label>
+          <select class="field__input" [(ngModel)]="form.id_capilla" name="capilla">
+            <option [ngValue]="null">Seleccionar...</option>
+            <option *ngFor="let c of capillas" [value]="c.id">
+              {{ c.modelo }} — Stock: {{ c.stock }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="form-card__title">⚰ Ataúd</h2>
+      <div class="form-card__body">
+        <div class="field field--full">
+          <label class="field__label">Seleccionar ataúd (opcional)</label>
+          <select class="field__input" [(ngModel)]="form.id_ataud" name="ataud">
+            <option [ngValue]="null">Sin ataúd</option>
+            <option *ngFor="let a of ataudes" [value]="a.id">
+              {{ a.modelo }} — {{ a.color }} — {{ a.tipo | titlecase }} (Stock: {{ a.stock }})
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card form-card--full">
+      <h2 class="form-card__title">🚗 Vehículos asignados</h2>
+      <div class="form-card__body">
+        <p class="form-hint" *ngIf="vehiculos.length === 0">Cargando vehículos...</p>
+        <div class="vehiculos-grid" *ngIf="vehiculos.length > 0">
+          <label
+            *ngFor="let v of vehiculos"
+            class="vehiculo-check"
+            [class.vehiculo-check--activo]="estaSeleccionado(v.id)"
+          >
+            <input
+              type="checkbox"
+              class="vehiculo-check__input"
+              [checked]="estaSeleccionado(v.id)"
+              (change)="toggleVehiculo(v.id)"
+            />
+            <span class="v-badge" [ngClass]="'v-badge--' + v.tipo">
+              <span class="v-badge__dot"></span>
+              {{ etiquetaVehiculo(v.tipo) }}
+            </span>
+            <span class="vehiculo-check__id">#{{ v.id }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="form-footer">
+    <button class="btn btn--ghost" (click)="cancelar()">Cancelar</button>
+    <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
+      <span *ngIf="guardando" class="btn-spinner"></span>
+      {{ guardando ? 'Guardando...' : (esEdicion ? 'Guardar cambios' : 'Crear servicio') }}
+    </button>
+  </div>
+
+</div>

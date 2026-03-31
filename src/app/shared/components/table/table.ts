@@ -1,9 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core'
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-table',
-  imports: [],
-  templateUrl: './table.html',
-  styleUrl: './table.css',
+  selector:'app-table',
+  imports: [CommonModule],
+  templateUrl:'./table.html',
+  styleUrls:['./table.css']
 })
-export class Table {}
+export class Table {
+
+  @Input() columns:string[]=[]
+  @Input() data:any[]=[]
+
+}
