@@ -23,6 +23,8 @@ import { Perfil } from './features/perfil/perfil'
 
 import { MainLayout } from './layout/main-layout/main-layout'
 
+import { Ia } from './features/ia/ia'
+
 export const routes: Routes = [
 
 {
@@ -102,7 +104,11 @@ export const routes: Routes = [
       path:'',
       redirectTo:'dashboard',
       pathMatch:'full'
-    }
+    },
+    {
+      path: 'ia',
+      component: Ia
+    },
 
   ]
 },

@@ -15,11 +15,9 @@ export interface Servicio {
   tipo_pago: TipoPago
   costo: number
 
-  arreglo_flora: boolean
   fecha: string
 
   cantidad_cargadores?: number
-  director_sepelio: boolean
 
   fallecido: Fallecido
   contratante: Contratante

@@ -69,14 +69,6 @@
         </div>
       </div>
 
-      <div class="filtro-group">
-        <label class="filtro-label">Tipo</label>
-        <select class="filtro-select" [(ngModel)]="filtroTipo">
-          <option value="">Todos</option>
-          <option *ngFor="let t of tiposAtaud" [value]="t">{{ t | titlecase }}</option>
-        </select>
-      </div>
-
       <div class="filtro-group filtro-group--action">
         <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
         <button class="btn btn--secondary" (click)="aplicarFiltros()">Aplicar</button>
@@ -102,7 +94,6 @@
             <th>ID</th>
             <th>Modelo</th>
             <th>Color</th>
-            <th>Tipo</th>
             <th>Stock</th>
             <th>Acciones</th>
           </tr>
@@ -115,13 +106,6 @@
               <span class="color-chip">
                 <span class="color-chip__dot" [style.background]="a.color.toLowerCase()"></span>
                 {{ a.color }}
-              </span>
-            </td>
-            <td>
-              <span class="badge"
-                [class.badge--vip]="a.tipo === 'vip'"
-                [class.badge--eco]="a.tipo === 'economico'">
-                {{ a.tipo | titlecase }}
               </span>
             </td>
             <td>
@@ -156,13 +140,6 @@
       <div class="field">
         <label class="field__label">Color *</label>
         <input class="field__input" type="text" [(ngModel)]="form.color" placeholder="Ej: Negro" />
-      </div>
-      <div class="field">
-        <label class="field__label">Tipo *</label>
-        <select class="field__input" [(ngModel)]="form.tipo">
-          <option value="">Seleccionar tipo...</option>
-          <option *ngFor="let t of tiposAtaud" [value]="t">{{ t | titlecase }}</option>
-        </select>
       </div>
       <div class="field" *ngIf="!modoEdicion">
         <label class="field__label">Stock inicial</label>

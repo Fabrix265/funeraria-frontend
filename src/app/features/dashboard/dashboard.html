@@ -7,6 +7,7 @@
     </div>
   </header>
 
+  <!-- Servicios -->
   <section class="dash-section">
     <h2 class="dash-section__label">Servicios</h2>
     <div class="dash-grid">
@@ -15,9 +16,15 @@
         <span class="stat-card__name">Servicios</span>
         <span class="stat-card__arrow">→</span>
       </a>
+      <a routerLink="/ia" class="stat-card stat-card--ia">
+        <span class="stat-card__icon">📷</span>
+        <span class="stat-card__name">Extracción</span>
+        <span class="stat-card__arrow">→</span>
+      </a>
     </div>
   </section>
 
+  <!-- Inventario -->
   <section class="dash-section">
     <h2 class="dash-section__label">Inventario</h2>
     <div class="dash-grid">
@@ -44,10 +51,12 @@
     </div>
   </section>
 
+  <!-- Toast pronóstico -->
   <div class="toast-prono" [class.visible]="mensajePronostico">
     <span>🔒</span> Módulo aún no disponible
   </div>
 
+  <!-- Personas -->
   <section class="dash-section">
     <h2 class="dash-section__label">Personas</h2>
     <div class="dash-grid">

@@ -1,0 +1,238 @@
+<div class="page-wrapper">
+
+  <!-- Toast -->
+  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
+    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    {{ mensaje }}
+  </div>
+
+  <!-- Cabecera -->
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard">⊞</a>
+      <span class="page-header__icon">📷</span>
+      <div>
+        <h1 class="page-header__title">Extracción IA</h1>
+        <p class="page-header__sub">Procesamiento de contratos por imagen</p>
+      </div>
+    </div>
+
+    <!-- Botón subir -->
+    <label class="btn btn--primary btn--upload">
+      <span>+ Agregar imágenes</span>
+      <input type="file" accept="image/*" multiple (change)="onArchivosSeleccionados($event)" hidden />
+    </label>
+  </header>
+
+  <!-- Estado vacío -->
+  <div class="empty-ia" *ngIf="items.length === 0">
+    <label class="empty-ia__drop">
+      <span class="empty-ia__icon">📷</span>
+      <span class="empty-ia__text">Arrastra imágenes aquí o haz clic para seleccionar</span>
+      <span class="empty-ia__sub">PNG, JPG, JPEG · Puedes subir varias a la vez</span>
+      <input type="file" accept="image/*" multiple (change)="onArchivosSeleccionados($event)" hidden />
+    </label>
+  </div>
+
+  <!-- Layout principal -->
+  <div class="ia-layout" *ngIf="items.length > 0">
+
+    <!-- Columna izquierda: cola de imágenes -->
+    <aside class="ia-cola">
+
+      <div class="ia-cola__stats">
+        <span class="stat-pill stat-pill--proc" *ngIf="totalPendientes > 0">
+          ⟳ {{ totalPendientes }} procesando
+        </span>
+        <span class="stat-pill stat-pill--ok" *ngIf="totalListos > 0">
+          ✓ {{ totalListos }} listos
+        </span>
+        <span class="stat-pill stat-pill--err" *ngIf="totalErrores > 0">
+          ✕ {{ totalErrores }} errores
+        </span>
+      </div>
+
+      <div class="ia-cola__lista">
+        <div
+          *ngFor="let item of items"
+          class="cola-item"
+          [class.cola-item--activo]="itemSeleccionado?.id === item.id"
+          [class.cola-item--listo]="item.estado === 'listo'"
+          [class.cola-item--error]="item.estado === 'error'"
+          [class.cola-item--proc]="item.estado === 'procesando'"
+          (click)="item.estado === 'listo' && seleccionar(item)"
+        >
+          <img class="cola-item__thumb" [src]="item.previewUrl" [alt]="item.archivo.name" />
+
+          <div class="cola-item__info">
+            <span class="cola-item__nombre">{{ item.archivo.name }}</span>
+            <span class="cola-item__estado">
+              <ng-container [ngSwitch]="item.estado">
+                <span *ngSwitchCase="'pendiente'" class="badge-estado badge-estado--pend">En cola</span>
+                <span *ngSwitchCase="'procesando'" class="badge-estado badge-estado--proc">
+                  <span class="mini-spinner"></span> Procesando...
+                </span>
+                <span *ngSwitchCase="'listo'" class="badge-estado badge-estado--ok">✓ Listo</span>
+                <span *ngSwitchCase="'error'" class="badge-estado badge-estado--err">✕ Error</span>
+              </ng-container>
+            </span>
+          </div>
+
+          <div class="cola-item__acciones">
+            <button class="icon-btn icon-btn--retry" *ngIf="item.estado === 'error'"
+              title="Reintentar" (click)="$event.stopPropagation(); reintentar(item)">↺</button>
+            <button class="icon-btn icon-btn--delete" title="Eliminar"
+              (click)="$event.stopPropagation(); eliminar(item)">✕</button>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Columna derecha: detalle del item seleccionado -->
+    <div class="ia-detalle">
+
+      <!-- Sin selección -->
+      <div class="ia-detalle__vacio" *ngIf="!itemSeleccionado || itemSeleccionado.estado !== 'listo'">
+        <span *ngIf="!itemSeleccionado">Selecciona un contrato procesado para revisarlo</span>
+        <span *ngIf="itemSeleccionado?.estado === 'procesando'">
+          <span class="mini-spinner"></span> Procesando imagen...
+        </span>
+        <span *ngIf="itemSeleccionado?.estado === 'pendiente'">En cola, espera un momento...</span>
+        <span *ngIf="itemSeleccionado?.estado === 'error'">
+          Error al procesar.
+          <button class="btn-link" (click)="reintentar(itemSeleccionado!)">Reintentar</button>
+        </span>
+      </div>
+
+      <!-- Formulario de revisión -->
+      <div class="ia-revision" *ngIf="itemSeleccionado?.estado === 'listo' && itemSeleccionado?.datos">
+
+        <!-- Preview de imagen -->
+        <div class="ia-preview">
+          <img [src]="itemSeleccionado!.previewUrl" alt="Contrato" class="ia-preview__img" />
+        </div>
+
+        <!-- Formulario -->
+        <div class="ia-form">
+
+          <div class="form-card">
+            <h2 class="form-card__title">📋 Datos del servicio</h2>
+            <div class="form-card__body">
+              <div class="field">
+                <label class="field__label">Fecha</label>
+                <input class="field__input" type="date" [(ngModel)]="itemSeleccionado!.datos!.fecha" />
+              </div>
+              <div class="field">
+                <label class="field__label">Dirección de velación</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.direccion_velacion" />
+              </div>
+              <div class="field">
+                <label class="field__label">Tipo de pago</label>
+                <select class="field__input" [(ngModel)]="itemSeleccionado!.datos!.tipo_pago">
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let t of tiposPago" [value]="t">{{ t | titlecase }}</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field__label">Costo (S/)</label>
+                <input class="field__input" type="number" [(ngModel)]="itemSeleccionado!.datos!.costo" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card__title">🕊 Fallecido</h2>
+            <div class="form-card__body">
+              <div class="field field--full">
+                <label class="field__label">Nombre</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.fallecido_nombre" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card__title">👤 Contratante</h2>
+            <div class="form-card__body">
+              <div class="field field--full">
+                <label class="field__label">Nombre</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.contratante_nombre" />
+              </div>
+              <div class="field">
+                <label class="field__label">DNI</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.contratante_dni" maxlength="8" />
+              </div>
+              <div class="field">
+                <label class="field__label">Teléfono</label>
+                <input class="field__input" type="tel" [(ngModel)]="itemSeleccionado!.datos!.contratante_telefono" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card__title">⚰ Ataúd detectado</h2>
+            <div class="form-card__body">
+              <div class="field">
+                <label class="field__label">Modelo</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.ataud_modelo" />
+              </div>
+              <div class="field">
+                <label class="field__label">Color</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.ataud_color" placeholder="No detectado" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card__title">⛪ Capilla detectada</h2>
+            <div class="form-card__body">
+              <div class="field field--full">
+                <label class="field__label">Modelo</label>
+                <input class="field__input" type="text" [(ngModel)]="itemSeleccionado!.datos!.capilla_modelo" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card form-card--full">
+            <h2 class="form-card__title">🚗 Vehículos detectados</h2>
+            <div class="form-card__body">
+              <div class="vehiculos-grid">
+                <label
+                  *ngFor="let v of tiposVehiculo"
+                  class="vehiculo-check"
+                  [class.vehiculo-check--activo]="vehiculoSeleccionado(v.key)"
+                >
+                  <input type="checkbox" class="vehiculo-check__input"
+                    [checked]="vehiculoSeleccionado(v.key)"
+                    (change)="toggleVehiculo(v.key)" />
+                  <span class="v-badge v-badge--{{ v.key }}">
+                    <span class="v-badge__dot"></span>
+                    {{ v.label }}
+                  </span>
+                </label>
+              </div>
+              <div class="field" style="margin-top:0.75rem; max-width: 160px;">
+                <label class="field__label">Cantidad de cargadores</label>
+                <input class="field__input" type="number" min="0"
+                  [(ngModel)]="itemSeleccionado!.datos!.cantidad_cargadores" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="ia-form__footer">
+            <button class="btn btn--ghost" (click)="eliminar(itemSeleccionado!)" [disabled]="guardando">Descartar</button>
+            <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
+              <span class="btn-spinner" *ngIf="guardando"></span>
+              {{ guardando ? 'Guardando...' : 'Aceptar y guardar' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

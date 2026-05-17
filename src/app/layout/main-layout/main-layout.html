@@ -2,8 +2,10 @@
   [class.sidebar-cerrado]="!sidebarAbierto"
   [class.sidebar-mobile-abierto]="esMobile && sidebarAbierto">
 
+  <!-- Overlay mobile -->
   <div class="sidebar-overlay" *ngIf="esMobile && sidebarAbierto" (click)="cerrarSidebarMobile()"></div>
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
 
     <div class="sidebar__brand">
@@ -25,6 +27,12 @@
         (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">📋</span>
         <span class="sidebar__link-label">Servicios</span>
+      </a>
+
+      <a class="sidebar__link" routerLink="/ia" routerLinkActive="sidebar__link--active"
+        (click)="cerrarSidebarMobile()">
+        <span class="sidebar__link-icon">📷</span>
+        <span class="sidebar__link-label">Extracción</span>
       </a>
 
       <span class="sidebar__section">Inventario</span>
@@ -96,6 +104,7 @@
 
   </aside>
 
+  <!-- CONTENIDO -->
   <div class="contenido">
 
     <header class="navbar">
