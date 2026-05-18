@@ -26,96 +26,99 @@ import { MainLayout } from './layout/main-layout/main-layout'
 import { Ia } from './features/ia/ia'
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    component: Login,
+  },
 
-{
-  path:'login',
-  component:Login
-},
+  {
+    path: '',
+    component: MainLayout,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        component: Dashboard,
+      },
 
-{
-  path:'',
-  component:MainLayout,
-  canActivate:[authGuard],
-  children:[
+      {
+        path: 'servicios',
+        component: ServicioList,
+      },
 
-    {
-      path:'dashboard',
-      component:Dashboard
-    },
+      {
+        path: 'servicios/crear',
+        component: ServicioCreate,
+      },
 
-    {
-      path:'servicios',
-      component:ServicioList
-    },
+      {
+        path: 'servicios/editar/:id',
+        component: ServicioCreate,
+      },
 
-    {
-      path:'servicios/crear',
-      component:ServicioCreate
-    },
+      {
+        path: 'servicios/:id',
+        component: ServicioDetail,
+      },
 
-    {
-    path:'servicios/editar/:id',
-    component:ServicioCreate
-    },
+      {
+        path: 'ataudes',
+        component: Ataudes,
+      },
 
-    {
-      path:'servicios/:id',
-      component:ServicioDetail
-    },
+      {
+        path: 'capillas',
+        component: Capillas,
+      },
 
-    {
-      path:'ataudes',
-      component:Ataudes
-    },
+      {
+        path: 'vehiculos',
+        component: Vehiculos,
+      },
 
-    {
-      path:'capillas',
-      component:Capillas
-    },
+      {
+        path: 'contratantes',
+        component: Contratantes,
+      },
 
-    {
-      path:'vehiculos',
-      component:Vehiculos
-    },
+      {
+        path: 'fallecidos',
+        component: Fallecidos,
+      },
 
-    {
-      path:'contratantes',
-      component:Contratantes
-    },
+      {
+        path: 'usuarios',
+        component: UsuariosList,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
+      },
 
-    {
-      path:'fallecidos',
-      component:Fallecidos
-    },
+      {
+        path: 'perfil',
+        component: Perfil,
+      },
 
-    {
-      path:'usuarios',
-      component:UsuariosList,
-      canActivate:[roleGuard],
-      data:{roles:['administrador']}
-    },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+      {
+        path: 'ia',
+        component: Ia,
+      },
+      {
+        path: 'roles',
+        loadComponent: () =>
+          import('./features/roles/roles-list/roles-list').then((m) => m.RolesList),
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
+      },
+    ],
+  },
 
-    {
-      path:'perfil',
-      component:Perfil
-    },
-
-    {
-      path:'',
-      redirectTo:'dashboard',
-      pathMatch:'full'
-    },
-    {
-      path: 'ia',
-      component: Ia
-    },
-
-  ]
-},
-
-{
-  path:'**',
-  redirectTo:'dashboard'
-}
-
-]
+  {
+    path: '**',
+    redirectTo: 'dashboard',
+  },
+];
