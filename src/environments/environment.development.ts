@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://rpg-needle-phrases-suitable.trycloudflare.com',
+  apiUrl: 'https://personally-wales-framing-men.trycloudflare.com',
 };
