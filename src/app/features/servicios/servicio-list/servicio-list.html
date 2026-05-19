@@ -9,7 +9,7 @@
         <p class="page-header__sub">Registro de servicios funerarios</p>
       </div>
     </div>
-    <a class="btn btn--primary" routerLink="/servicios/crear">
+    <a class="btn btn--primary" *ngIf="esAdmin" routerLink="/servicios/crear">
       <span>+</span> Nuevo servicio
     </a>
   </header>

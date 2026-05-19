@@ -156,22 +156,21 @@ export class ServicioCreate implements OnInit {
       return
     }
 
-    // Construir payload exacto que espera ServicioCrear del backend
     const payload: any = {
       direccion_velacion:  this.form.direccion_velacion,
       tipo_pago:           this.form.tipo_pago,
-      costo:               this.form.costo,
+      costo:               Number(this.form.costo),
       fecha:               this.form.fecha,
-      id_capilla:          this.form.id_capilla,
-      id_ataud:            this.form.id_ataud   || null,
-      cantidad_cargadores: this.form.cantidad_cargadores || null,
+      id_capilla:          Number(this.form.id_capilla),
+      id_ataud:            this.form.id_ataud ? Number(this.form.id_ataud) : null,
+      cantidad_cargadores: this.form.cantidad_cargadores ? Number(this.form.cantidad_cargadores) : null,
       fallecido:           { nombre: this.form.fallecido.nombre },
       contratante:         {
         nombre:   this.form.contratante.nombre,
         dni:      this.form.contratante.dni,
         telefono: this.form.contratante.telefono
       },
-      ids_vehiculos: this.form.ids_vehiculos
+      ids_vehiculos: this.form.ids_vehiculos.map((v: any) => Number(v))
     }
 
     this.guardando = true
@@ -179,17 +178,17 @@ export class ServicioCreate implements OnInit {
     if (this.esEdicion && this.idEditar) {
       this.servicioService.actualizar(this.idEditar, payload).subscribe({
         next: () => this.zone.run(() => this.router.navigate(['/servicios', this.idEditar])),
-        error: () => this.zone.run(() => {
+        error: (err) => this.zone.run(() => {
           this.guardando = false
-          this.mostrarMensaje('Error al actualizar el servicio', 'error')
+          this.mostrarMensaje(err.error?.detail || 'Error al actualizar el servicio', 'error')
         })
       })
     } else {
       this.servicioService.crear(payload).subscribe({
         next: () => this.zone.run(() => this.router.navigate(['/servicios'])),
-        error: () => this.zone.run(() => {
+        error: (err) => this.zone.run(() => {
           this.guardando = false
-          this.mostrarMensaje('Error al crear el servicio', 'error')
+          this.mostrarMensaje(err.error?.detail || 'Error al crear el servicio', 'error')
         })
       })
     }

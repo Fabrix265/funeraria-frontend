@@ -4,17 +4,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Ataud } from '../../../core/models/ataud.model';
 import { RouterLink } from '@angular/router';
+import { esAdminActual } from '../../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-ataudes',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ataudes.html',
-  styleUrls: ['./ataudes.css']
+  styleUrls: ['./ataudes.css'],
 })
 export class Ataudes implements OnInit {
 
-  esAdmin = localStorage.getItem('cargo') === 'administrador';
+  esAdmin = esAdminActual();
 
   ataudes: Ataud[] = [];
   cargando = false;
@@ -46,7 +47,7 @@ export class Ataudes implements OnInit {
 
   constructor(
     private ataudService: AtaudService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -57,7 +58,7 @@ export class Ataudes implements OnInit {
     this.cargando = true;
     const filtros: any = {};
     if (this.filtroModelo) filtros['modelo'] = this.filtroModelo;
-    if (this.filtroColor)  filtros['color']  = this.filtroColor;
+    if (this.filtroColor) filtros['color'] = this.filtroColor;
 
     this.ataudService.listar(filtros).subscribe({
       next: (data) => {
@@ -70,18 +71,18 @@ export class Ataudes implements OnInit {
         this.mostrarMensaje('Error al cargar ataúdes', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   private actualizarUnicos(data: Ataud[]): void {
-    this.modelosUnicos = [...new Set(data.map(a => a.modelo))].sort();
-    this.coloresUnicos = [...new Set(data.map(a => a.color))].sort();
+    this.modelosUnicos = [...new Set(data.map((a) => a.modelo))].sort();
+    this.coloresUnicos = [...new Set(data.map((a) => a.color))].sort();
   }
 
   onModeloInput(): void {
-    this.modelosFiltrados = this.modelosUnicos.filter(m =>
-      m.toLowerCase().includes(this.modeloQuery.toLowerCase())
+    this.modelosFiltrados = this.modelosUnicos.filter((m) =>
+      m.toLowerCase().includes(this.modeloQuery.toLowerCase()),
     );
     this.mostrarDropModelo = true;
   }
@@ -92,23 +93,25 @@ export class Ataudes implements OnInit {
   }
 
   seleccionarModelo(m: string): void {
-    this.modeloQuery   = m;
-    this.filtroModelo  = m;
+    this.modeloQuery = m;
+    this.filtroModelo = m;
     this.mostrarDropModelo = false;
   }
 
   limpiarModelo(): void {
-    this.modeloQuery  = '';
+    this.modeloQuery = '';
     this.filtroModelo = '';
   }
 
   cerrarDropModelo(): void {
-    setTimeout(() => { this.mostrarDropModelo = false; }, 150);
+    setTimeout(() => {
+      this.mostrarDropModelo = false;
+    }, 150);
   }
 
   onColorInput(): void {
-    this.coloresFiltrados = this.coloresUnicos.filter(c =>
-      c.toLowerCase().includes(this.colorQuery.toLowerCase())
+    this.coloresFiltrados = this.coloresUnicos.filter((c) =>
+      c.toLowerCase().includes(this.colorQuery.toLowerCase()),
     );
     this.mostrarDropColor = true;
   }
@@ -119,31 +122,33 @@ export class Ataudes implements OnInit {
   }
 
   seleccionarColor(c: string): void {
-    this.colorQuery  = c;
+    this.colorQuery = c;
     this.filtroColor = c;
     this.mostrarDropColor = false;
   }
 
   limpiarColor(): void {
-    this.colorQuery  = '';
+    this.colorQuery = '';
     this.filtroColor = '';
   }
 
   cerrarDropColor(): void {
-    setTimeout(() => { this.mostrarDropColor = false; }, 150);
+    setTimeout(() => {
+      this.mostrarDropColor = false;
+    }, 150);
   }
 
   aplicarFiltros(): void {
     this.filtroModelo = this.modeloQuery;
-    this.filtroColor  = this.colorQuery;
+    this.filtroColor = this.colorQuery;
     this.cargar();
   }
 
   limpiarFiltros(): void {
     this.filtroModelo = '';
-    this.filtroColor  = '';
-    this.modeloQuery  = '';
-    this.colorQuery   = '';
+    this.filtroColor = '';
+    this.modeloQuery = '';
+    this.colorQuery = '';
     this.cargar();
   }
 
@@ -161,7 +166,9 @@ export class Ataudes implements OnInit {
     this.modalAbierto = true;
   }
 
-  cerrarModal(): void { this.modalAbierto = false; }
+  cerrarModal(): void {
+    this.modalAbierto = false;
+  }
 
   guardar(): void {
     if (!this.form.modelo || !this.form.color) {
@@ -170,13 +177,21 @@ export class Ataudes implements OnInit {
     }
     if (this.modoEdicion && this.ataudSeleccionado) {
       this.ataudService.actualizar(this.ataudSeleccionado.id, this.form).subscribe({
-        next: () => { this.mostrarMensaje('Ataúd actualizado', 'exito'); this.cerrarModal(); this.cargar(); },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error')
+        next: () => {
+          this.mostrarMensaje('Ataúd actualizado', 'exito');
+          this.cerrarModal();
+          this.cargar();
+        },
+        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
       });
     } else {
       this.ataudService.crear(this.form).subscribe({
-        next: () => { this.mostrarMensaje('Ataúd creado correctamente', 'exito'); this.cerrarModal(); this.cargar(); },
-        error: () => this.mostrarMensaje('Error al crear', 'error')
+        next: () => {
+          this.mostrarMensaje('Ataúd creado correctamente', 'exito');
+          this.cerrarModal();
+          this.cargar();
+        },
+        error: () => this.mostrarMensaje('Error al crear', 'error'),
       });
     }
   }
@@ -194,13 +209,17 @@ export class Ataudes implements OnInit {
   confirmarEliminar(): void {
     if (!this.ataudEliminar) return;
     this.ataudService.eliminar(this.ataudEliminar.id).subscribe({
-      next: () => { this.mostrarMensaje('Ataúd eliminado', 'exito'); this.cerrarModalEliminar(); this.cargar(); },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error')
+      next: () => {
+        this.mostrarMensaje('Ataúd eliminado', 'exito');
+        this.cerrarModalEliminar();
+        this.cargar();
+      },
+      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
     });
   }
 
   abrirModalStock(ataud: Ataud): void {
-    this.ataudStock   = ataud;
+    this.ataudStock = ataud;
     this.cantidadStock = 0;
     this.modalStockAbierto = true;
   }
@@ -213,15 +232,21 @@ export class Ataudes implements OnInit {
   actualizarStock(): void {
     if (!this.ataudStock) return;
     this.ataudService.actualizarStock(this.ataudStock.id, this.cantidadStock).subscribe({
-      next: () => { this.mostrarMensaje('Stock actualizado', 'exito'); this.cerrarModalStock(); this.cargar(); },
-      error: () => this.mostrarMensaje('Error al actualizar stock', 'error')
+      next: () => {
+        this.mostrarMensaje('Stock actualizado', 'exito');
+        this.cerrarModalStock();
+        this.cargar();
+      },
+      error: () => this.mostrarMensaje('Error al actualizar stock', 'error'),
     });
   }
 
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
     this.mensaje = texto;
     this.tipoMensaje = tipo;
-    setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges(); }, 3500);
+    setTimeout(() => {
+      this.mensaje = '';
+      this.cdr.detectChanges();
+    }, 3500);
   }
-
 }

@@ -33,26 +33,37 @@
     <div class="table-wrapper" *ngIf="!cargando && usuarios.length > 0">
       <table class="tabla">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Usuario</th>
-            <th>Cargo</th>
-            <th>Acciones</th>
-          </tr>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Cargo</th>
+          <th>Acciones</th>
+        </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let u of usuarios" class="tabla__fila">
-            <td class="tabla__id">#{{ u.id }}</td>
-            <td class="tabla__nombre">{{ u.username }}</td>
-            <td>
-              <span class="cargo-badge" [class.cargo-badge--admin]="u.cargo === 'administrador'">
-                {{ u.cargo | titlecase }}
+        <tr *ngFor="let u of usuarios" class="tabla__fila">
+          <td class="tabla__id">#{{ u.id }}</td>
+          <td class="tabla__nombre">{{ u.username }}</td>
+
+          <td>
+            <ng-container *ngIf="u.roles && u.roles.length > 0">
+              <span *ngFor="let rol of u.roles"
+                    class="cargo-badge"
+                    [class.cargo-badge--admin]="rol.nombre.toLowerCase() === 'administrador'">
+                {{ rol.nombre }}
               </span>
-            </td>
-            <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(u)">✕</button>
-            </td>
-          </tr>
+            </ng-container>
+
+            <span *ngIf="!u.roles || u.roles.length === 0" class="cargo-badge">
+              Sin Rol
+            </span>
+          </td>
+
+          <td class="tabla__acciones">
+            <button class="icon-btn icon-btn--edit" title="Editar Rol" (click)="abrirModalEditar(u)">✏️</button>
+            <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(u)">✕</button>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -88,9 +99,11 @@
       </div>
       <div class="field">
         <label class="field__label">Cargo *</label>
-        <select class="field__input" [(ngModel)]="form.cargo">
+        <select class="field__input" [(ngModel)]="form.role_id">
           <option value="">Seleccionar cargo...</option>
-          <option *ngFor="let c of cargos" [value]="c">{{ c | titlecase }}</option>
+          <option *ngFor="let rol of rolesDisponibles" [value]="rol.id">
+            {{ rol.nombre }}
+          </option>
         </select>
       </div>
     </div>
@@ -99,6 +112,41 @@
       <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
         <span class="btn-spinner" *ngIf="guardando"></span>
         {{ guardando ? 'Creando...' : 'Crear usuario' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalEditarAbierto" (click)="cerrarModalEditar()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Modificar permisos de asignación</h2>
+      <button class="modal__close" (click)="cerrarModalEditar()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="field">
+        <label class="field__label">Usuario (Lectura)</label>
+        <input class="field__input" type="text" [value]="formEditar.username" disabled />
+      </div>
+      <div class="field">
+        <label class="field__label">Nuevo Cargo / Rol *</label>
+        <select class="field__input" [(ngModel)]="formEditar.role_id">
+          <option value="">Seleccionar nuevo cargo...</option>
+          <option *ngFor="let rol of rolesDisponibles" [value]="rol.id">
+            {{ rol.nombre }}
+          </option>
+        </select>
+        <div class="field">
+          <label class="field__label">Nueva contraseña <span style="color:#888; font-size:0.85em">(opcional)</span></label>
+          <input class="field__input" type="password" [(ngModel)]="formEditar.password" placeholder="Dejar en blanco para no cambiar" />
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalEditar()">Cancelar</button>
+      <button class="btn btn--primary" (click)="actualizar()" [disabled]="editando">
+        <span class="btn-spinner" *ngIf="editando"></span>
+        {{ editando ? 'Guardando...' : 'Actualizar Rol' }}
       </button>
     </div>
   </div>

@@ -1,29 +1,57 @@
-import { Injectable } from '@angular/core'
-import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface RoleLeer {
+  id: number;
+  nombre: string;
+}
+
+export interface UserLeer {
+  id: number;
+  username: string;
+  roles: RoleLeer[];
+}
+
+export interface UserCrear {
+  username: string;
+  password: string;
+  role_id: number;
+}
+
+export interface UserActualizarAdmin {
+  username: string;
+  role_id: number;
+  password?: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class UserService {
-
-  private api = 'http://localhost:8000/users'
+  private api = 'http://localhost:8000/users';
 
   constructor(private http: HttpClient) {}
 
-  listar(){
-    return this.http.get<any[]>(this.api)
+  listarRoles(): Observable<RoleLeer[]> {
+    return this.http.get<RoleLeer[]>(`${this.api}/roles`);
   }
 
-  crear(data:any){
-    return this.http.post(this.api,data)
+  listar(): Observable<UserLeer[]> {
+    return this.http.get<UserLeer[]>(this.api);
   }
 
-  eliminar(id:number){
-    return this.http.delete(`${this.api}/${id}`)
+  crear(data: UserCrear): Observable<UserLeer> {
+    return this.http.post<UserLeer>(this.api, data);
   }
 
-  actualizarPerfil(data:any){
-    return this.http.put(`${this.api}/me`,data)
+  eliminar(id: number): Observable<any> {
+    return this.http.delete(`${this.api}/${id}`);
   }
 
+  actualizarPerfil(data: { username: string; password: string }): Observable<UserLeer> {
+    return this.http.put<UserLeer>(`${this.api}/me`, data);
+  }
+
+  actualizarUsuario(id: number, data: UserActualizarAdmin): Observable<UserLeer> {
+    return this.http.put<UserLeer>(`${this.api}/${id}`, data);
+  }
 }
