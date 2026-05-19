@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core'
 import { HttpClient, HttpParams } from '@angular/common/http'
 import { Contratante } from '../models/contratante.model'
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PersonaService {
-
-  private fallecidosApi = 'http://localhost:8000/fallecidos'
-  private contratantesApi = 'http://localhost:8000/contratantes'
+  private fallecidosApi = `${environment.apiUrl}/fallecidos`;
+  private contratantesApi = `${environment.apiUrl}/contratantes`;
 
   constructor(private http: HttpClient) {}
 
@@ -32,7 +32,6 @@ export class PersonaService {
   eliminarFallecido(id: number): Observable<any> {
     return this.http.delete(`${this.fallecidosApi}/${id}`);
   }
-
 
   listarContratantes(nombre?: string, dni?: string): Observable<Contratante[]> {
     let params = new HttpParams();

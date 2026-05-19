@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface RoleLeer {
   id: number;
@@ -27,7 +28,7 @@ export interface UserActualizarAdmin {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private api = 'http://localhost:8000/users';
+  private api = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 
