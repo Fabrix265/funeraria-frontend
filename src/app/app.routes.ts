@@ -49,11 +49,15 @@ export const routes: Routes = [
       {
         path: 'servicios/crear',
         component: ServicioCreate,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
       },
 
       {
         path: 'servicios/editar/:id',
         component: ServicioCreate,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
       },
 
       {
