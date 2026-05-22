@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
 import { Router, RouterLink } from '@angular/router'
+import { environment } from '../../../environments/environment'
+import { VehiculoService } from '../../core/services/vehiculo'
+import { Vehiculo } from '../../core/models/vehiculo.model';
 
 type EstadoItem = 'pendiente' | 'procesando' | 'listo' | 'error'
 type TipoPago = 'directo' | 'seguro' | 'mixto'
@@ -41,10 +44,14 @@ interface DatosContrato {
 })
 export class Ia implements OnInit {
 
+  private mainApi = environment.apiUrl
+  private iaApi = environment.iaApiUrl
+
   items: ItemContrato[] = []
   itemSeleccionado: ItemContrato | null = null
   contadorId = 0
   procesandoCola = false
+  vehiculosDB: Vehiculo[] = []
 
   readonly tiposPago: TipoPago[] = ['directo', 'seguro', 'mixto']
   readonly tiposVehiculo = [
@@ -62,10 +69,16 @@ export class Ia implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private vehiculoService: VehiculoService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.vehiculoService.listar().subscribe({
+      next: (v) => this.vehiculosDB = v,
+      error: () => console.warn('No se pudieron cargar vehículos')
+    })
+  }
 
   onArchivosSeleccionados(event: Event): void {
     const input = event.target as HTMLInputElement
@@ -126,7 +139,7 @@ export class Ia implements OnInit {
     form.append('file', archivo)
 
     return new Promise((resolve, reject) => {
-      this.http.post('http://localhost:8000/ia/procesar-contrato', form).subscribe({
+      this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
         next: resolve,
         error: reject
       })
@@ -191,19 +204,24 @@ export class Ia implements OnInit {
       return
     }
 
+    // Mapear strings de vehículos a IDs enteros de la BD
+    const idsVehiculos = d.ids_vehiculos_detectados
+      .map(tipo => this.vehiculosDB.find(v => v.tipo === tipo)?.id)
+      .filter((id): id is number => id !== undefined)
+
     const payload: any = {
       direccion_velacion:   d.direccion_velacion,
       tipo_pago:            d.tipo_pago || 'directo',
       costo:                parseFloat(d.costo) || 0,
       fecha:                d.fecha,
-      cantidad_cargadores:  d.cantidad_cargadores || null,
+      cantidad_cargadores:  [4, 6].includes(d.cantidad_cargadores ?? 0) ? d.cantidad_cargadores : null,
       fallecido:            { nombre: d.fallecido_nombre },
       contratante:          {
         nombre:   d.contratante_nombre,
         dni:      d.contratante_dni,
         telefono: d.contratante_telefono
       },
-      ids_vehiculos:        [],
+      ids_vehiculos:        idsVehiculos,
       id_ataud:             null,
       id_capilla:           null,
       ataud_modelo_nuevo:   d.ataud_modelo   || null,
@@ -212,7 +230,7 @@ export class Ia implements OnInit {
     }
 
     this.guardando = true
-    this.http.post('http://localhost:8000/servicios/', payload).subscribe({
+    this.http.post(`${this.mainApi}/servicios/`, payload).subscribe({
       next: () => {
         this.mostrarMensaje('Servicio guardado correctamente', 'exito')
         const item = this.itemSeleccionado!
@@ -236,5 +254,4 @@ export class Ia implements OnInit {
     this.tipoMensaje = tipo
     setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges() }, 3500)
   }
-
 }

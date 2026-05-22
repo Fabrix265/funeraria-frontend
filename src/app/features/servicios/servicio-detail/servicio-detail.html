@@ -53,10 +53,6 @@
             <span class="info-label">Nombre</span>
             <span class="info-value">{{ servicio.fallecido?.nombre }}</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">DNI</span>
-            <span class="info-value info-value--mono">{{ servicio.fallecido?.dni }}</span>
-          </div>
         </div>
       </div>
 
@@ -103,14 +99,6 @@
                   <span class="color-chip__dot" [style.background]="servicio.ataud.color.toLowerCase()"></span>
                   {{ servicio.ataud.color }}
                 </span>
-              </span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Tipo</span>
-              <span class="badge"
-                [class.badge--vip]="servicio.ataud.tipo === 'vip'"
-                [class.badge--eco]="servicio.ataud.tipo === 'economico'">
-                {{ servicio.ataud.tipo | titlecase }}
               </span>
             </div>
           </ng-container>
