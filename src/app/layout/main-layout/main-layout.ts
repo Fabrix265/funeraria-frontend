@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { tienePermiso, esAdminActual } from '../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-main-layout',
@@ -15,21 +16,30 @@ export class MainLayout implements OnInit {
   sidebarAbierto = true;
   esMobile = false;
 
+  puedeVerServicios = false;
+  puedeVerAtaudes = false;
+  puedeVerCapillas = false;
+  puedeVerVehiculos = false;
+  puedeVerContratantes = false;
+  puedeVerFallecidos = false;
+  puedeVerIA = false;
+
   constructor(private router: Router) {}
 
   ngOnInit(): void {
     this.verificarTamano();
-    this.verificarRol();
+    this.verificarPermisos();
   }
 
-  verificarRol(): void {
-    try {
-      const rolesRaw = localStorage.getItem('roles');
-      const roles: string[] = rolesRaw ? JSON.parse(rolesRaw) : [];
-      this.esAdmin = roles.some((r) => r.toLowerCase() === 'administrador');
-    } catch {
-      this.esAdmin = false;
-    }
+  verificarPermisos(): void {
+    this.esAdmin = esAdminActual();
+    this.puedeVerServicios = tienePermiso('servicios:leer');
+    this.puedeVerAtaudes = tienePermiso('ataudes:leer');
+    this.puedeVerCapillas = tienePermiso('capillas:leer');
+    this.puedeVerVehiculos = tienePermiso('vehiculos:leer');
+    this.puedeVerContratantes = tienePermiso('contratantes:leer');
+    this.puedeVerFallecidos = tienePermiso('fallecidos:leer');
+    this.puedeVerIA = !!localStorage.getItem('token');
   }
 
   @HostListener('window:resize')
@@ -55,8 +65,7 @@ export class MainLayout implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('roles');
+    localStorage.clear();
     this.router.navigate(['/login']);
   }
 }

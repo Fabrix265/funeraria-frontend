@@ -24,6 +24,7 @@ import { Perfil } from './features/perfil/perfil'
 import { MainLayout } from './layout/main-layout/main-layout'
 
 import { Ia } from './features/ia/ia'
+import { permisoGuard } from './core/guards/permisos-guard';
 
 export const routes: Routes = [
   {
@@ -49,15 +50,15 @@ export const routes: Routes = [
       {
         path: 'servicios/crear',
         component: ServicioCreate,
-        canActivate: [roleGuard],
-        data: { roles: ['administrador'] },
+        canActivate: [permisoGuard],
+        data: { permiso: 'servicios:crear' },
       },
 
       {
         path: 'servicios/editar/:id',
         component: ServicioCreate,
-        canActivate: [roleGuard],
-        data: { roles: ['administrador'] },
+        canActivate: [permisoGuard],
+        data: { permiso: 'servicios:actualizar' },
       },
 
       {

@@ -69,7 +69,7 @@
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Acciones</th>
+            <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -77,8 +77,8 @@
             <td class="tabla__id">#{{ f.id }}</td>
             <td class="tabla__nombre">{{ f.nombre }}</td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(f)">✎</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(f)">✕</button>
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(f)">✎</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(f)">✕</button>
             </td>
           </tr>
         </tbody>

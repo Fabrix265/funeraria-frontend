@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
 import { Servicio } from '../../../core/services/servicio'
-import { esAdminActual } from '../../../core/utils/auth.utils';
+import { puedeCrear } from '../../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-servicio-list',
@@ -13,7 +13,7 @@ import { esAdminActual } from '../../../core/utils/auth.utils';
   styleUrls: ['./servicio-list.css'],
 })
 export class ServicioList implements OnInit {
-  esAdmin = esAdminActual();
+  puedeCrear = puedeCrear('servicios');
 
   servicios: any[] = [];
   cargando = false;

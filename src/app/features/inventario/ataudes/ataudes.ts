@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Ataud } from '../../../core/models/ataud.model';
 import { RouterLink } from '@angular/router';
-import { esAdminActual } from '../../../core/utils/auth.utils';
+import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso } from '../../../core/utils/auth.utils'
 
 @Component({
   selector: 'app-ataudes',
@@ -14,8 +14,10 @@ import { esAdminActual } from '../../../core/utils/auth.utils';
   styleUrls: ['./ataudes.css'],
 })
 export class Ataudes implements OnInit {
-
-  esAdmin = esAdminActual();
+  puedeCrear = puedeCrear('ataudes');
+  puedeEditar = puedeActualizar('ataudes');
+  puedeEliminar = puedeEliminar('ataudes');
+  puedeActualizarStock = tienePermiso('ataudes:actualizar_stock');
 
   ataudes: Ataud[] = [];
   cargando = false;

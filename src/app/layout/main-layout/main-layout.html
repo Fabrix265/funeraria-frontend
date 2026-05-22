@@ -1,6 +1,6 @@
 <div class="layout"
-  [class.sidebar-cerrado]="!sidebarAbierto"
-  [class.sidebar-mobile-abierto]="esMobile && sidebarAbierto">
+     [class.sidebar-cerrado]="!sidebarAbierto"
+     [class.sidebar-mobile-abierto]="esMobile && sidebarAbierto">
 
   <div class="sidebar-overlay" *ngIf="esMobile && sidebarAbierto" (click)="cerrarSidebarMobile()"></div>
 
@@ -16,71 +16,75 @@
       <span class="sidebar__section">General</span>
 
       <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
+         (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⊞</span>
         <span class="sidebar__link-label">Dashboard</span>
       </a>
 
       <a class="sidebar__link" routerLink="/servicios" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
+         *ngIf="puedeVerServicios" (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">📋</span>
         <span class="sidebar__link-label">Servicios</span>
       </a>
 
       <a class="sidebar__link" routerLink="/ia" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
+         *ngIf="puedeVerIA" (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">📷</span>
         <span class="sidebar__link-label">Extracción</span>
       </a>
 
-      <span class="sidebar__section">Inventario</span>
+      <ng-container *ngIf="puedeVerAtaudes || puedeVerCapillas || puedeVerVehiculos">
+        <span class="sidebar__section">Inventario</span>
 
-      <a class="sidebar__link" routerLink="/ataudes" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">⚰</span>
-        <span class="sidebar__link-label">Ataúdes</span>
-      </a>
+        <a class="sidebar__link" routerLink="/ataudes" routerLinkActive="sidebar__link--active"
+           *ngIf="puedeVerAtaudes" (click)="cerrarSidebarMobile()">
+          <span class="sidebar__link-icon">⚰</span>
+          <span class="sidebar__link-label">Ataúdes</span>
+        </a>
 
-      <a class="sidebar__link" routerLink="/capillas" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">⛪</span>
-        <span class="sidebar__link-label">Capillas</span>
-      </a>
+        <a class="sidebar__link" routerLink="/capillas" routerLinkActive="sidebar__link--active"
+           *ngIf="puedeVerCapillas" (click)="cerrarSidebarMobile()">
+          <span class="sidebar__link-icon">⛪</span>
+          <span class="sidebar__link-label">Capillas</span>
+        </a>
 
-      <a class="sidebar__link" routerLink="/vehiculos" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">🚗</span>
-        <span class="sidebar__link-label">Vehículos</span>
-      </a>
+        <a class="sidebar__link" routerLink="/vehiculos" routerLinkActive="sidebar__link--active"
+           *ngIf="puedeVerVehiculos" (click)="cerrarSidebarMobile()">
+          <span class="sidebar__link-icon">🚗</span>
+          <span class="sidebar__link-label">Vehículos</span>
+        </a>
 
-      <button class="sidebar__link sidebar__link--disabled" (click)="mostrarPronostico()">
-        <span class="sidebar__link-icon">📊</span>
-        <span class="sidebar__link-label">Pronóstico</span>
-        <span class="sidebar__link-pill">Pronto</span>
-      </button>
+        <button class="sidebar__link sidebar__link--disabled" (click)="mostrarPronostico()">
+          <span class="sidebar__link-icon">📊</span>
+          <span class="sidebar__link-label">Pronóstico</span>
+          <span class="sidebar__link-pill">Pronto</span>
+        </button>
 
-      <div class="sidebar__toast" [class.visible]="mensajePronostico">
-        Módulo aún no disponible
-      </div>
+        <div class="sidebar__toast" [class.visible]="mensajePronostico">
+          Módulo aún no disponible
+        </div>
+      </ng-container>
 
-      <span class="sidebar__section">Personas</span>
+      <ng-container *ngIf="puedeVerContratantes || puedeVerFallecidos">
+        <span class="sidebar__section">Personas</span>
 
-      <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">👤</span>
-        <span class="sidebar__link-label">Contratantes</span>
-      </a>
+        <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active"
+           *ngIf="puedeVerContratantes" (click)="cerrarSidebarMobile()">
+          <span class="sidebar__link-icon">👤</span>
+          <span class="sidebar__link-label">Contratantes</span>
+        </a>
 
-      <a class="sidebar__link" routerLink="/fallecidos" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">🕊</span>
-        <span class="sidebar__link-label">Fallecidos</span>
-      </a>
+        <a class="sidebar__link" routerLink="/fallecidos" routerLinkActive="sidebar__link--active"
+           *ngIf="puedeVerFallecidos" (click)="cerrarSidebarMobile()">
+          <span class="sidebar__link-icon">🕊</span>
+          <span class="sidebar__link-label">Fallecidos</span>
+        </a>
+      </ng-container>
 
       <span class="sidebar__section">Sistema</span>
 
       <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active"
-        *ngIf="esAdmin" (click)="cerrarSidebarMobile()">
+         *ngIf="esAdmin" (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">👥</span>
         <span class="sidebar__link-label">Usuarios</span>
       </a>
@@ -92,7 +96,7 @@
       </a>
 
       <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active"
-        (click)="cerrarSidebarMobile()">
+         (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⚙</span>
         <span class="sidebar__link-label">Perfil</span>
       </a>
@@ -109,7 +113,6 @@
   </aside>
 
   <div class="contenido">
-
     <header class="navbar">
       <button class="navbar__toggle" (click)="toggleSidebar()" title="Menú">
         <span class="navbar__toggle-bar"></span>
@@ -122,7 +125,6 @@
     <main class="main-content">
       <router-outlet></router-outlet>
     </main>
-
   </div>
 
 </div>

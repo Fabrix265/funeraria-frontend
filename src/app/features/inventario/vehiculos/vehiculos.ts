@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Vehiculo, TipoVehiculo } from '../../../core/models/vehiculo.model';
 import { RouterLink } from '@angular/router';
 import { esAdminActual } from '../../../core/utils/auth.utils';
+import { puedeCrear, puedeActualizar, puedeEliminar } from '../../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-vehiculos',
@@ -14,7 +15,9 @@ import { esAdminActual } from '../../../core/utils/auth.utils';
   styleUrls: ['./vehiculos.css'],
 })
 export class Vehiculos implements OnInit {
-  esAdmin = esAdminActual();
+  puedeCrear = puedeCrear('vehiculos');
+  puedeEditar = puedeActualizar('vehiculos');
+  puedeEliminar = puedeEliminar('vehiculos');
 
   vehiculos: Vehiculo[] = [];
   cargando = false;

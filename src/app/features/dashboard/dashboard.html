@@ -8,15 +8,15 @@
   </header>
 
   <!-- Servicios -->
-  <section class="dash-section">
+  <section class="dash-section" *ngIf="puedeVerServicios || puedeVerIA">
     <h2 class="dash-section__label">Servicios</h2>
     <div class="dash-grid">
-      <a routerLink="/servicios" class="stat-card stat-card--primary">
+      <a routerLink="/servicios" class="stat-card stat-card--primary" *ngIf="puedeVerServicios">
         <span class="stat-card__icon">📋</span>
         <span class="stat-card__name">Servicios</span>
         <span class="stat-card__arrow">→</span>
       </a>
-      <a routerLink="/ia" class="stat-card stat-card--ia">
+      <a routerLink="/ia" class="stat-card stat-card--ia" *ngIf="puedeVerIA">
         <span class="stat-card__icon">📷</span>
         <span class="stat-card__name">Extracción</span>
         <span class="stat-card__arrow">→</span>
@@ -25,20 +25,20 @@
   </section>
 
   <!-- Inventario -->
-  <section class="dash-section">
+  <section class="dash-section" *ngIf="puedeVerAtaudes || puedeVerCapillas || puedeVerVehiculos">
     <h2 class="dash-section__label">Inventario</h2>
     <div class="dash-grid">
-      <a routerLink="/ataudes" class="stat-card">
+      <a routerLink="/ataudes" class="stat-card" *ngIf="puedeVerAtaudes">
         <span class="stat-card__icon">⚰</span>
         <span class="stat-card__name">Ataúdes</span>
         <span class="stat-card__arrow">→</span>
       </a>
-      <a routerLink="/capillas" class="stat-card">
+      <a routerLink="/capillas" class="stat-card" *ngIf="puedeVerCapillas">
         <span class="stat-card__icon">⛪</span>
         <span class="stat-card__name">Capillas</span>
         <span class="stat-card__arrow">→</span>
       </a>
-      <a routerLink="/vehiculos" class="stat-card">
+      <a routerLink="/vehiculos" class="stat-card" *ngIf="puedeVerVehiculos">
         <span class="stat-card__icon">🚗</span>
         <span class="stat-card__name">Vehículos</span>
         <span class="stat-card__arrow">→</span>
@@ -51,21 +51,20 @@
     </div>
   </section>
 
-  <!-- Toast pronóstico -->
   <div class="toast-prono" [class.visible]="mensajePronostico">
     <span>🔒</span> Módulo aún no disponible
   </div>
 
   <!-- Personas -->
-  <section class="dash-section">
+  <section class="dash-section" *ngIf="puedeVerContratantes || puedeVerFallecidos">
     <h2 class="dash-section__label">Personas</h2>
     <div class="dash-grid">
-      <a routerLink="/contratantes" class="stat-card">
+      <a routerLink="/contratantes" class="stat-card" *ngIf="puedeVerContratantes">
         <span class="stat-card__icon">👤</span>
         <span class="stat-card__name">Contratantes</span>
         <span class="stat-card__arrow">→</span>
       </a>
-      <a routerLink="/fallecidos" class="stat-card">
+      <a routerLink="/fallecidos" class="stat-card" *ngIf="puedeVerFallecidos">
         <span class="stat-card__icon">🕊</span>
         <span class="stat-card__name">Fallecidos</span>
         <span class="stat-card__arrow">→</span>
