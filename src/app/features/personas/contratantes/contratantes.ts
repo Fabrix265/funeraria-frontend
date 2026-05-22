@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms'
 import { PersonaService } from '../../../core/services/persona'
 import { Contratante } from '../../../core/models/contratante.model'
 import { RouterLink } from '@angular/router';
-import { esAdminActual } from '../../../core/utils/auth.utils';
+import { puedeActualizar as checkActualizar, puedeEliminar as checkEliminar } from '../../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-contratantes',
@@ -14,7 +14,8 @@ import { esAdminActual } from '../../../core/utils/auth.utils';
   styleUrls: ['./contratantes.css'],
 })
 export class Contratantes implements OnInit {
-  esAdmin = esAdminActual();
+  puedeEditar = checkActualizar('contratantes');
+  puedeEliminar = checkEliminar('contratantes');
 
   contratantes: Contratante[] = [];
   cargando = false;

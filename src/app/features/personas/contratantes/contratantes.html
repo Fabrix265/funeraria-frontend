@@ -81,7 +81,7 @@
             <th>Nombre</th>
             <th>DNI</th>
             <th>Teléfono</th>
-            <th>Acciones</th>
+            <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -90,9 +90,9 @@
             <td class="tabla__nombre">{{ c.nombre }}</td>
             <td class="tabla__mono">{{ c.dni }}</td>
             <td class="tabla__tel">{{ c.telefono }}</td>
-            <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(c)">✎</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(c)">✕</button>
+            <td class="tabla__acciones" *ngIf="puedeEditar || puedeEliminar">
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(c)">✎</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(c)">✕</button>
             </td>
           </tr>
         </tbody>

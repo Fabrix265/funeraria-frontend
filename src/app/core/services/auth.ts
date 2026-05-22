@@ -3,9 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class Auth {
   private api = `${environment.apiUrl}/auth`;
 
@@ -25,9 +23,11 @@ export class Auth {
           if (res.access_token) {
             localStorage.setItem('token', res.access_token);
           }
-          // ✅ El backend devuelve res.user.roles = ["Administrador"]
           if (res.user?.roles) {
             localStorage.setItem('roles', JSON.stringify(res.user.roles));
+          }
+          if (res.user?.permisos) {
+            localStorage.setItem('permisos', JSON.stringify(res.user.permisos));
           }
         }),
       );

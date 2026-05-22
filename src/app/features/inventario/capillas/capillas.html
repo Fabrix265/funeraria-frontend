@@ -14,7 +14,7 @@
         <p class="page-header__sub">Gestión de inventario</p>
       </div>
     </div>
-    <button class="btn btn--primary" *ngIf="esAdmin" (click)="abrirModalCrear()">
+    <button class="btn btn--primary" *ngIf="puedeCrear" (click)="abrirModalCrear()">
       <span>+</span> Nueva capilla
     </button>
   </header>
@@ -71,7 +71,7 @@
             <th>ID</th>
             <th>Modelo</th>
             <th>Stock</th>
-            <th>Acciones</th>
+            <th *ngIf="puedeCrear || puedeEditar || puedeEliminar || puedeActualizarStock">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -84,9 +84,9 @@
               </span>
             </td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(c)">✎</button>
-              <button class="icon-btn icon-btn--stock"  title="Stock"    (click)="abrirModalStock(c)">⊞</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(c)">✕</button>
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(c)">✎</button>
+              <button class="icon-btn icon-btn--stock"  title="Stock"    *ngIf="puedeActualizarStock" (click)="abrirModalStock(c)">⊞</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(c)">✕</button>
             </td>
           </tr>
         </tbody>

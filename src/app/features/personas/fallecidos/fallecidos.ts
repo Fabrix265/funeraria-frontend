@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { PersonaService } from '../../../core/services/persona'
 import { RouterLink } from '@angular/router';
-import { esAdminActual } from '../../../core/utils/auth.utils';
+import { puedeActualizar as Update, puedeEliminar as Delete } from '../../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-fallecidos',
@@ -13,7 +13,8 @@ import { esAdminActual } from '../../../core/utils/auth.utils';
   styleUrls: ['./fallecidos.css'],
 })
 export class Fallecidos implements OnInit {
-  esAdmin = esAdminActual();
+  puedeEditar = Update('fallecidos')
+  puedeEliminar = Delete('fallecidos')
 
   fallecidos: any[] = [];
   cargando = false;

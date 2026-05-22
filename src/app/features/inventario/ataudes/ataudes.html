@@ -14,7 +14,7 @@
         <p class="page-header__sub">Gestión de inventario</p>
       </div>
     </div>
-    <button class="btn btn--primary" *ngIf="esAdmin" (click)="abrirModalCrear()">
+    <button class="btn btn--primary" *ngIf="puedeCrear" (click)="abrirModalCrear()">
       <span>+</span> Nuevo ataúd
     </button>
   </header>
@@ -95,7 +95,7 @@
             <th>Modelo</th>
             <th>Color</th>
             <th>Stock</th>
-            <th>Acciones</th>
+            <th *ngIf="puedeCrear || puedeEditar || puedeEliminar || puedeActualizarStock">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -113,10 +113,10 @@
                 {{ a.stock }}
               </span>
             </td>
-            <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="esAdmin" (click)="abrirModalEditar(a)">✎</button>
-              <button class="icon-btn icon-btn--stock"  title="Stock"    (click)="abrirModalStock(a)">⊞</button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="esAdmin" (click)="abrirModalEliminar(a)">✕</button>
+            <td class="tabla__acciones" *ngIf="puedeCrear || puedeEditar || puedeEliminar">
+              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(a)">✎</button>
+              <button class="icon-btn icon-btn--stock"  title="Stock"    *ngIf="puedeActualizarStock" (click)="abrirModalStock(a)">⊞</button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(a)">✕</button>
             </td>
           </tr>
         </tbody>

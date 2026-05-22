@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Capilla } from '../../../core/models/capilla.model'
 import { RouterLink } from '@angular/router';
-import { esAdminActual } from '../../../core/utils/auth.utils';
+import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso} from '../../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-capillas',
@@ -14,7 +14,10 @@ import { esAdminActual } from '../../../core/utils/auth.utils';
   styleUrls: ['./capillas.css'],
 })
 export class Capillas implements OnInit {
-  esAdmin = esAdminActual();
+  puedeCrear = puedeCrear('capillas');
+  puedeEditar = puedeActualizar('capillas');
+  puedeEliminar = puedeEliminar('capillas');
+  puedeActualizarStock = tienePermiso('capillas:actualizar');
 
   capillas: Capilla[] = [];
   cargando = false;

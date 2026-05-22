@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://personally-wales-framing-men.trycloudflare.com',
+  apiUrl: 'http://localhost:8000',
+  //apiUrl: 'https://funeraria-inventario-inteligente.onrender.com',
 };
