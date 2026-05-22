@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
 import { HttpClient } from '@angular/common/http'
 import { Servicio } from '../../../core/services/servicio'
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-servicio-create',
@@ -13,6 +14,8 @@ import { Servicio } from '../../../core/services/servicio'
   styleUrls: ['./servicio-create.css']
 })
 export class ServicioCreate implements OnInit {
+
+  private mainApi = environment.apiUrl;
 
   ataudes:   any[] = []
   capillas:  any[] = []
@@ -81,13 +84,13 @@ export class ServicioCreate implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.http.get<any[]>('http://localhost:8000/ataudes').subscribe({
+    this.http.get<any[]>(`${this.mainApi}/ataudes`).subscribe({
       next: (res) => this.zone.run(() => this.ataudes = res)
     })
-    this.http.get<any[]>('http://localhost:8000/capillas').subscribe({
+    this.http.get<any[]>(`${this.mainApi}/capillas`).subscribe({
       next: (res) => this.zone.run(() => this.capillas = res)
     })
-    this.http.get<any[]>('http://localhost:8000/vehiculos').subscribe({
+    this.http.get<any[]>(`${this.mainApi}/vehiculos`).subscribe({
       next: (res) => this.zone.run(() => this.vehiculos = res)
     })
   }

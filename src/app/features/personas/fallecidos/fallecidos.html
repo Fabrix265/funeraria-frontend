@@ -43,16 +43,6 @@
         </div>
       </div>
 
-      <div class="filtro-group">
-        <label class="filtro-label">DNI</label>
-        <input
-          class="filtro-input"
-          type="text"
-          placeholder="Buscar por DNI..."
-          [(ngModel)]="dniQuery"
-          maxlength="8"
-        />
-      </div>
 
       <div class="filtro-group filtro-group--action">
         <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
@@ -79,7 +69,6 @@
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>DNI</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
@@ -87,7 +76,6 @@
           <tr *ngFor="let f of fallecidos" class="tabla__fila">
             <td class="tabla__id">#{{ f.id }}</td>
             <td class="tabla__nombre">{{ f.nombre }}</td>
-            <td class="tabla__mono">{{ f.dni }}</td>
             <td class="tabla__acciones">
               <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(f)">✎</button>
               <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(f)">✕</button>
