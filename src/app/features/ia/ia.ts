@@ -138,14 +138,18 @@ export class Ia implements OnInit {
   const form = new FormData()
   form.append('file', archivo)
 
-  // 1. Enviar imagen → recibir tarea_id inmediatamente
-  const { tarea_id } = await new Promise<any>((resolve, reject) => {
+  const respuesta = await new Promise<any>((resolve, reject) => {
     this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
       next: resolve, error: reject
     })
   })
+  
+  console.log('Respuesta POST:', respuesta)
+  const tarea_id = respuesta?.tarea_id
+  console.log('tarea_id:', tarea_id)
 
-  // 2. Polling cada 15 segundos hasta que esté listo
+  if (!tarea_id) throw new Error('No se recibió tarea_id')
+
   while (true) {
     await new Promise(r => setTimeout(r, 15000))
     const tarea = await new Promise<any>((resolve, reject) => {
@@ -153,6 +157,7 @@ export class Ia implements OnInit {
         next: resolve, error: reject
       })
     })
+    console.log('Estado tarea:', tarea)
     if (tarea.estado === 'listo') return tarea.resultado
     if (tarea.estado === 'error') throw new Error(tarea.error)
   }
