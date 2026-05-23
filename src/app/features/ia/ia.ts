@@ -136,12 +136,14 @@ export class Ia implements OnInit {
   }
 
   private enviarImagen(archivo: File): Promise<any> {
+    console.log('enviarImagen llamado')
   const form = new FormData()
   form.append('file', archivo)
 
   return new Promise((resolve, reject) => {
     this.http.post(`${this.iaApi}/ia/procesar-contrato`, form, { observe: 'response' }).subscribe({
       next: (response: any) => {
+        console.log('dentro del Promise') 
         console.log('Response completa:', response)
         console.log('Body:', response.body)
         const tarea_id = response.body?.tarea_id
