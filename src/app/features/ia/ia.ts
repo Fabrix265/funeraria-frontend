@@ -67,11 +67,13 @@ export class Ia implements OnInit {
   guardando = false
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-    private vehiculoService: VehiculoService
-  ) {}
+  private http: HttpClient,
+  private router: Router,
+  private cdr: ChangeDetectorRef,
+  private vehiculoService: VehiculoService
+) {
+  console.log('Ia component creado')
+}
 
   ngOnInit(): void {
     this.vehiculoService.listar().subscribe({
