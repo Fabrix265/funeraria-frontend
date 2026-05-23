@@ -135,33 +135,37 @@ export class Ia implements OnInit {
     this.procesandoCola = false
   }
 
-  private async enviarImagen(archivo: File): Promise<any> {
+  private enviarImagen(archivo: File): Promise<any> {
   const form = new FormData()
   form.append('file', archivo)
 
-  const respuesta = await new Promise<any>((resolve, reject) => {
-    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
-      next: resolve, error: reject
+  return new Promise((resolve, reject) => {
+    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form, { observe: 'response' }).subscribe({
+      next: (response: any) => {
+        console.log('Response completa:', response)
+        console.log('Body:', response.body)
+        const tarea_id = response.body?.tarea_id
+        if (!tarea_id) { reject(new Error('No tarea_id')); return }
+
+        const intervalo = setInterval(() => {
+          this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
+            next: (tarea: any) => {
+              console.log('Estado:', tarea.estado)
+              if (tarea.estado === 'listo') {
+                clearInterval(intervalo)
+                resolve(tarea.resultado)
+              } else if (tarea.estado === 'error') {
+                clearInterval(intervalo)
+                reject(new Error(tarea.error))
+              }
+            },
+            error: (err) => { clearInterval(intervalo); reject(err) }
+          })
+        }, 15000)
+      },
+      error: (err) => { console.log('Error POST:', err); reject(err) }
     })
   })
-  
-  console.log('Respuesta POST:', respuesta)
-  const tarea_id = respuesta?.tarea_id
-  console.log('tarea_id:', tarea_id)
-
-  if (!tarea_id) throw new Error('No se recibió tarea_id')
-
-  while (true) {
-    await new Promise(r => setTimeout(r, 15000))
-    const tarea = await new Promise<any>((resolve, reject) => {
-      this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
-        next: resolve, error: reject
-      })
-    })
-    console.log('Estado tarea:', tarea)
-    if (tarea.estado === 'listo') return tarea.resultado
-    if (tarea.estado === 'error') throw new Error(tarea.error)
-  }
 }
 
   private mapearDatos(raw: any): DatosContrato {
