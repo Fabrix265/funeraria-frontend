@@ -126,7 +126,8 @@ export class Ia implements OnInit {
         if (!this.itemSeleccionado || this.itemSeleccionado.estado === 'procesando') {
           this.itemSeleccionado = pendiente
         }
-      } catch {
+      } catch(e) {
+        console.log('Error capturado:', e)
         pendiente.estado = 'error'
         pendiente.error = 'Error al procesar la imagen'
       }
@@ -143,7 +144,25 @@ export class Ia implements OnInit {
 
   return new Promise((resolve, reject) => {
     this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
-      next: resolve,
+      next: (respuesta: any) => {
+        const tarea_id = respuesta?.tarea_id
+        if (!tarea_id) { reject(new Error('No tarea_id')); return }
+
+        const intervalo = setInterval(() => {
+          this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
+            next: (tarea: any) => {
+              if (tarea.estado === 'listo') {
+                clearInterval(intervalo)
+                resolve(tarea.resultado)
+              } else if (tarea.estado === 'error') {
+                clearInterval(intervalo)
+                reject(new Error(tarea.error))
+              }
+            },
+            error: (err) => { clearInterval(intervalo); reject(err) }
+          })
+        }, 15000)
+      },
       error: reject
     })
   })
