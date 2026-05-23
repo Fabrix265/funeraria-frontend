@@ -134,17 +134,29 @@ export class Ia implements OnInit {
     this.procesandoCola = false
   }
 
-  private enviarImagen(archivo: File): Promise<any> {
-    const form = new FormData()
-    form.append('file', archivo)
+  private async enviarImagen(archivo: File): Promise<any> {
+  const form = new FormData()
+  form.append('file', archivo)
 
-    return new Promise((resolve, reject) => {
-      this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
-        next: resolve,
-        error: reject
+  // 1. Enviar imagen → recibir tarea_id inmediatamente
+  const { tarea_id } = await new Promise<any>((resolve, reject) => {
+    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
+      next: resolve, error: reject
+    })
+  })
+
+  // 2. Polling cada 15 segundos hasta que esté listo
+  while (true) {
+    await new Promise(r => setTimeout(r, 15000))
+    const tarea = await new Promise<any>((resolve, reject) => {
+      this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
+        next: resolve, error: reject
       })
     })
+    if (tarea.estado === 'listo') return tarea.resultado
+    if (tarea.estado === 'error') throw new Error(tarea.error)
   }
+}
 
   private mapearDatos(raw: any): DatosContrato {
     return {
