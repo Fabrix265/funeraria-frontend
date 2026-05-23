@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
@@ -67,11 +67,13 @@ export class Ia implements OnInit {
   guardando = false
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-    private vehiculoService: VehiculoService
-  ) {}
+  private http: HttpClient,
+  private router: Router,
+  private cdr: ChangeDetectorRef,
+  private vehiculoService: VehiculoService,
+  private ngZone: NgZone
+) {}
+  
 
   ngOnInit(): void {
     this.vehiculoService.listar().subscribe({
@@ -159,35 +161,35 @@ export class Ia implements OnInit {
   }
 
   private async enviarImagen(archivo: File): Promise<any> {
-    const archivoComprimido = await this.comprimirImagen(archivo)
-    const form = new FormData()
-    form.append('file', archivoComprimido)
+  const archivoComprimido = await this.comprimirImagen(archivo)
+  const form = new FormData()
+  form.append('file', archivoComprimido)
 
-    return new Promise((resolve, reject) => {
-      this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
-        next: (respuesta: any) => {
-          const tarea_id = respuesta?.tarea_id
-          if (!tarea_id) { reject(new Error('No tarea_id')); return }
+  return new Promise((resolve, reject) => {
+    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
+      next: (respuesta: any) => {
+        const tarea_id = respuesta?.tarea_id
+        if (!tarea_id) { reject(new Error('No tarea_id')); return }
 
-          const intervalo = setInterval(() => {
-            this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
-              next: (tarea: any) => {
-                if (tarea.estado === 'listo') {
-                  clearInterval(intervalo)
-                  resolve(tarea.resultado)
-                } else if (tarea.estado === 'error') {
-                  clearInterval(intervalo)
-                  reject(new Error(tarea.error))
-                }
-              },
-              error: (err) => { clearInterval(intervalo); reject(err) }
-            })
-          }, 15000)
-        },
-        error: reject
-      })
+        const intervalo = this.ngZone.run(() => setInterval(() => {
+          this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
+            next: (tarea: any) => {
+              if (tarea.estado === 'listo') {
+                clearInterval(intervalo)
+                resolve(tarea.resultado)
+              } else if (tarea.estado === 'error') {
+                clearInterval(intervalo)
+                reject(new Error(tarea.error))
+              }
+            },
+            error: (err) => { clearInterval(intervalo); reject(err) }
+          })
+        }, 15000))
+      },
+      error: reject
     })
-  }
+  })
+}
 
   private mapearDatos(raw: any): DatosContrato {
     return {
