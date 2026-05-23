@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http'
 import { Router, RouterLink } from '@angular/router'
 import { environment } from '../../../environments/environment'
 import { VehiculoService } from '../../core/services/vehiculo'
-import { Vehiculo } from '../../core/models/vehiculo.model';
+import { Vehiculo } from '../../core/models/vehiculo.model'
 
 type EstadoItem = 'pendiente' | 'procesando' | 'listo' | 'error'
 type TipoPago = 'directo' | 'seguro' | 'mixto'
@@ -67,13 +67,11 @@ export class Ia implements OnInit {
   guardando = false
 
   constructor(
-  private http: HttpClient,
-  private router: Router,
-  private cdr: ChangeDetectorRef,
-  private vehiculoService: VehiculoService
-) {
-  console.log('Ia component creado')
-}
+    private http: HttpClient,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private vehiculoService: VehiculoService
+  ) {}
 
   ngOnInit(): void {
     this.vehiculoService.listar().subscribe({
@@ -83,7 +81,6 @@ export class Ia implements OnInit {
   }
 
   onArchivosSeleccionados(event: Event): void {
-    console.log('Archivo seleccionado') 
     const input = event.target as HTMLInputElement
     if (!input.files?.length) return
 
@@ -138,35 +135,59 @@ export class Ia implements OnInit {
     this.procesandoCola = false
   }
 
-  private enviarImagen(archivo: File): Promise<any> {
-  const form = new FormData()
-  form.append('file', archivo)
-
-  return new Promise((resolve, reject) => {
-    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
-      next: (respuesta: any) => {
-        const tarea_id = respuesta?.tarea_id
-        if (!tarea_id) { reject(new Error('No tarea_id')); return }
-
-        const intervalo = setInterval(() => {
-          this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
-            next: (tarea: any) => {
-              if (tarea.estado === 'listo') {
-                clearInterval(intervalo)
-                resolve(tarea.resultado)
-              } else if (tarea.estado === 'error') {
-                clearInterval(intervalo)
-                reject(new Error(tarea.error))
-              }
-            },
-            error: (err) => { clearInterval(intervalo); reject(err) }
-          })
-        }, 15000)
-      },
-      error: reject
+  private comprimirImagen(archivo: File): Promise<File> {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const img = new Image()
+      img.onload = () => {
+        const maxDim = 2000
+        let w = img.width, h = img.height
+        if (w > maxDim || h > maxDim) {
+          const escala = maxDim / Math.max(w, h)
+          w = Math.floor(w * escala)
+          h = Math.floor(h * escala)
+        }
+        canvas.width = w
+        canvas.height = h
+        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h)
+        canvas.toBlob(blob => {
+          resolve(new File([blob!], archivo.name, { type: 'image/jpeg' }))
+        }, 'image/jpeg', 0.85)
+      }
+      img.src = URL.createObjectURL(archivo)
     })
-  })
-}
+  }
+
+  private async enviarImagen(archivo: File): Promise<any> {
+    const archivoComprimido = await this.comprimirImagen(archivo)
+    const form = new FormData()
+    form.append('file', archivoComprimido)
+
+    return new Promise((resolve, reject) => {
+      this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
+        next: (respuesta: any) => {
+          const tarea_id = respuesta?.tarea_id
+          if (!tarea_id) { reject(new Error('No tarea_id')); return }
+
+          const intervalo = setInterval(() => {
+            this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
+              next: (tarea: any) => {
+                if (tarea.estado === 'listo') {
+                  clearInterval(intervalo)
+                  resolve(tarea.resultado)
+                } else if (tarea.estado === 'error') {
+                  clearInterval(intervalo)
+                  reject(new Error(tarea.error))
+                }
+              },
+              error: (err) => { clearInterval(intervalo); reject(err) }
+            })
+          }, 15000)
+        },
+        error: reject
+      })
+    })
+  }
 
   private mapearDatos(raw: any): DatosContrato {
     return {
@@ -226,7 +247,6 @@ export class Ia implements OnInit {
       return
     }
 
-    // Mapear strings de vehículos a IDs enteros de la BD
     const idsVehiculos = d.ids_vehiculos_detectados
       .map(tipo => this.vehiculosDB.find(v => v.tipo === tipo)?.id)
       .filter((id): id is number => id !== undefined)
