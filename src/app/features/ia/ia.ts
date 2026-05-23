@@ -138,36 +138,13 @@ export class Ia implements OnInit {
   }
 
   private enviarImagen(archivo: File): Promise<any> {
-    console.log('enviarImagen llamado')
   const form = new FormData()
   form.append('file', archivo)
 
   return new Promise((resolve, reject) => {
-    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form, { observe: 'response' }).subscribe({
-      next: (response: any) => {
-        console.log('dentro del Promise') 
-        console.log('Response completa:', response)
-        console.log('Body:', response.body)
-        const tarea_id = response.body?.tarea_id
-        if (!tarea_id) { reject(new Error('No tarea_id')); return }
-
-        const intervalo = setInterval(() => {
-          this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
-            next: (tarea: any) => {
-              console.log('Estado:', tarea.estado)
-              if (tarea.estado === 'listo') {
-                clearInterval(intervalo)
-                resolve(tarea.resultado)
-              } else if (tarea.estado === 'error') {
-                clearInterval(intervalo)
-                reject(new Error(tarea.error))
-              }
-            },
-            error: (err) => { clearInterval(intervalo); reject(err) }
-          })
-        }, 15000)
-      },
-      error: (err) => { console.log('Error POST:', err); reject(err) }
+    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
+      next: resolve,
+      error: reject
     })
   })
 }
@@ -281,5 +258,3 @@ export class Ia implements OnInit {
     setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges() }, 3500)
   }
 }
-
-// rebuild
