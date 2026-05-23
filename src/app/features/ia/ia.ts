@@ -81,6 +81,7 @@ export class Ia implements OnInit {
   }
 
   onArchivosSeleccionados(event: Event): void {
+    console.log('Archivo seleccionado') 
     const input = event.target as HTMLInputElement
     if (!input.files?.length) return
 
