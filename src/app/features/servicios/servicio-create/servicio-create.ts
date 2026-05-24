@@ -84,13 +84,13 @@ export class ServicioCreate implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.http.get<any[]>(`${this.mainApi}/ataudes`).subscribe({
+    this.http.get<any[]>(`${this.mainApi}/coffins`).subscribe({
       next: (res) => this.zone.run(() => this.ataudes = res)
     })
-    this.http.get<any[]>(`${this.mainApi}/capillas`).subscribe({
+    this.http.get<any[]>(`${this.mainApi}/chapels`).subscribe({
       next: (res) => this.zone.run(() => this.capillas = res)
     })
-    this.http.get<any[]>(`${this.mainApi}/vehiculos`).subscribe({
+    this.http.get<any[]>(`${this.mainApi}/vehicles`).subscribe({
       next: (res) => this.zone.run(() => this.vehiculos = res)
     })
   }

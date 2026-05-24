@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class CapillaService {
-  private api = `${environment.apiUrl}/capillas`;
+  private api = `${environment.apiUrl}/chapels`;
 
   constructor(private http: HttpClient) {}
 

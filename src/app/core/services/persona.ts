@@ -8,8 +8,8 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class PersonaService {
-  private fallecidosApi = `${environment.apiUrl}/fallecidos`;
-  private contratantesApi = `${environment.apiUrl}/contratantes`;
+  private fallecidosApi = `${environment.apiUrl}/deceased`;
+  private contratantesApi = `${environment.apiUrl}/contractors`;
 
   constructor(private http: HttpClient) {}
 

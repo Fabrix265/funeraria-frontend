@@ -73,7 +73,7 @@ export class Ia implements OnInit {
   private vehiculoService: VehiculoService,
   private ngZone: NgZone
 ) {}
-  
+
 
   ngOnInit(): void {
     this.vehiculoService.listar().subscribe({
@@ -166,13 +166,13 @@ export class Ia implements OnInit {
   form.append('file', archivoComprimido)
 
   return new Promise((resolve, reject) => {
-    this.http.post(`${this.iaApi}/ia/procesar-contrato`, form).subscribe({
+    this.http.post(`${this.iaApi}/ia/process-contract`, form).subscribe({
       next: (respuesta: any) => {
         const tarea_id = respuesta?.tarea_id
         if (!tarea_id) { reject(new Error('No tarea_id')); return }
 
         const intervalo = this.ngZone.run(() => setInterval(() => {
-          this.http.get(`${this.iaApi}/ia/tarea/${tarea_id}`).subscribe({
+          this.http.get(`${this.iaApi}/ia/task/${tarea_id}`).subscribe({
             next: (tarea: any) => {
               if (tarea.estado === 'listo') {
                 clearInterval(intervalo)
@@ -274,7 +274,7 @@ export class Ia implements OnInit {
     }
 
     this.guardando = true
-    this.http.post(`${this.mainApi}/servicios/`, payload).subscribe({
+    this.http.post(`${this.mainApi}/services/`, payload).subscribe({
       next: () => {
         this.mostrarMensaje('Servicio guardado correctamente', 'exito')
         const item = this.itemSeleccionado!
