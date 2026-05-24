@@ -274,7 +274,7 @@ export class Ia implements OnInit {
     }
 
     this.guardando = true
-    this.http.post(`${this.mainApi}/servicios/`, payload).subscribe({
+    this.http.post(`${this.mainApi}/services/`, payload).subscribe({
       next: () => {
         this.mostrarMensaje('Servicio guardado correctamente', 'exito')
         const item = this.itemSeleccionado!
