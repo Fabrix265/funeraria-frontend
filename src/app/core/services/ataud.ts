@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class AtaudService {
-  private api = `${environment.apiUrl}/ataudes`;
+  private api = `${environment.apiUrl}/coffins`;
 
   constructor(private http: HttpClient) {}
 

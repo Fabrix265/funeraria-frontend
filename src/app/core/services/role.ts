@@ -27,7 +27,7 @@ export class Role {
   constructor(private http: HttpClient) {}
 
   listarPermisos(): Observable<PermissionLeer[]> {
-    return this.http.get<PermissionLeer[]>(`${this.api}/permisos`);
+    return this.http.get<PermissionLeer[]>(`${this.api}/permits`);
   }
 
   crear(data: RoleCrear): Observable<RoleDetalle> {
