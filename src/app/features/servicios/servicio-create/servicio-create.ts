@@ -27,7 +27,6 @@ export class ServicioCreate implements OnInit {
   mensaje     = ''
   tipoMensaje: 'exito' | 'error' = 'exito'
 
-  // Sugerencias informativas de la IA
   iaMeta: any = null
 
   form: any = {
