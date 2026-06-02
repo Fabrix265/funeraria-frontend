@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms'
 import { PersonaService } from '../../../core/services/persona'
 import { RouterLink } from '@angular/router';
 import { puedeActualizar as Update, puedeEliminar as Delete } from '../../../core/utils/auth.utils';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-fallecidos',
@@ -27,9 +28,11 @@ export class Fallecidos implements OnInit {
   nombresFiltrados: string[] = [];
   mostrarDropNombre = false;
 
+  filtroActivo = 'true';
+
   modalAbierto = false;
   fallecidoSeleccionado: any = null;
-  form = { nombre: '', dni: '' };
+  form = { nombre: '', dni_fallecido: '' };
 
   modalEliminarAbierto = false;
   fallecidoEliminar: any = null;
@@ -46,7 +49,7 @@ export class Fallecidos implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.personaService
-      .listarFallecidos(this.nombreQuery || undefined, this.dniQuery || undefined)
+      .listarFallecidos(this.nombreQuery || undefined, this.dniQuery || undefined, this.filtroActivo)
       .subscribe({
         next: (data) => {
           this.fallecidos = data;
@@ -91,12 +94,13 @@ export class Fallecidos implements OnInit {
   limpiarFiltros(): void {
     this.nombreQuery = '';
     this.dniQuery = '';
+    this.filtroActivo = 'true';
     this.cargar();
   }
 
   abrirModalEditar(f: any): void {
     this.fallecidoSeleccionado = f;
-    this.form = { nombre: f.nombre, dni: f.dni };
+    this.form = { nombre: f.nombre, dni_fallecido: f.dni_fallecido };
     this.modalAbierto = true;
   }
 
@@ -106,7 +110,7 @@ export class Fallecidos implements OnInit {
 
   guardar(): void {
     if (!this.fallecidoSeleccionado) return;
-    if (!this.form.nombre || !this.form.dni) {
+    if (!this.form.nombre || !this.form.dni_fallecido) {
       this.mostrarMensaje('Nombre y DNI son requeridos', 'error');
       return;
     }
@@ -117,6 +121,32 @@ export class Fallecidos implements OnInit {
         this.cargar();
       },
       error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+    });
+  }
+
+  toggleActivo(f: any): void {
+    const nuevoEstado = !f.activo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
+      text: `¿Deseas ${accion} a "${f.nombre}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.personaService.cambiarEstadoFallecido(f.id, nuevoEstado).subscribe({
+          next: () => {
+            this.mostrarMensaje(`Fallecido ${accion}do`, 'exito');
+            this.cargar();
+          },
+          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
+        });
+      }
     });
   }
 

@@ -11,11 +11,14 @@ export class CapillaService {
 
   constructor(private http: HttpClient) {}
 
-  listar(modelo?: string) {
+  listar(modelo?: string, activo?: string) {
     let params = new HttpParams();
 
     if (modelo) {
       params = params.set('modelo', modelo);
+    }
+    if (activo !== undefined && activo !== null && activo !== '') {
+      params = params.set('activo', activo);
     }
 
     return this.http.get<Capilla[]>(this.api, { params });
@@ -35,5 +38,9 @@ export class CapillaService {
 
   actualizarStock(id: number, cantidad: number) {
     return this.http.patch<Capilla>(`${this.api}/${id}/stock`, { cantidad });
+  }
+
+  cambiarEstado(id: number, activo: boolean) {
+    return this.http.patch<Capilla>(`${this.api}/${id}/status`, { activo });
   }
 }

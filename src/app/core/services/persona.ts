@@ -13,10 +13,11 @@ export class PersonaService {
 
   constructor(private http: HttpClient) {}
 
-  listarFallecidos(nombre?: string, dni?: string): Observable<any[]> {
+  listarFallecidos(nombre?: string, dni?: string, activo?: string): Observable<any[]> {
     let params = new HttpParams();
     if (nombre) params = params.set('nombre', nombre);
     if (dni) params = params.set('dni', dni);
+    if (activo !== undefined && activo !== null && activo !== '') params = params.set('activo', activo);
 
     return this.http.get<any[]>(this.fallecidosApi, { params });
   }
@@ -33,10 +34,15 @@ export class PersonaService {
     return this.http.delete(`${this.fallecidosApi}/${id}`);
   }
 
-  listarContratantes(nombre?: string, dni?: string): Observable<Contratante[]> {
+  cambiarEstadoFallecido(id: number, activo: boolean): Observable<any> {
+    return this.http.patch(`${this.fallecidosApi}/${id}/status`, { activo });
+  }
+
+  listarContratantes(nombre?: string, dni?: string, activo?: string): Observable<Contratante[]> {
     let params = new HttpParams();
     if (nombre) params = params.set('nombre', nombre);
     if (dni) params = params.set('dni', dni);
+    if (activo !== undefined && activo !== null && activo !== '') params = params.set('activo', activo);
 
     return this.http.get<Contratante[]>(this.contratantesApi, { params });
   }
@@ -51,5 +57,9 @@ export class PersonaService {
 
   eliminarContratante(id: number): Observable<any> {
     return this.http.delete(`${this.contratantesApi}/${id}`);
+  }
+
+  cambiarEstadoContratante(id: number, activo: boolean): Observable<any> {
+    return this.http.patch(`${this.contratantesApi}/${id}/status`, { activo });
   }
 }

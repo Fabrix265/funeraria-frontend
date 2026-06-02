@@ -53,6 +53,10 @@
             <span class="info-label">Nombre</span>
             <span class="info-value">{{ servicio.fallecido?.nombre }}</span>
           </div>
+          <div class="info-row">
+            <span class="info-label">DNI</span>
+            <span class="info-value info-value--mono">{{ servicio.fallecido?.dni_fallecido }}</span>
+          </div>
         </div>
       </div>
 
@@ -126,6 +130,48 @@
         </div>
       </div>
 
+      <div class="card card--full">
+        <h2 class="card__title">🧍 Pasajeros</h2>
+        <div class="card__body">
+          <div class="table-loader" *ngIf="cargandoPasajeros">
+            <div class="spinner"></div>
+          </div>
+
+          <ng-container *ngIf="!cargandoPasajeros">
+            <div class="table-wrapper" *ngIf="pasajeros.length > 0">
+              <table class="tabla">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th *ngIf="puedeActualizarPasajeros || puedeEliminarPasajeros">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of pasajeros" class="tabla__fila">
+                    <td class="tabla__nombre">{{ p.nombre }}</td>
+                    <td class="tabla__dni">{{ p.dni_pasajero }}</td>
+                    <td class="tabla__acciones" *ngIf="puedeActualizarPasajeros || puedeEliminarPasajeros">
+                      <button class="icon-btn icon-btn--edit" title="Editar"
+                        *ngIf="puedeActualizarPasajeros" (click)="abrirModalEditarPasajero(p)">✎</button>
+                      <button class="icon-btn icon-btn--delete" title="Eliminar"
+                        *ngIf="puedeEliminarPasajeros" (click)="eliminarPasajero(p)">✕</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="info-empty" *ngIf="pasajeros.length === 0">Sin pasajeros registrados</p>
+
+            <button class="btn btn--ghost btn--sm" style="margin-top: 12px;" *ngIf="puedeCrearPasajeros"
+              (click)="abrirModalCrearPasajero()">
+              <span>+</span> Agregar pasajero
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
     </div>
 
   </ng-container>
@@ -148,6 +194,34 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Pasajero -->
+<div class="modal-overlay" *ngIf="modalPasajeroAbierto" (click)="cerrarModalPasajero()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">{{ modoEdicionPasajero ? 'Editar pasajero' : 'Nuevo pasajero' }}</h2>
+      <button class="modal__close" (click)="cerrarModalPasajero()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="field">
+        <label class="field__label">Nombre *</label>
+        <input class="field__input" type="text" [(ngModel)]="formPasajero.nombre"
+          placeholder="Nombre completo" />
+      </div>
+      <div class="field">
+        <label class="field__label">DNI *</label>
+        <input class="field__input" type="text" [(ngModel)]="formPasajero.dni_pasajero"
+          placeholder="00000000" maxlength="8" />
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalPasajero()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardarPasajero()">
+        {{ modoEdicionPasajero ? 'Guardar cambios' : 'Agregar' }}
+      </button>
     </div>
   </div>
 </div>
