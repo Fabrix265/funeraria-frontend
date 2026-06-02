@@ -5,6 +5,7 @@ import { PersonaService } from '../../../core/services/persona'
 import { Contratante } from '../../../core/models/contratante.model'
 import { RouterLink } from '@angular/router';
 import { puedeActualizar as checkActualizar, puedeEliminar as checkEliminar } from '../../../core/utils/auth.utils';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-contratantes',
@@ -28,6 +29,8 @@ export class Contratantes implements OnInit {
   nombresFiltrados: string[] = [];
   mostrarDropNombre = false;
 
+  filtroActivo = 'true';
+
   modalAbierto = false;
   contratanteSeleccionado: Contratante | null = null;
   form = { nombre: '', dni: '', telefono: '' };
@@ -47,7 +50,7 @@ export class Contratantes implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.personaService
-      .listarContratantes(this.nombreQuery || undefined, this.dniQuery || undefined)
+      .listarContratantes(this.nombreQuery || undefined, this.dniQuery || undefined, this.filtroActivo)
       .subscribe({
         next: (data) => {
           this.contratantes = data;
@@ -92,6 +95,7 @@ export class Contratantes implements OnInit {
   limpiarFiltros(): void {
     this.nombreQuery = '';
     this.dniQuery = '';
+    this.filtroActivo = 'true';
     this.cargar();
   }
 
@@ -121,6 +125,32 @@ export class Contratantes implements OnInit {
         },
         error: () => this.mostrarMensaje('Error al actualizar', 'error'),
       });
+  }
+
+  toggleActivo(c: Contratante): void {
+    const nuevoEstado = !c.activo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
+      text: `¿Deseas ${accion} a "${c.nombre}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.personaService.cambiarEstadoContratante(c.id, nuevoEstado).subscribe({
+          next: () => {
+            this.mostrarMensaje(`Contratante ${accion}do`, 'exito');
+            this.cargar();
+          },
+          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
+        });
+      }
+    });
   }
 
   abrirModalEliminar(c: Contratante): void {

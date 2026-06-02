@@ -6,6 +6,7 @@ import { Vehiculo, TipoVehiculo } from '../../../core/models/vehiculo.model';
 import { RouterLink } from '@angular/router';
 import { esAdminActual } from '../../../core/utils/auth.utils';
 import { puedeCrear, puedeActualizar, puedeEliminar } from '../../../core/utils/auth.utils';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-vehiculos',
@@ -23,6 +24,8 @@ export class Vehiculos implements OnInit {
   cargando = false;
   mensaje = '';
   tipoMensaje: 'exito' | 'error' = 'exito';
+
+  filtroActivo = 'true';
 
   readonly tiposVehiculo: TipoVehiculo[] = [
     'porta_ataud',
@@ -59,7 +62,7 @@ export class Vehiculos implements OnInit {
 
   cargar(): void {
     this.cargando = true;
-    this.vehiculoService.listar().subscribe({
+    this.vehiculoService.listar(undefined, this.filtroActivo).subscribe({
       next: (data) => {
         this.vehiculos = data;
         this.cargando = false;
@@ -150,5 +153,36 @@ export class Vehiculos implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(v: Vehiculo): void {
+    const nuevoEstado = !v.activo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
+      text: `¿Deseas ${accion} el vehículo "${this.etiqueta(v.tipo)}" #${v.id}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.vehiculoService.cambiarEstado(v.id, nuevoEstado).subscribe({
+          next: () => {
+            this.mostrarMensaje(`Vehículo ${accion}do`, 'exito');
+            this.cargar();
+          },
+          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
+        });
+      }
+    });
+  }
+
+  limpiarFiltros(): void {
+    this.filtroActivo = 'true';
+    this.cargar();
   }
 }

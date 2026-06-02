@@ -15,7 +15,7 @@ export class Servicio {
     let params = new HttpParams().set('offset', offset).set('limit', limit);
 
     Object.keys(filtros).forEach((key) => {
-      if (filtros[key]) {
+      if (filtros[key] !== undefined && filtros[key] !== null && filtros[key] !== '') {
         params = params.set(key, filtros[key]);
       }
     });

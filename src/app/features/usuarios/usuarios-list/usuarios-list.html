@@ -19,6 +19,26 @@
     </button>
   </header>
 
+  <section class="filtros-panel">
+    <h3 class="filtros-panel__titulo">Filtros</h3>
+    <div class="filtros-grid">
+
+      <div class="filtro-group">
+        <label class="filtro-label">Estado</label>
+        <select class="filtro-input" [(ngModel)]="filtroActivo" (change)="cargar()">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="filtro-group filtro-group--action">
+        <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
+      </div>
+
+    </div>
+  </section>
+
   <section class="table-section">
 
     <div class="table-loader" *ngIf="cargando">
@@ -37,11 +57,12 @@
           <th>ID</th>
           <th>Usuario</th>
           <th>Cargo</th>
+          <th>Estado</th>
           <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let u of usuarios" class="tabla__fila">
+        <tr *ngFor="let u of usuarios" class="tabla__fila" [class.tabla__fila--inactivo]="!u.activo">
           <td class="tabla__id">#{{ u.id }}</td>
           <td class="tabla__nombre">{{ u.username }}</td>
 
@@ -57,6 +78,13 @@
             <span *ngIf="!u.roles || u.roles.length === 0" class="cargo-badge">
               Sin Rol
             </span>
+          </td>
+
+          <td>
+            <label class="switch" [class.switch--active]="u.activo" (click)="toggleActivo(u); $event.stopPropagation()">
+              <span class="switch__track"></span>
+              <span class="switch__thumb"></span>
+            </label>
           </td>
 
           <td class="tabla__acciones">

@@ -15,7 +15,7 @@ export class AtaudService {
     let params = new HttpParams();
 
     Object.keys(filtros).forEach((key) => {
-      if (filtros[key]) {
+      if (filtros[key] !== undefined && filtros[key] !== null && filtros[key] !== '') {
         params = params.set(key, filtros[key]);
       }
     });
@@ -37,5 +37,9 @@ export class AtaudService {
 
   actualizarStock(id: number, cantidad: number) {
     return this.http.patch<Ataud>(`${this.api}/${id}/stock`, { cantidad });
+  }
+
+  cambiarEstado(id: number, activo: boolean) {
+    return this.http.patch<Ataud>(`${this.api}/${id}/status`, { activo });
   }
 }
