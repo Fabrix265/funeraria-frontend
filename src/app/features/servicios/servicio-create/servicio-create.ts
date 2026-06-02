@@ -27,7 +27,6 @@ export class ServicioCreate implements OnInit {
   mensaje     = ''
   tipoMensaje: 'exito' | 'error' = 'exito'
 
-  // Sugerencias informativas de la IA
   iaMeta: any = null
 
   form: any = {
@@ -38,10 +37,16 @@ export class ServicioCreate implements OnInit {
     id_capilla:          null,
     id_ataud:            null,
     cantidad_cargadores: null,
-    fallecido:           { nombre: '' },
+    fallecido:           { nombre: '', dni_fallecido: '' },
     contratante:         { nombre: '', dni: '', telefono: '' },
-    ids_vehiculos:       []
+    ids_vehiculos:       [],
+    pasajeros:           []
   }
+
+  pasajeroForm = { nombre: '', dni_pasajero: '' }
+  modalPasajeroAbierto = false
+  modoEdicionPasajero = false
+  pasajeroEditandoIndex: number | null = null
 
   readonly tiposPago = ['directo', 'seguro', 'mixto']
 
@@ -56,7 +61,6 @@ export class ServicioCreate implements OnInit {
   ngOnInit(): void {
     this.cargarCatalogos()
 
-    // Leer datos pre-llenados desde IA
     const state = history.state
     if (state?.ia) {
       this.aplicarDatosIA(state.ia)
@@ -78,19 +82,20 @@ export class ServicioCreate implements OnInit {
     this.form.fecha                   = ia.fecha                || ''
     this.form.cantidad_cargadores     = ia.cantidad_cargadores  || null
     this.form.fallecido.nombre        = ia.fallecido_nombre     || ''
+    this.form.fallecido.dni_fallecido = ia.fallecido_dni        || ''
     this.form.contratante.nombre      = ia.contratante_nombre   || ''
     this.form.contratante.dni         = ia.contratante_dni      || ''
     this.form.contratante.telefono    = ia.contratante_telefono || ''
   }
 
   cargarCatalogos(): void {
-    this.http.get<any[]>(`${this.mainApi}/coffins`).subscribe({
+    this.http.get<any[]>(`${this.mainApi}/coffins?activo=true`).subscribe({
       next: (res) => this.zone.run(() => this.ataudes = res)
     })
-    this.http.get<any[]>(`${this.mainApi}/chapels`).subscribe({
+    this.http.get<any[]>(`${this.mainApi}/chapels?activo=true`).subscribe({
       next: (res) => this.zone.run(() => this.capillas = res)
     })
-    this.http.get<any[]>(`${this.mainApi}/vehicles`).subscribe({
+    this.http.get<any[]>(`${this.mainApi}/vehicles?activo=true`).subscribe({
       next: (res) => this.zone.run(() => this.vehiculos = res)
     })
   }
@@ -107,7 +112,10 @@ export class ServicioCreate implements OnInit {
             id_capilla:          res.capilla?.id          ?? null,
             id_ataud:            res.ataud?.id            ?? null,
             cantidad_cargadores: res.cantidad_cargadores  ?? null,
-            fallecido:           { nombre: res.fallecido?.nombre ?? '' },
+            fallecido:           {
+              nombre: res.fallecido?.nombre ?? '',
+              dni_fallecido: res.fallecido?.dni_fallecido ?? ''
+            },
             contratante:         {
               nombre:   res.contratante?.nombre   ?? '',
               dni:      res.contratante?.dni       ?? '',
@@ -115,6 +123,9 @@ export class ServicioCreate implements OnInit {
             },
             ids_vehiculos: res.vehiculos_asignados
               ? res.vehiculos_asignados.map((v: any) => v.id)
+              : [],
+            pasajeros: res.pasajeros
+              ? res.pasajeros.map((p: any) => ({ nombre: p.nombre, dni_pasajero: p.dni_pasajero }))
               : []
           }
         })
@@ -145,6 +156,47 @@ export class ServicioCreate implements OnInit {
     return map[tipo] ?? tipo
   }
 
+  get puedeAgregarPasajeros(): boolean {
+    if (this.form.ids_vehiculos.length === 0) return false
+    return this.vehiculos
+      .filter(v => this.form.ids_vehiculos.includes(v.id))
+      .some(v => v.tipo === 'auto' || v.tipo === 'microbus')
+  }
+
+  abrirModalPasajero(): void {
+    this.modoEdicionPasajero = false
+    this.pasajeroEditandoIndex = null
+    this.pasajeroForm = { nombre: '', dni_pasajero: '' }
+    this.modalPasajeroAbierto = true
+  }
+
+  editarPasajero(index: number): void {
+    this.modoEdicionPasajero = true
+    this.pasajeroEditandoIndex = index
+    this.pasajeroForm = { ...this.form.pasajeros[index] }
+    this.modalPasajeroAbierto = true
+  }
+
+  cerrarModalPasajero(): void {
+    this.modalPasajeroAbierto = false
+  }
+
+  guardarPasajero(): void {
+    if (!this.pasajeroForm.nombre || !this.pasajeroForm.dni_pasajero) {
+      return
+    }
+    if (this.modoEdicionPasajero && this.pasajeroEditandoIndex !== null) {
+      this.form.pasajeros[this.pasajeroEditandoIndex] = { ...this.pasajeroForm }
+    } else {
+      this.form.pasajeros.push({ ...this.pasajeroForm })
+    }
+    this.cerrarModalPasajero()
+  }
+
+  quitarPasajero(index: number): void {
+    this.form.pasajeros.splice(index, 1)
+  }
+
   cancelar(): void {
     if (this.esEdicion && this.idEditar) {
       this.router.navigate(['/servicios', this.idEditar])
@@ -167,13 +219,23 @@ export class ServicioCreate implements OnInit {
       id_capilla:          Number(this.form.id_capilla),
       id_ataud:            this.form.id_ataud ? Number(this.form.id_ataud) : null,
       cantidad_cargadores: this.form.cantidad_cargadores ? Number(this.form.cantidad_cargadores) : null,
-      fallecido:           { nombre: this.form.fallecido.nombre },
+      fallecido:           {
+        nombre: this.form.fallecido.nombre,
+        dni_fallecido: this.form.fallecido.dni_fallecido
+      },
       contratante:         {
         nombre:   this.form.contratante.nombre,
         dni:      this.form.contratante.dni,
         telefono: this.form.contratante.telefono
       },
       ids_vehiculos: this.form.ids_vehiculos.map((v: any) => Number(v))
+    }
+
+    if (this.form.pasajeros.length > 0) {
+      payload.pasajeros = this.form.pasajeros.map((p: any) => ({
+        nombre: p.nombre,
+        dni_pasajero: p.dni_pasajero
+      }))
     }
 
     this.guardando = true

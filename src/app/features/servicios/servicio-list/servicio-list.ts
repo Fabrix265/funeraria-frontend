@@ -21,7 +21,7 @@ export class ServicioList implements OnInit {
   limit = 10;
   offset = 0;
 
-  filtros = { nombre: '', dni: '', fecha: '' };
+  filtros = { nombre: '', dni: '', dni_fallecido: '', fecha: '' };
 
   constructor(
     private servicioService: Servicio,
@@ -37,6 +37,7 @@ export class ServicioList implements OnInit {
     const params: any = {};
     if (this.filtros.nombre) params['nombre'] = this.filtros.nombre;
     if (this.filtros.dni) params['dni'] = this.filtros.dni;
+    if (this.filtros.dni_fallecido) params['dni_fallecido'] = this.filtros.dni_fallecido;
     if (this.filtros.fecha) params['fecha'] = this.filtros.fecha;
 
     this.servicioService.listar(params, this.offset, this.limit).subscribe({
@@ -60,7 +61,7 @@ export class ServicioList implements OnInit {
     this.cargar();
   }
   limpiar(): void {
-    this.filtros = { nombre: '', dni: '', fecha: '' };
+    this.filtros = { nombre: '', dni: '', dni_fallecido: '', fecha: '' };
     this.offset = 0;
     this.cargar();
   }

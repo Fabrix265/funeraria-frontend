@@ -10,4 +10,5 @@ export interface User {
   username: string;
   cargo?: Cargo;
   roles: Role[];
+  activo: boolean;
 }

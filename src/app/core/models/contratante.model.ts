@@ -4,5 +4,6 @@ export interface Contratante {
   nombre: string
   dni: string
   telefono: string
+  activo: boolean
 
 }

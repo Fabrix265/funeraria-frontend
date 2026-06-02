@@ -12,6 +12,7 @@ export interface UserLeer {
   id: number;
   username: string;
   roles: RoleLeer[];
+  activo: boolean;
 }
 
 export interface UserCrear {
@@ -40,6 +41,14 @@ export class UserService {
     return this.http.get<UserLeer[]>(this.api);
   }
 
+  listarConFiltro(activo?: string): Observable<UserLeer[]> {
+    let url = this.api;
+    if (activo !== undefined && activo !== null && activo !== '') {
+      url += `?activo=${activo}`;
+    }
+    return this.http.get<UserLeer[]>(url);
+  }
+
   crear(data: UserCrear): Observable<UserLeer> {
     return this.http.post<UserLeer>(this.api, data);
   }
@@ -54,5 +63,9 @@ export class UserService {
 
   actualizarUsuario(id: number, data: UserActualizarAdmin): Observable<UserLeer> {
     return this.http.put<UserLeer>(`${this.api}/${id}`, data);
+  }
+
+  cambiarEstado(id: number, activo: boolean): Observable<any> {
+    return this.http.patch(`${this.api}/${id}/status`, { activo });
   }
 }

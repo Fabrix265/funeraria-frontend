@@ -11,11 +11,14 @@ export class VehiculoService {
 
   constructor(private http: HttpClient) {}
 
-  listar(tipo?: string) {
+  listar(tipo?: string, activo?: string) {
     let params = new HttpParams();
 
     if (tipo) {
       params = params.set('tipo', tipo);
+    }
+    if (activo !== undefined && activo !== null && activo !== '') {
+      params = params.set('activo', activo);
     }
 
     return this.http.get<Vehiculo[]>(this.api, { params });
@@ -31,5 +34,9 @@ export class VehiculoService {
 
   eliminar(id: number) {
     return this.http.delete(`${this.api}/${id}`);
+  }
+
+  cambiarEstado(id: number, activo: boolean) {
+    return this.http.patch<Vehiculo>(`${this.api}/${id}/status`, { activo });
   }
 }

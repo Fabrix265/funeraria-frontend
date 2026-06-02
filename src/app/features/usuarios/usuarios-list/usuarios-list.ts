@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { UserService, UserLeer, RoleLeer } from '../../../core/services/user';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -17,6 +18,8 @@ export class UsuariosList implements OnInit {
   cargando = false;
   mensaje = '';
   tipoMensaje: 'exito' | 'error' = 'exito';
+
+  filtroActivo = 'true';
 
   modalAbierto = false;
   mostrarPassword = false;
@@ -43,7 +46,7 @@ export class UsuariosList implements OnInit {
 
   cargar(): void {
     this.cargando = true;
-    this.userService.listar().subscribe({
+    this.userService.listarConFiltro(this.filtroActivo).subscribe({
       next: (res) => {
         this.usuarios = res;
         this.cargando = false;
@@ -177,5 +180,36 @@ export class UsuariosList implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(u: UserLeer): void {
+    const nuevoEstado = !u.activo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} usuario?`,
+      text: `¿Deseas ${accion} al usuario "${u.username}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.cambiarEstado(u.id, nuevoEstado).subscribe({
+          next: () => {
+            this.mostrarMensaje(`Usuario ${accion}do`, 'exito');
+            this.cargar();
+          },
+          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
+        });
+      }
+    });
+  }
+
+  limpiarFiltros(): void {
+    this.filtroActivo = 'true';
+    this.cargar();
   }
 }

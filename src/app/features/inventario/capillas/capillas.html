@@ -46,6 +46,15 @@
         </div>
       </div>
 
+      <div class="filtro-group">
+        <label class="filtro-label">Estado</label>
+        <select class="filtro-input" [(ngModel)]="filtroActivo" (change)="aplicarFiltro()">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
       <div class="filtro-group filtro-group--action">
         <button class="btn btn--ghost" (click)="limpiarFiltro()">✕ Limpiar</button>
         <button class="btn btn--secondary" (click)="aplicarFiltro()">Aplicar</button>
@@ -71,17 +80,24 @@
             <th>ID</th>
             <th>Modelo</th>
             <th>Stock</th>
+            <th>Estado</th>
             <th *ngIf="puedeCrear || puedeEditar || puedeEliminar || puedeActualizarStock">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of capillas" class="tabla__fila">
+          <tr *ngFor="let c of capillas" class="tabla__fila" [class.tabla__fila--inactivo]="!c.activo">
             <td class="tabla__id">#{{ c.id }}</td>
             <td class="tabla__modelo">{{ c.modelo }}</td>
             <td>
               <span class="stock-num" [class.stock-num--low]="c.stock < 2">
                 {{ c.stock }}
               </span>
+            </td>
+            <td>
+              <label class="switch" [class.switch--active]="c.activo" (click)="toggleActivo(c); $event.stopPropagation()">
+                <span class="switch__track"></span>
+                <span class="switch__thumb"></span>
+              </label>
             </td>
             <td class="tabla__acciones">
               <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(c)">✎</button>

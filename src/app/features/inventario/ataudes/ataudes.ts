@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Ataud } from '../../../core/models/ataud.model';
 import { RouterLink } from '@angular/router';
 import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso } from '../../../core/utils/auth.utils'
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-ataudes',
@@ -26,6 +27,7 @@ export class Ataudes implements OnInit {
 
   filtroModelo = '';
   filtroColor = '';
+  filtroActivo = 'true';
   modeloQuery = '';
   colorQuery = '';
   modelosUnicos: string[] = [];
@@ -61,6 +63,7 @@ export class Ataudes implements OnInit {
     const filtros: any = {};
     if (this.filtroModelo) filtros['modelo'] = this.filtroModelo;
     if (this.filtroColor) filtros['color'] = this.filtroColor;
+    if (this.filtroActivo) filtros['activo'] = this.filtroActivo;
 
     this.ataudService.listar(filtros).subscribe({
       next: (data) => {
@@ -149,6 +152,7 @@ export class Ataudes implements OnInit {
   limpiarFiltros(): void {
     this.filtroModelo = '';
     this.filtroColor = '';
+    this.filtroActivo = 'true';
     this.modeloQuery = '';
     this.colorQuery = '';
     this.cargar();
@@ -250,5 +254,31 @@ export class Ataudes implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(a: Ataud): void {
+    const nuevoEstado = !a.activo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+    Swal.fire({
+      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
+      text: `¿Deseas ${accion} el ataúd "${a.modelo}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.ataudService.cambiarEstado(a.id, nuevoEstado).subscribe({
+          next: () => {
+            this.mostrarMensaje(`Ataúd ${accion}do`, 'exito');
+            this.cargar();
+          },
+          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
+        });
+      }
+    });
   }
 }
