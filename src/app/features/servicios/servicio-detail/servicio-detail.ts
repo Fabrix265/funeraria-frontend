@@ -4,7 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Servicio } from '../../../core/services/servicio';
 import { PasajeroService } from '../../../core/services/pasajero';
+import { PagoService } from '../../../core/services/pago';
+import { Pago } from '../../../core/models/pago.model';
 import { puedeActualizar, puedeEliminar as puedeEliminarFn, puedeCrear } from '../../../core/utils/auth.utils';
+import { loadStripe, Stripe, StripeCardElement } from '@stripe/stripe-js';
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -33,10 +37,19 @@ export class ServicioDetail implements OnInit {
   pasajeroSeleccionado: any = null;
   formPasajero = { nombre: '', dni_pasajero: '' };
 
+  modalPagoAbierto = false;
+  stripe: Stripe | null = null;
+  cardElement: StripeCardElement | null = null;
+  pagando = false;
+  mensajePago = '';
+  pagoExitoso = false;
+  historialPagos: Pago[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private servicioService: Servicio,
     private pasajeroService: PasajeroService,
+    private pagoService: PagoService,
     private cdr: ChangeDetectorRef,
     private router: Router,
   ) {}
@@ -49,6 +62,7 @@ export class ServicioDetail implements OnInit {
           this.servicio = res;
           this.cargando = false;
           this.cargarPasajeros();
+          this.cargarHistorialPagos();
           this.cdr.detectChanges();
         },
         error: () => {
@@ -95,24 +109,16 @@ export class ServicioDetail implements OnInit {
   }
 
   guardarPasajero(): void {
-    if (!this.formPasajero.nombre || !this.formPasajero.dni_pasajero) {
-      return;
-    }
+    if (!this.formPasajero.nombre || !this.formPasajero.dni_pasajero) return;
 
     if (this.modoEdicionPasajero && this.pasajeroSeleccionado) {
       this.pasajeroService.actualizar(this.pasajeroSeleccionado.id, this.formPasajero).subscribe({
-        next: () => {
-          this.cargarPasajeros();
-          this.cerrarModalPasajero();
-        },
+        next: () => { this.cargarPasajeros(); this.cerrarModalPasajero(); },
         error: () => {},
       });
     } else {
       this.pasajeroService.crear(this.servicio.id, this.formPasajero).subscribe({
-        next: () => {
-          this.cargarPasajeros();
-          this.cerrarModalPasajero();
-        },
+        next: () => { this.cargarPasajeros(); this.cerrarModalPasajero(); },
         error: () => {},
       });
     }
@@ -138,18 +144,96 @@ export class ServicioDetail implements OnInit {
     });
   }
 
-  abrirModalEliminar(): void {
-    this.modalEliminarAbierto = true;
-  }
-  cerrarModalEliminar(): void {
-    this.modalEliminarAbierto = false;
-  }
+  abrirModalEliminar(): void { this.modalEliminarAbierto = true; }
+  cerrarModalEliminar(): void { this.modalEliminarAbierto = false; }
 
   confirmarEliminar(): void {
     if (!this.servicio) return;
     this.servicioService.eliminar(this.servicio.id).subscribe({
       next: () => this.router.navigate(['/servicios']),
       error: () => this.cerrarModalEliminar(),
+    });
+  }
+
+  cargarHistorialPagos(): void {
+    this.pagoService.obtenerPorServicio(this.servicio.id).subscribe({
+      next: (pagos) => {
+        this.historialPagos = pagos;
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+  }
+
+  async abrirModalPago(): Promise<void> {
+    this.modalPagoAbierto = true;
+    this.mensajePago = '';
+    this.pagoExitoso = false;
+
+    this.stripe = await loadStripe(environment.stripePublicKey);
+    if (!this.stripe) return;
+
+    setTimeout(() => {
+      const elements = this.stripe!.elements();
+      this.cardElement = elements.create('card', {
+        style: {
+          base: {
+            fontSize: '15px',
+            color: '#e8edf5',
+            fontFamily: "'DM Sans', sans-serif",
+            '::placeholder': { color: '#7a92b0' },
+          },
+          invalid: { color: '#e87070' },
+        },
+      });
+      this.cardElement.mount('#card-element');
+    }, 150);
+  }
+
+  cerrarModalPago(): void {
+    this.modalPagoAbierto = false;
+    if (this.cardElement) {
+      this.cardElement.destroy();
+      this.cardElement = null;
+    }
+  }
+
+  async pagar(): Promise<void> {
+    if (!this.stripe || !this.cardElement || !this.servicio) return;
+
+    this.pagando = true;
+    this.mensajePago = '';
+
+    const montoEnCentavos = Math.round(this.servicio.costo * 100);
+
+    this.pagoService.crearIntent({
+      id_servicio: this.servicio.id,
+      monto: montoEnCentavos,
+      moneda: 'pen',
+      descripcion: `Servicio #${this.servicio.id} - ${this.servicio.fallecido?.nombre}`,
+    }).subscribe({
+      next: async (pago) => {
+        const result = await this.stripe!.confirmCardPayment(pago.client_secret!, {
+          payment_method: { card: this.cardElement! },
+        });
+
+        if (result.error) {
+          this.mensajePago = result.error.message ?? 'Error al procesar el pago';
+          this.pagoExitoso = false;
+        } else {
+          this.mensajePago = '¡Pago realizado con éxito!';
+          this.pagoExitoso = true;
+          this.cargarHistorialPagos();
+        }
+
+        this.pagando = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.mensajePago = 'Error al conectar con el servidor';
+        this.pagando = false;
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -162,5 +246,15 @@ export class ServicioDetail implements OnInit {
       microbus: 'Microbús',
     };
     return map[tipo] ?? tipo;
+  }
+
+  etiquetaEstadoPago(estado: string): string {
+    const map: Record<string, string> = {
+      pendiente: 'Pendiente',
+      completado: 'Completado',
+      fallido: 'Fallido',
+      cancelado: 'Cancelado',
+    };
+    return map[estado] ?? estado;
   }
 }
