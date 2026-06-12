@@ -22,6 +22,7 @@
 
     <div class="detail-grid">
 
+      <!-- Datos del servicio -->
       <div class="card">
         <h2 class="card__title">📋 Datos del servicio</h2>
         <div class="card__body">
@@ -46,6 +47,7 @@
         </div>
       </div>
 
+      <!-- Fallecido -->
       <div class="card">
         <h2 class="card__title">🕊 Fallecido</h2>
         <div class="card__body">
@@ -60,6 +62,7 @@
         </div>
       </div>
 
+      <!-- Contratante -->
       <div class="card">
         <h2 class="card__title">👤 Contratante</h2>
         <div class="card__body">
@@ -78,6 +81,7 @@
         </div>
       </div>
 
+      <!-- Capilla -->
       <div class="card">
         <h2 class="card__title">⛪ Capilla</h2>
         <div class="card__body">
@@ -88,6 +92,7 @@
         </div>
       </div>
 
+      <!-- Ataúd -->
       <div class="card">
         <h2 class="card__title">⚰ Ataúd</h2>
         <div class="card__body">
@@ -112,6 +117,7 @@
         </div>
       </div>
 
+      <!-- Vehículos -->
       <div class="card card--full">
         <h2 class="card__title">🚗 Vehículos asignados</h2>
         <div class="card__body">
@@ -130,6 +136,7 @@
         </div>
       </div>
 
+      <!-- Pasajeros -->
       <div class="card card--full">
         <h2 class="card__title">🧍 Pasajeros</h2>
         <div class="card__body">
@@ -172,12 +179,52 @@
         </div>
       </div>
 
+      <!-- Pago -->
+      <div class="card card--full">
+        <h2 class="card__title">💳 Pago del servicio</h2>
+        <div class="card__body">
+
+          <!-- Historial de pagos -->
+          <div class="table-wrapper" *ngIf="historialPagos.length > 0">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Monto</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of historialPagos" class="tabla__fila">
+                  <td class="tabla__nombre">S/ {{ (p.monto / 100) | number:'1.2-2' }}</td>
+                  <td>
+                    <span class="badge-estado" [ngClass]="'badge-estado--' + p.estado">
+                      {{ etiquetaEstadoPago(p.estado) }}
+                    </span>
+                  </td>
+                  <td class="tabla__dni">{{ p.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="info-empty" *ngIf="historialPagos.length === 0">Sin pagos registrados</p>
+
+          <button class="btn btn--primary" style="margin-top: 12px;" (click)="abrirModalPago()">
+            💳 Registrar pago — S/ {{ servicio.costo | number:'1.2-2' }}
+          </button>
+
+        </div>
+      </div>
+
     </div>
 
   </ng-container>
 
 </div>
 
+
+<!-- ── Modal: Eliminar servicio ─────────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="modalEliminarAbierto" (click)="cerrarModalEliminar()">
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header modal__header--danger">
@@ -198,7 +245,8 @@
   </div>
 </div>
 
-<!-- Modal Pasajero -->
+
+<!-- ── Modal: Pasajero ──────────────────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="modalPasajeroAbierto" (click)="cerrarModalPasajero()">
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header">
@@ -221,6 +269,58 @@
       <button class="btn btn--ghost" (click)="cerrarModalPasajero()">Cancelar</button>
       <button class="btn btn--primary" (click)="guardarPasajero()">
         {{ modoEdicionPasajero ? 'Guardar cambios' : 'Agregar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Modal: Pago ──────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="modalPagoAbierto" (click)="cerrarModalPago()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">💳 Registrar pago</h2>
+      <button class="modal__close" (click)="cerrarModalPago()">✕</button>
+    </div>
+
+    <div class="modal__body">
+
+      <!-- Resumen del cobro -->
+      <div class="pago-resumen">
+        <span class="pago-resumen__label">Monto a cobrar</span>
+        <span class="pago-resumen__monto">S/ {{ servicio?.costo | number:'1.2-2' }}</span>
+      </div>
+
+      <!-- Campo de tarjeta inyectado por Stripe -->
+      <div class="field" style="margin-top: 1rem;">
+        <label class="field__label">Datos de tarjeta</label>
+        <div id="card-element" class="stripe-card-element"></div>
+      </div>
+
+      <!-- Tarjeta de prueba -->
+      <p class="pago-test-hint">
+        🧪 Prueba con: <code>4242 4242 4242 4242</code> — fecha futura — CVC cualquiera
+      </p>
+
+      <!-- Mensaje de resultado -->
+      <div *ngIf="mensajePago" class="pago-mensaje"
+        [ngClass]="pagoExitoso ? 'pago-mensaje--ok' : 'pago-mensaje--error'">
+        <span *ngIf="pagoExitoso">✓</span>
+        <span *ngIf="!pagoExitoso">✕</span>
+        {{ mensajePago }}
+      </div>
+
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalPago()" [disabled]="pagando">
+        Cancelar
+      </button>
+      <button class="btn btn--primary" (click)="pagar()" [disabled]="pagando || pagoExitoso">
+        <span *ngIf="!pagando">Pagar S/ {{ servicio?.costo | number:'1.2-2' }}</span>
+        <span *ngIf="pagando" class="pago-spinner-inline">
+          <span class="spinner-xs"></span> Procesando...
+        </span>
       </button>
     </div>
   </div>
