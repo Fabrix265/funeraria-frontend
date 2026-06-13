@@ -1,0 +1,298 @@
+<div class="page-wrapper">
+
+  <!-- Cabecera -->
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard">⊞</a>
+      <span class="page-header__icon">📊</span>
+      <div>
+        <h1 class="page-header__title">Pronósticos</h1>
+        <p class="page-header__sub">Modelos de predicción temporal</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="pred-tabs">
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'modelos'"
+      (click)="cambiarTab('modelos')">Modelos</button>
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'prediccion'"
+      (click)="cambiarTab('prediccion')">Predicción</button>
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'comparacion'"
+      (click)="cambiarTab('comparacion')">Comparación</button>
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'distribucion'"
+      (click)="cambiarTab('distribucion')">Distribuciones</button>
+  </nav>
+
+  <!-- Tab: Modelos -->
+  <div class="pred-content" *ngIf="tabActiva === 'modelos'">
+
+    <div class="pred-info-row">
+      <div class="form-card">
+        <h2 class="form-card__title">📈 Información general</h2>
+        <div class="form-card__body" *ngIf="modelosInfo">
+          <div class="info-item">
+            <span class="info-item__label">Período de entrenamiento</span>
+            <span class="info-item__value">{{ modelosInfo.train_periodo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Período de prueba</span>
+            <span class="info-item__value">{{ modelosInfo.test_periodo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Meses entrenamiento</span>
+            <span class="info-item__value">{{ modelosInfo.train_months }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Meses prueba</span>
+            <span class="info-item__value">{{ modelosInfo.test_months }}</span>
+          </div>
+          <div class="info-item info-item--full">
+            <span class="info-item__label">Modelos disponibles</span>
+            <div class="tag-list">
+              <span class="tag" *ngFor="let m of modelosInfo.modelos">{{ m }}</span>
+            </div>
+          </div>
+          <div class="info-item info-item--full">
+            <span class="info-item__label">Targets</span>
+            <div class="tag-list">
+              <span class="tag tag--target" *ngFor="let t of modelosInfo.targets">{{ t }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-card__title">📉 Histórico de servicios</h2>
+        <div class="form-card__body form-card__body--chart" *ngIf="chartHistorial.series">
+          <apx-chart
+            [series]="chartHistorial.series!"
+            [chart]="chartHistorial.chart!"
+            [xaxis]="chartHistorial.xaxis!"
+            [yaxis]="chartHistorial.yaxis!"
+            [colors]="chartHistorial.colors!"
+            [legend]="chartHistorial.legend!"
+            [fill]="chartHistorial.fill!"
+            [tooltip]="chartHistorial.tooltip!"
+            [grid]="chartHistorial.grid!"
+          ></apx-chart>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Predicción -->
+  <div class="pred-content" *ngIf="tabActiva === 'prediccion'">
+
+    <div class="form-card">
+      <h2 class="form-card__title">⚙ Configurar predicción</h2>
+      <div class="form-card__body">
+        <div class="field">
+          <label class="field__label">Modelo</label>
+          <select class="field__input" [(ngModel)]="modeloSeleccionado">
+            <option *ngFor="let m of modelos" [value]="m">{{ m | titlecase }}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Variable objetivo</label>
+          <select class="field__input" [(ngModel)]="targetSeleccionado">
+            <option *ngFor="let t of targets" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Meses a predecir</label>
+          <input class="field__input" type="number" min="1" max="24" [(ngModel)]="pasos" />
+        </div>
+        <div class="field field--btn">
+          <button class="btn btn--primary" (click)="ejecutarPrediccion()" [disabled]="cargando">
+            <span class="btn-spinner" *ngIf="cargando"></span>
+            {{ cargando ? 'Procesando...' : 'Predecir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pred-error" *ngIf="error">
+      <span>✕</span> {{ error }}
+    </div>
+
+    <div class="form-card" *ngIf="resultadoPrediccion">
+      <h2 class="form-card__title">📊 Resultado - {{ resultadoPrediccion.modelo }} | {{ resultadoPrediccion.target }}</h2>
+      <div class="form-card__body form-card__body--chart">
+        <apx-chart
+          [series]="chartPrediccion.series!"
+          [chart]="chartPrediccion.chart!"
+          [xaxis]="chartPrediccion.xaxis!"
+          [yaxis]="chartPrediccion.yaxis!"
+          [colors]="chartPrediccion.colors!"
+          [legend]="chartPrediccion.legend!"
+          [stroke]="chartPrediccion.stroke!"
+          [tooltip]="chartPrediccion.tooltip!"
+          [grid]="chartPrediccion.grid!"
+        ></apx-chart>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="resultadoPrediccion">
+      <h2 class="form-card__title">📋 Tabla de predicciones</h2>
+      <div class="form-card__body">
+        <div class="pred-table-wrap">
+          <table class="pred-table">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Valor estimado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of resultadoPrediccion.predicciones">
+                <td>{{ p.mes }}</td>
+                <td>{{ p.valor | number:'1.0-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Comparación -->
+  <div class="pred-content" *ngIf="tabActiva === 'comparacion'">
+
+    <div class="form-card">
+      <h2 class="form-card__title">⚖ Comparación de modelos</h2>
+      <div class="form-card__body form-card__body--chart" *ngIf="chartComparacion.series">
+        <apx-chart
+          [series]="chartComparacion.series!"
+          [chart]="chartComparacion.chart!"
+          [xaxis]="chartComparacion.xaxis!"
+          [yaxis]="chartComparacion.yaxis!"
+          [colors]="chartComparacion.colors!"
+          [legend]="chartComparacion.legend!"
+          [fill]="chartComparacion.fill!"
+          [tooltip]="chartComparacion.tooltip!"
+          [grid]="chartComparacion.grid!"
+        ></apx-chart>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="comparativa">
+      <h2 class="form-card__title">📋 Métricas detalladas</h2>
+      <div class="form-card__body">
+        <div class="pred-table-wrap">
+          <table class="pred-table">
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th>MAE</th>
+                <th>RMSE</th>
+                <th>R²</th>
+                <th>MAPE (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of comparativa.metricas">
+                <td>{{ m.modelo }}</td>
+                <td>{{ formatearMetrica(m.mae) }}</td>
+                <td>{{ formatearMetrica(m.rmse) }}</td>
+                <td>{{ formatearMetrica(m.r2) }}</td>
+                <td>{{ formatearMetrica(m.mape) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Distribuciones -->
+  <div class="pred-content" *ngIf="tabActiva === 'distribucion'">
+
+    <div class="pred-dist-grid">
+      <div class="form-card">
+        <h2 class="form-card__title">⚰ Distribución de ataúdes</h2>
+        <div class="form-card__body form-card__body--chart" *ngIf="chartDistribucionCoffins.series">
+          <apx-chart
+            [series]="chartDistribucionCoffins.series!"
+            [chart]="chartDistribucionCoffins.chart!"
+            [labels]="chartDistribucionCoffins.labels!"
+            [colors]="chartDistribucionCoffins.colors!"
+            [legend]="chartDistribucionCoffins.legend!"
+            [tooltip]="chartDistribucionCoffins.tooltip!"
+            [plotOptions]="chartDistribucionCoffins.plotOptions!"
+          ></apx-chart>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-card__title">⛪ Distribución de capillas</h2>
+        <div class="form-card__body form-card__body--chart" *ngIf="chartDistribucionChapels.series">
+          <apx-chart
+            [series]="chartDistribucionChapels.series!"
+            [chart]="chartDistribucionChapels.chart!"
+            [labels]="chartDistribucionChapels.labels!"
+            [colors]="chartDistribucionChapels.colors!"
+            [legend]="chartDistribucionChapels.legend!"
+            [tooltip]="chartDistribucionChapels.tooltip!"
+            [plotOptions]="chartDistribucionChapels.plotOptions!"
+          ></apx-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="pred-dist-grid" *ngIf="distribucionCoffins && distribucionChapels">
+      <div class="form-card">
+        <h2 class="form-card__title">📋 Ataúdes - Proporciones</h2>
+        <div class="form-card__body">
+          <div class="pred-table-wrap">
+            <table class="pred-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Proporción</th>
+                  <th>Cantidad est.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of distribucionCoffins.distribucion">
+                  <td>{{ d.nombre }}</td>
+                  <td>{{ (d.proporcion * 100) | number:'1.1-1' }}%</td>
+                  <td>{{ d.cantidad_estimada | number:'1.0-0' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-card__title">📋 Capillas - Proporciones</h2>
+        <div class="form-card__body">
+          <div class="pred-table-wrap">
+            <table class="pred-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Proporción</th>
+                  <th>Cantidad est.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of distribucionChapels.distribucion">
+                  <td>{{ d.nombre }}</td>
+                  <td>{{ (d.proporcion * 100) | number:'1.1-1' }}%</td>
+                  <td>{{ d.cantidad_estimada | number:'1.0-0' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
