@@ -31,6 +31,7 @@ export interface ModeloInfoResponse {
 
 export interface MetricaModelo {
   modelo: string
+  target: string
   mae: number
   rmse: number
   r2: number
@@ -53,18 +54,6 @@ export interface HistoryResponse {
   datos: HistorialItem[]
 }
 
-export interface DistribucionItem {
-  nombre: string
-  proporcion: number
-  proporcion_estacional?: Record<string, number>
-  cantidad_estimada?: number
-}
-
-export interface DistribucionResponse {
-  total_servicios: number
-  distribucion: DistribucionItem[]
-}
-
 export interface DistribucionRequest {
   modelo: ModeloTipo
   target: TargetTipo
@@ -72,10 +61,30 @@ export interface DistribucionRequest {
   mes_fin: string
 }
 
+export interface DistribucionItem {
+  nombre: string
+  proporcion: number
+  proporcion_estacional?: Record<string, number>
+  cantidad_estimada?: number
+}
+
+export interface DistribucionDetalle {
+  nombre: string
+  proporcion: number
+  cantidad_estimada: number
+}
+
+export interface PrediccionDistribucionItem {
+  mes: string
+  total_servicios: number
+  ataudes: DistribucionDetalle[]
+  capillas: DistribucionDetalle[]
+}
+
 export interface DistribucionCompletaResponse {
   modelo: string
   target: string
   pasos: number
   periodo_inicio: string
-  predicciones: PrediccionItem[]
+  predicciones: PrediccionDistribucionItem[]
 }

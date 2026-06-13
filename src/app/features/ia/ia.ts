@@ -240,11 +240,14 @@ export class Ia implements OnInit {
       costo:                parseFloat(d.costo) || 0,
       fecha:                d.fecha,
       cantidad_cargadores:  [4, 6].includes(d.cantidad_cargadores ?? 0) ? d.cantidad_cargadores : null,
-      fallecido:            { nombre: d.fallecido_nombre },
-      contratante:          {
-        nombre:   d.contratante_nombre,
-        dni:      d.contratante_dni,
-        telefono: d.contratante_telefono
+      fallecido: {
+        nombre:         d.fallecido_nombre || 'S/N',
+        dni_fallecido:  d.contratante_dni || '00000000'
+      },
+      contratante: {
+        nombre:   d.contratante_nombre || 'S/N',
+        dni:      d.contratante_dni || '00000000',
+        telefono: d.contratante_telefono || '000000000'
       },
       ids_vehiculos:        idsVehiculos,
       id_ataud:             null,

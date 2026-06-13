@@ -7,7 +7,6 @@ import {
   ModeloInfoResponse,
   ComparativaResponse,
   HistoryResponse,
-  DistribucionResponse,
   DistribucionRequest,
   DistribucionCompletaResponse
 } from '../models/prediccion.model'
@@ -32,14 +31,6 @@ export class PrediccionService {
 
   historial(target: string) {
     return this.http.get<HistoryResponse>(`${this.api}/history/${target}`)
-  }
-
-  distribucionCoffins() {
-    return this.http.get<DistribucionResponse>(`${this.api}/distribution/coffins`)
-  }
-
-  distribucionChapels() {
-    return this.http.get<DistribucionResponse>(`${this.api}/distribution/chapels`)
   }
 
   prediccionDistribucion(request: DistribucionRequest) {

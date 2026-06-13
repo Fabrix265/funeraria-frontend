@@ -23,10 +23,11 @@ import {
   ComparativaResponse,
   MetricaModelo,
   HistoryResponse,
-  DistribucionResponse,
   PrediccionResponse,
   ModeloTipo,
-  TargetTipo
+  TargetTipo,
+  DistribucionCompletaResponse,
+  PrediccionDistribucionItem
 } from '../../core/models/prediccion.model'
 
 export type ChartOptions = {
@@ -54,17 +55,16 @@ export type ChartOptions = {
 })
 export class Predicciones implements OnInit {
 
-  tabActiva: 'modelos' | 'prediccion' | 'comparacion' | 'distribucion' = 'modelos'
+  tabActiva: 'modelos' | 'prediccion' | 'comparacion' | 'necesidades' = 'modelos'
 
   modelosInfo: ModeloInfoResponse | null = null
   comparativa: ComparativaResponse | null = null
   historialServicios: HistoryResponse | null = null
   historialMonto: HistoryResponse | null = null
-  distribucionCoffins: DistribucionResponse | null = null
-  distribucionChapels: DistribucionResponse | null = null
 
   modeloSeleccionado: ModeloTipo = 'sarima'
   targetSeleccionado: TargetTipo = 'servicios_totales'
+  targetComparacion: TargetTipo = 'servicios_totales'
   pasos: number = 6
 
   resultadoPrediccion: PrediccionResponse | null = null
@@ -77,8 +77,15 @@ export class Predicciones implements OnInit {
   chartHistorial: Partial<ChartOptions> = {}
   chartPrediccion: Partial<ChartOptions> = {}
   chartComparacion: Partial<ChartOptions> = {}
-  chartDistribucionCoffins: Partial<ChartOptions> = {}
-  chartDistribucionChapels: Partial<ChartOptions> = {}
+  chartNecesidadesAtaudes: Partial<ChartOptions> = {}
+  chartNecesidadesCapillas: Partial<ChartOptions> = {}
+
+  mesInicio: string = '2026-06'
+  mesFin: string = '2026-12'
+  resultadoDistribucion: DistribucionCompletaResponse | null = null
+  cargandoDistribucion = false
+  tiposAtaude: string[] = []
+  tiposCapilla: string[] = []
 
   constructor(
     private prediccionService: PrediccionService,
@@ -89,13 +96,10 @@ export class Predicciones implements OnInit {
     this.cargarDatosIniciales()
   }
 
-  cambiarTab(tab: 'modelos' | 'prediccion' | 'comparacion' | 'distribucion'): void {
+  cambiarTab(tab: 'modelos' | 'prediccion' | 'comparacion' | 'necesidades'): void {
     this.tabActiva = tab
     if (tab === 'comparacion' && !this.comparativa) {
       this.cargarComparacion()
-    }
-    if (tab === 'distribucion' && !this.distribucionCoffins) {
-      this.cargarDistribuciones()
     }
   }
 
@@ -129,24 +133,6 @@ export class Predicciones implements OnInit {
       next: (comp) => {
         this.comparativa = comp
         this.generarChartComparacion()
-        this.cdr.detectChanges()
-      }
-    })
-  }
-
-  cargarDistribuciones(): void {
-    this.prediccionService.distribucionCoffins().subscribe({
-      next: (dist) => {
-        this.distribucionCoffins = dist
-        this.generarChartDistribucionCoffins()
-        this.cdr.detectChanges()
-      }
-    })
-
-    this.prediccionService.distribucionChapels().subscribe({
-      next: (dist) => {
-        this.distribucionChapels = dist
-        this.generarChartDistribucionChapels()
         this.cdr.detectChanges()
       }
     })
@@ -289,12 +275,12 @@ export class Predicciones implements OnInit {
   generarChartComparacion(): void {
     if (!this.comparativa) return
 
-    const metricas = this.comparativa.metricas
+    const filtradas = this.comparativa.metricas.filter(m => m.target === this.targetComparacion)
     this.chartComparacion = {
       series: [
-        { name: 'MAE', data: metricas.map(m => m.mae) },
-        { name: 'RMSE', data: metricas.map(m => m.rmse) },
-        { name: 'MAPE (%)', data: metricas.map(m => m.mape) }
+        { name: 'MAE', data: filtradas.map(m => m.mae) },
+        { name: 'RMSE', data: filtradas.map(m => m.rmse) },
+        { name: 'MAPE (%)', data: filtradas.map(m => m.mape) }
       ],
       chart: {
         type: 'bar',
@@ -305,7 +291,7 @@ export class Predicciones implements OnInit {
       colors: ['#9db8e8', '#7ecfa0', '#c0aad8'],
       title: { text: '' },
       xaxis: {
-        categories: metricas.map(m => m.modelo),
+        categories: filtradas.map(m => m.modelo),
         labels: { style: { colors: '#7a92b0', fontSize: '11px' } }
       },
       yaxis: {
@@ -324,76 +310,119 @@ export class Predicciones implements OnInit {
     }
   }
 
-  generarChartDistribucionCoffins(): void {
-    if (!this.distribucionCoffins) return
+  cambiarTargetComparacion(): void {
+    this.generarChartComparacion()
+    this.cdr.detectChanges()
+  }
 
-    const dist = this.distribucionCoffins.distribucion
-    this.chartDistribucionCoffins = {
-      series: dist.map(d => d.proporcion * 100),
-      chart: {
-        type: 'donut',
-        height: 320,
-        background: 'transparent'
-      },
-      colors: ['#9db8e8', '#7ecfa0', '#c0aad8', '#d8c898', '#d08080', '#b8cad8', '#a0d4a8', '#e8b8b8', '#b8d8e8'],
-      title: { text: '' },
-      labels: dist.map(d => d.nombre),
-      legend: {
-        position: 'right',
-        labels: { colors: '#e8edf5' }
-      },
-      tooltip: {
-        theme: 'dark',
-        y: { formatter: (val: number) => val.toFixed(1) + '%' }
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            labels: {
-              show: true,
-              total: { show: true, color: '#e8edf5' },
-              value: { color: '#7a92b0' }
-            }
-          }
+  calcularNecesidades(): void {
+    this.cargandoDistribucion = true
+    this.resultadoDistribucion = null
+    this.cdr.detectChanges()
+
+    this.prediccionService.prediccionDistribucion({
+      modelo: this.modeloSeleccionado,
+      target: 'servicios_totales',
+      mes_inicio: this.mesInicio,
+      mes_fin: this.mesFin
+    }).subscribe({
+      next: (res) => {
+        try {
+          this.resultadoDistribucion = res
+          this.extraerTipos()
+          this.generarChartNecesidades()
+        } catch (e) {
+          console.error('Error procesando distribución:', e)
+        } finally {
+          this.cargandoDistribucion = false
+          this.cdr.detectChanges()
         }
+      },
+      error: (err) => {
+        console.error('Error en predicción distribución:', err)
+        this.cargandoDistribucion = false
+        this.cdr.detectChanges()
       }
+    })
+  }
+
+  extraerTipos(): void {
+    if (!this.resultadoDistribucion?.predicciones?.length) return
+    const first = this.resultadoDistribucion.predicciones[0]
+    this.tiposAtaude = first.ataudes.map(a => a.nombre)
+    this.tiposCapilla = first.capillas.map(c => c.nombre)
+  }
+
+  generarChartNecesidades(): void {
+    if (!this.resultadoDistribucion?.predicciones?.length) return
+
+    const preds = this.resultadoDistribucion.predicciones
+    const meses = preds.map(p => p.mes)
+
+    const colores = ['#9db8e8', '#7ecfa0', '#c0aad8', '#f0b752', '#e88b8b', '#6dd8d8', '#b8a9e8', '#e8d76d', '#e88bdf']
+
+    const tooltipBase = { theme: 'dark' as const, shared: true, intersect: false }
+
+    const tiposConDemandAtaudes = this.tiposAtaude.filter(tipo =>
+      preds.some(p => { const item = p.ataudes.find(a => a.nombre === tipo); return item && item.cantidad_estimada > 0 })
+    )
+
+    const seriesAtaude: ApexAxisChartSeries = tiposConDemandAtaudes.map(tipo => ({
+      name: tipo,
+      data: preds.map(p => {
+        const item = p.ataudes.find(a => a.nombre === tipo)
+        return item ? Math.round(item.cantidad_estimada) : 0
+      })
+    }))
+
+    this.chartNecesidadesAtaudes = {
+      series: seriesAtaude,
+      chart: { type: 'bar', stacked: true, height: 300, background: 'transparent', toolbar: { show: false } },
+      colors: colores,
+      title: { text: '' },
+      xaxis: { categories: meses, labels: { style: { colors: '#7a92b0', fontSize: '11px' } } },
+      yaxis: { labels: { style: { colors: '#7a92b0' } } },
+      legend: { position: 'top', labels: { colors: '#e8edf5' } },
+      fill: { opacity: 0.85 },
+      tooltip: tooltipBase,
+      plotOptions: { bar: { columnWidth: '50%' } },
+      grid: { borderColor: '#1e3a5f', strokeDashArray: 3 }
+    }
+
+    const tiposConDemandCapillas = this.tiposCapilla.filter(tipo =>
+      preds.some(p => { const item = p.capillas.find(c => c.nombre === tipo); return item && item.cantidad_estimada > 0 })
+    )
+
+    const seriesCapilla: ApexAxisChartSeries = tiposConDemandCapillas.map(tipo => ({
+      name: tipo,
+      data: preds.map(p => {
+        const item = p.capillas.find(c => c.nombre === tipo)
+        return item ? Math.round(item.cantidad_estimada) : 0
+      })
+    }))
+
+    this.chartNecesidadesCapillas = {
+      series: seriesCapilla,
+      chart: { type: 'bar', stacked: true, height: 300, background: 'transparent', toolbar: { show: false } },
+      colors: colores.slice().reverse(),
+      title: { text: '' },
+      xaxis: { categories: meses, labels: { style: { colors: '#7a92b0', fontSize: '11px' } } },
+      yaxis: { labels: { style: { colors: '#7a92b0' } } },
+      legend: { position: 'top', labels: { colors: '#e8edf5' } },
+      fill: { opacity: 0.85 },
+      tooltip: tooltipBase,
+      plotOptions: { bar: { columnWidth: '50%' } },
+      grid: { borderColor: '#1e3a5f', strokeDashArray: 3 }
     }
   }
 
-  generarChartDistribucionChapels(): void {
-    if (!this.distribucionChapels) return
+  formatearNumero(valor: number): string {
+    return Math.round(valor).toString()
+  }
 
-    const dist = this.distribucionChapels.distribucion
-    this.chartDistribucionChapels = {
-      series: dist.map(d => d.proporcion * 100),
-      chart: {
-        type: 'donut',
-        height: 320,
-        background: 'transparent'
-      },
-      colors: ['#d8c898', '#9db8e8', '#7ecfa0', '#c0aad8', '#d08080', '#b8cad8', '#a0d4a8', '#e8b8b8'],
-      title: { text: '' },
-      labels: dist.map(d => d.nombre),
-      legend: {
-        position: 'right',
-        labels: { colors: '#e8edf5' }
-      },
-      tooltip: {
-        theme: 'dark',
-        y: { formatter: (val: number) => val.toFixed(1) + '%' }
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            labels: {
-              show: true,
-              total: { show: true, color: '#e8edf5' },
-              value: { color: '#7a92b0' }
-            }
-          }
-        }
-      }
-    }
+  buscarCantidad(items: { nombre: string; cantidad_estimada: number }[], nombre: string): number {
+    const found = items.find(i => i.nombre === nombre)
+    return found ? found.cantidad_estimada : 0
   }
 
   formatearMetrica(valor: number): string {
