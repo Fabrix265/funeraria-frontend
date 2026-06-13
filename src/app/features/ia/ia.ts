@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
@@ -70,8 +70,7 @@ export class Ia implements OnInit {
   private http: HttpClient,
   private router: Router,
   private cdr: ChangeDetectorRef,
-  private vehiculoService: VehiculoService,
-  private ngZone: NgZone
+  private vehiculoService: VehiculoService
 ) {}
 
 
@@ -161,35 +160,17 @@ export class Ia implements OnInit {
   }
 
   private async enviarImagen(archivo: File): Promise<any> {
-  const archivoComprimido = await this.comprimirImagen(archivo)
-  const form = new FormData()
-  form.append('file', archivoComprimido)
+    const archivoComprimido = await this.comprimirImagen(archivo)
+    const form = new FormData()
+    form.append('file', archivoComprimido)
 
-  return new Promise((resolve, reject) => {
-    this.http.post(`${this.iaApi}/ia/process-contract`, form).subscribe({
-      next: (respuesta: any) => {
-        const tarea_id = respuesta?.tarea_id
-        if (!tarea_id) { reject(new Error('No tarea_id')); return }
-
-        const intervalo = this.ngZone.run(() => setInterval(() => {
-          this.http.get(`${this.iaApi}/ia/task/${tarea_id}`).subscribe({
-            next: (tarea: any) => {
-              if (tarea.estado === 'listo') {
-                clearInterval(intervalo)
-                resolve(tarea.resultado)
-              } else if (tarea.estado === 'error') {
-                clearInterval(intervalo)
-                reject(new Error(tarea.error))
-              }
-            },
-            error: (err) => { clearInterval(intervalo); reject(err) }
-          })
-        }, 15000))
-      },
-      error: reject
+    return new Promise((resolve, reject) => {
+      this.http.post(`${this.iaApi}/ia/process-contract`, form).subscribe({
+        next: (respuesta: any) => resolve(respuesta),
+        error: reject
+      })
     })
-  })
-}
+  }
 
   private mapearDatos(raw: any): DatosContrato {
     return {
@@ -259,11 +240,14 @@ export class Ia implements OnInit {
       costo:                parseFloat(d.costo) || 0,
       fecha:                d.fecha,
       cantidad_cargadores:  [4, 6].includes(d.cantidad_cargadores ?? 0) ? d.cantidad_cargadores : null,
-      fallecido:            { nombre: d.fallecido_nombre },
-      contratante:          {
-        nombre:   d.contratante_nombre,
-        dni:      d.contratante_dni,
-        telefono: d.contratante_telefono
+      fallecido: {
+        nombre:         d.fallecido_nombre || 'S/N',
+        dni_fallecido:  d.contratante_dni || '00000000'
+      },
+      contratante: {
+        nombre:   d.contratante_nombre || 'S/N',
+        dni:      d.contratante_dni || '00000000',
+        telefono: d.contratante_telefono || '000000000'
       },
       ids_vehiculos:        idsVehiculos,
       id_ataud:             null,

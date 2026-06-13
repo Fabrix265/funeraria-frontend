@@ -12,7 +12,6 @@ import { tienePermiso, esAdminActual } from '../../core/utils/auth.utils';
 })
 export class MainLayout implements OnInit {
   esAdmin = false;
-  mensajePronostico = false;
   sidebarAbierto = true;
   esMobile = false;
 
@@ -55,13 +54,6 @@ export class MainLayout implements OnInit {
 
   cerrarSidebarMobile(): void {
     if (this.esMobile) this.sidebarAbierto = false;
-  }
-
-  mostrarPronostico(): void {
-    this.mensajePronostico = true;
-    setTimeout(() => {
-      this.mensajePronostico = false;
-    }, 3000);
   }
 
   logout(): void {
