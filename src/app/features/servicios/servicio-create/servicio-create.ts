@@ -29,7 +29,6 @@ export class ServicioCreate implements OnInit {
 
   iaMeta: any = null;
 
-  // Estado de verificación RENIEC para fallecido y contratante
   verificandoFallecido = false;
   verificandoContratante = false;
   fallecidoVerificado = false;
@@ -95,8 +94,7 @@ export class ServicioCreate implements OnInit {
     this.form.contratante.dni = ia.contratante_dni || '';
     this.form.contratante.telefono = ia.contratante_telefono || '';
 
-    // Si la IA ya trajo nombre y dni, se considera "verificado" para no bloquear el guardado,
-    // pero se recomienda igual presionar Verificar para confirmar contra RENIEC.
+
     if (this.form.fallecido.nombre && this.form.fallecido.dni_fallecido) {
       this.fallecidoVerificado = true;
     }
@@ -146,16 +144,12 @@ export class ServicioCreate implements OnInit {
               : [],
           };
 
-          // En edición, ya existen datos cargados: se consideran verificados
-          // para no bloquear la edición de un servicio existente.
           if (this.form.fallecido.nombre) this.fallecidoVerificado = true;
           if (this.form.contratante.nombre) this.contratanteVerificado = true;
         });
       },
     });
   }
-
-  // ===== Verificación RENIEC =====
 
   verificarFallecido(): void {
     const dni = this.form.fallecido.dni_fallecido?.trim();
@@ -226,7 +220,6 @@ export class ServicioCreate implements OnInit {
   }
 
   onDniFallecidoChange(): void {
-    // Si cambia el DNI después de haber verificado, se invalida la verificación
     this.fallecidoVerificado = false;
     this.form.fallecido.nombre = '';
   }
