@@ -235,3 +235,29 @@
 }
 
 .ia-sugerencia strong { color: var(--text-light); }
+
+.field__inline {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.field__inline .field__input {
+  flex: 1;
+}
+
+.field__inline .btn {
+  white-space: nowrap;
+}
+
+.form-hint--ok {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.field__input[readonly],
+.field__input:disabled {
+  background-color: #f1f5f9;
+  color: #475569;
+  cursor: not-allowed;
+}
