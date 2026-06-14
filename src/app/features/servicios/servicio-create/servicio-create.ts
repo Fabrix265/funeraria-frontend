@@ -210,6 +210,10 @@ export class ServicioCreate implements OnInit {
       this.mostrarMensaje('Completa los campos requeridos: dirección, fecha y capilla', 'error')
       return
     }
+    if (!this.form.costo || this.form.costo <= 0) {
+      this.mostrarMensaje('El costo del servicio debe ser mayor a 0', 'error')
+      return
+    }
 
     const payload: any = {
       direccion_velacion:  this.form.direccion_velacion,
@@ -242,7 +246,10 @@ export class ServicioCreate implements OnInit {
 
     if (this.esEdicion && this.idEditar) {
       this.servicioService.actualizar(this.idEditar, payload).subscribe({
-        next: () => this.zone.run(() => this.router.navigate(['/servicios', this.idEditar])),
+        next: () => this.zone.run(() => {
+          this.mostrarMensaje('Servicio actualizado correctamente', 'exito')
+          setTimeout(() => this.router.navigate(['/servicios', this.idEditar]), 1200)
+        }),
         error: (err) => this.zone.run(() => {
           this.guardando = false
           this.mostrarMensaje(err.error?.detail || 'Error al actualizar el servicio', 'error')
@@ -250,7 +257,10 @@ export class ServicioCreate implements OnInit {
       })
     } else {
       this.servicioService.crear(payload).subscribe({
-        next: () => this.zone.run(() => this.router.navigate(['/servicios'])),
+        next: () => this.zone.run(() => {
+          this.mostrarMensaje('Servicio creado correctamente', 'exito')
+          setTimeout(() => this.router.navigate(['/servicios']), 1200)
+        }),
         error: (err) => this.zone.run(() => {
           this.guardando = false
           this.mostrarMensaje(err.error?.detail || 'Error al crear el servicio', 'error')

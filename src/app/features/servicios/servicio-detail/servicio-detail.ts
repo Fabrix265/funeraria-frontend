@@ -9,7 +9,6 @@ import { Pago } from '../../../core/models/pago.model';
 import { puedeActualizar, puedeEliminar as puedeEliminarFn, puedeCrear } from '../../../core/utils/auth.utils';
 import { loadStripe, Stripe, StripeCardElement } from '@stripe/stripe-js';
 import { environment } from '../../../../environments/environment';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-servicio-detail',
@@ -28,6 +27,8 @@ export class ServicioDetail implements OnInit {
   servicio: any = null;
   cargando = true;
   modalEliminarAbierto = false;
+  mensaje = '';
+  tipoMensaje: 'exito' | 'error' = 'exito';
 
   pasajeros: any[] = [];
   cargandoPasajeros = false;
@@ -38,6 +39,8 @@ export class ServicioDetail implements OnInit {
   formPasajero = { nombre: '', dni_pasajero: '' };
 
   modalPagoAbierto = false;
+  modalEliminarPasajeroAbierto = false;
+  pasajeroEliminar: any = null;
   stripe: Stripe | null = null;
   cardElement: StripeCardElement | null = null;
   pagando = false;
@@ -113,34 +116,44 @@ export class ServicioDetail implements OnInit {
 
     if (this.modoEdicionPasajero && this.pasajeroSeleccionado) {
       this.pasajeroService.actualizar(this.pasajeroSeleccionado.id, this.formPasajero).subscribe({
-        next: () => { this.cargarPasajeros(); this.cerrarModalPasajero(); },
-        error: () => {},
+        next: () => {
+          this.mostrarMensaje('Pasajero actualizado', 'exito');
+          this.cargarPasajeros();
+          this.cerrarModalPasajero();
+        },
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar pasajero', 'error'),
       });
     } else {
       this.pasajeroService.crear(this.servicio.id, this.formPasajero).subscribe({
-        next: () => { this.cargarPasajeros(); this.cerrarModalPasajero(); },
-        error: () => {},
+        next: () => {
+          this.mostrarMensaje('Pasajero agregado', 'exito');
+          this.cargarPasajeros();
+          this.cerrarModalPasajero();
+        },
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear pasajero', 'error'),
       });
     }
   }
 
   eliminarPasajero(p: any): void {
-    Swal.fire({
-      title: '¿Eliminar pasajero?',
-      text: `¿Deseas eliminar a "${p.nombre}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.pasajeroService.eliminar(p.id).subscribe({
-          next: () => this.cargarPasajeros(),
-          error: () => {},
-        });
-      }
+    this.pasajeroEliminar = p;
+    this.modalEliminarPasajeroAbierto = true;
+  }
+
+  cerrarModalEliminarPasajero(): void {
+    this.modalEliminarPasajeroAbierto = false;
+    this.pasajeroEliminar = null;
+  }
+
+  confirmarEliminarPasajero(): void {
+    if (!this.pasajeroEliminar) return;
+    this.pasajeroService.eliminar(this.pasajeroEliminar.id).subscribe({
+      next: () => {
+        this.mostrarMensaje('Pasajero eliminado', 'exito');
+        this.cargarPasajeros();
+        this.cerrarModalEliminarPasajero();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar pasajero', 'error'),
     });
   }
 
@@ -150,8 +163,14 @@ export class ServicioDetail implements OnInit {
   confirmarEliminar(): void {
     if (!this.servicio) return;
     this.servicioService.eliminar(this.servicio.id).subscribe({
-      next: () => this.router.navigate(['/servicios']),
-      error: () => this.cerrarModalEliminar(),
+      next: () => {
+        this.mostrarMensaje('Servicio eliminado', 'exito');
+        setTimeout(() => this.router.navigate(['/servicios']), 1200);
+      },
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al eliminar servicio', 'error');
+        this.cerrarModalEliminar();
+      },
     });
   }
 
@@ -229,11 +248,7 @@ export class ServicioDetail implements OnInit {
         this.pagando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mensajePago = 'Error al conectar con el servidor';
-        this.pagando = false;
-        this.cdr.detectChanges();
-      },
+      error: (e) => { this.mensajePago = e.error?.detail || 'Error al conectar con el servidor'; this.pagando = false; this.cdr.detectChanges(); },
     });
   }
 
@@ -256,5 +271,11 @@ export class ServicioDetail implements OnInit {
       cancelado: 'Cancelado',
     };
     return map[estado] ?? estado;
+  }
+
+  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
+    this.mensaje = texto;
+    this.tipoMensaje = tipo;
+    setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges(); }, 3500);
   }
 }

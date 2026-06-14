@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { UserService, UserLeer, RoleLeer } from '../../../core/services/user';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -19,7 +18,7 @@ export class UsuariosList implements OnInit {
   mensaje = '';
   tipoMensaje: 'exito' | 'error' = 'exito';
 
-  filtroActivo = 'true';
+  filtroActivo = '';
 
   modalAbierto = false;
   mostrarPassword = false;
@@ -30,6 +29,9 @@ export class UsuariosList implements OnInit {
   usuarioEditandoId: number | null = null;
   editando = false;
   formEditar = { username: '', role_id: 0, password: '' };
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   usuarioEliminar: UserLeer | null = null;
@@ -169,7 +171,7 @@ export class UsuariosList implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -184,32 +186,31 @@ export class UsuariosList implements OnInit {
 
   toggleActivo(u: UserLeer): void {
     const nuevoEstado = !u.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.itemToggle = { ...u, nuevoEstado, nombre: u.username };
+    this.modalToggleAbierto = true;
+  }
 
-    Swal.fire({
-      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} usuario?`,
-      text: `¿Deseas ${accion} al usuario "${u.username}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.userService.cambiarEstado(u.id, nuevoEstado).subscribe({
-          next: () => {
-            this.mostrarMensaje(`Usuario ${accion}do`, 'exito');
-            this.cargar();
-          },
-          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
-        });
-      }
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.userService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 
   limpiarFiltros(): void {
-    this.filtroActivo = 'true';
+    this.filtroActivo = '';
     this.cargar();
   }
 }

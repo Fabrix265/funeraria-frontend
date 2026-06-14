@@ -87,6 +87,16 @@
 .toast--error { background: #1e0d0d; color: #d08080; border-color: rgba(176,48,48,.35); }
 .toast__icon { font-weight: 700; }
 
+.filtros-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+.filtros-panel__titulo { font-family: var(--font-head); font-size: 1.05rem; color: var(--silver); margin-bottom: 1rem; letter-spacing: 0.05em; }
+.filtros-grid { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+.filtro-group { display: flex; flex-direction: column; gap: 0.35rem; min-width: 160px; }
+.filtro-group--action { flex-direction: row; gap: 0.5rem; margin-left: auto; }
+.filtro-label { font-size: 0.73rem; color: var(--text-muted); letter-spacing: 0.07em; text-transform: uppercase; }
+.filtro-input { background: var(--bg-input); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.88rem; width: 100%; outline: none; transition: border-color var(--transition); -webkit-appearance: none; appearance: none; }
+.filtro-input:focus { border-color: var(--border-2); }
+.filtro-input option { background: var(--bg-card); color: var(--text); }
+
 
 
 

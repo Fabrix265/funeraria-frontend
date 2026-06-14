@@ -95,6 +95,12 @@
   overflow: hidden;
 }
 .form-card--full { grid-column: 1 / -1; }
+.form-card--full .form-card__body {
+  display: block;
+}
+.form-card--full .form-card__body > * + * {
+  margin-top: 0.75rem;
+}
 .form-card__title {
   font-family: var(--font-head);
   font-size: 1.1rem;
