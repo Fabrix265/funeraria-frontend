@@ -77,14 +77,31 @@
       <h2 class="form-card__title">🕊 Fallecido</h2>
       <div class="form-card__body">
         <div class="field field--full">
-          <label class="field__label">Nombre completo</label>
-          <input class="field__input" type="text" [(ngModel)]="form.fallecido.nombre"
-            name="fallecido_nombre" placeholder="Nombre y apellidos" />
+          <label class="field__label">DNI Fallecido *</label>
+          <div class="field__inline">
+            <input class="field__input" type="text" [(ngModel)]="form.fallecido.dni_fallecido"
+                   name="fallecido_dni" placeholder="00000000" maxlength="8"
+                   [disabled]="verificandoFallecido"
+                   (ngModelChange)="onDniFallecidoChange()" />
+            <button type="button" class="btn btn--ghost btn--sm"
+                    (click)="verificarFallecido()"
+                    [disabled]="verificandoFallecido || !form.fallecido.dni_fallecido">
+              <span class="btn-spinner" *ngIf="verificandoFallecido"></span>
+              {{ verificandoFallecido ? 'Verificando...' : 'Verificar' }}
+            </button>
+          </div>
         </div>
         <div class="field field--full">
-          <label class="field__label">DNI Fallecido</label>
-          <input class="field__input" type="text" [(ngModel)]="form.fallecido.dni_fallecido"
-            name="fallecido_dni" placeholder="00000000" maxlength="8" />
+          <label class="field__label">Nombre completo</label>
+          <input class="field__input" type="text" [value]="form.fallecido.nombre"
+                 name="fallecido_nombre" placeholder="Se completará al verificar el DNI"
+                 readonly disabled />
+          <p class="form-hint" *ngIf="!fallecidoVerificado">
+            Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
+          </p>
+          <p class="form-hint form-hint--ok" *ngIf="fallecidoVerificado">
+            ✓ Verificado en RENIEC
+          </p>
         </div>
       </div>
     </div>
@@ -94,19 +111,36 @@
       <h2 class="form-card__title">👤 Contratante</h2>
       <div class="form-card__body">
         <div class="field field--full">
-          <label class="field__label">Nombre completo</label>
-          <input class="field__input" type="text" [(ngModel)]="form.contratante.nombre"
-            name="contratante_nombre" placeholder="Nombre y apellidos" />
+          <label class="field__label">DNI *</label>
+          <div class="field__inline">
+            <input class="field__input" type="text" [(ngModel)]="form.contratante.dni"
+                   name="contratante_dni" placeholder="00000000" maxlength="8"
+                   [disabled]="verificandoContratante"
+                   (ngModelChange)="onDniContratanteChange()" />
+            <button type="button" class="btn btn--ghost btn--sm"
+                    (click)="verificarContratante()"
+                    [disabled]="verificandoContratante || !form.contratante.dni">
+              <span class="btn-spinner" *ngIf="verificandoContratante"></span>
+              {{ verificandoContratante ? 'Verificando...' : 'Verificar' }}
+            </button>
+          </div>
         </div>
-        <div class="field">
-          <label class="field__label">DNI</label>
-          <input class="field__input" type="text" [(ngModel)]="form.contratante.dni"
-            name="contratante_dni" placeholder="00000000" maxlength="8" />
+        <div class="field field--full">
+          <label class="field__label">Nombre completo</label>
+          <input class="field__input" type="text" [value]="form.contratante.nombre"
+                 name="contratante_nombre" placeholder="Se completará al verificar el DNI"
+                 readonly disabled />
+          <p class="form-hint" *ngIf="!contratanteVerificado">
+            Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
+          </p>
+          <p class="form-hint form-hint--ok" *ngIf="contratanteVerificado">
+            ✓ Verificado en RENIEC
+          </p>
         </div>
         <div class="field">
           <label class="field__label">Teléfono</label>
           <input class="field__input" type="tel" [(ngModel)]="form.contratante.telefono"
-            name="contratante_tel" placeholder="9XXXXXXXX" />
+                 name="contratante_tel" placeholder="9XXXXXXXX" />
         </div>
       </div>
     </div>
