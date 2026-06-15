@@ -45,7 +45,12 @@
             type="text"
             [(ngModel)]="username"
             placeholder="Dejar vacío para no cambiar"
+            minlength="3"
+            #usernameP="ngModel"
           />
+          <span class="field__error" *ngIf="usernameP.invalid && usernameP.touched">
+            Mínimo 3 caracteres
+          </span>
         </div>
 
         <div class="field">
@@ -56,11 +61,16 @@
               [type]="mostrarPassword ? 'text' : 'password'"
               [(ngModel)]="password"
               placeholder="Dejar vacío para no cambiar"
+              minlength="6"
+              #passP="ngModel"
             />
             <button class="field__eye" type="button" (click)="togglePassword()">
               {{ mostrarPassword ? '👁️‍🗨️' : '👁' }}
             </button>
           </div>
+          <span class="field__error" *ngIf="passP.invalid && passP.touched">
+            Mínimo 6 caracteres
+          </span>
         </div>
 
         <div class="field" *ngIf="password">

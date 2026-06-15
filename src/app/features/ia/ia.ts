@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http'
 import { Router, RouterLink } from '@angular/router'
 import { environment } from '../../../environments/environment'
 import { VehiculoService } from '../../core/services/vehiculo'
+import { ToastService } from '../../core/services/toast'
 import { Vehiculo } from '../../core/models/vehiculo.model'
 
 type EstadoItem = 'pendiente' | 'procesando' | 'listo' | 'error'
@@ -62,15 +63,14 @@ export class Ia implements OnInit {
     { key: 'microbus',     label: 'Microbús' },
   ]
 
-  mensaje = ''
-  tipoMensaje: 'exito' | 'error' = 'exito'
   guardando = false
 
   constructor(
   private http: HttpClient,
   private router: Router,
   private cdr: ChangeDetectorRef,
-  private vehiculoService: VehiculoService
+  private vehiculoService: VehiculoService,
+  private toast: ToastService
 ) {}
 
 
@@ -226,7 +226,7 @@ export class Ia implements OnInit {
     const d = this.itemSeleccionado.datos
 
     if (!d.direccion_velacion || !d.fecha) {
-      this.mostrarMensaje('Completa al menos la dirección y la fecha', 'error')
+      this.toast.mostrar('Completa al menos la dirección y la fecha', 'error')
       return
     }
 
@@ -260,14 +260,14 @@ export class Ia implements OnInit {
     this.guardando = true
     this.http.post(`${this.mainApi}/services/`, payload).subscribe({
       next: () => {
-        this.mostrarMensaje('Servicio guardado correctamente', 'exito')
+        this.toast.mostrar('Servicio guardado correctamente', 'exito')
         const item = this.itemSeleccionado!
-        setTimeout(() => { this.eliminar(item) }, 1200)
+        setTimeout(() => { this.eliminar(item) }, 2500)
         this.guardando = false
       },
       error: (err) => {
         const detalle = err?.error?.detail ?? 'Error al guardar el servicio'
-        this.mostrarMensaje(detalle, 'error')
+        this.toast.mostrar(detalle, 'error')
         this.guardando = false
       }
     })
@@ -276,10 +276,4 @@ export class Ia implements OnInit {
   get totalPendientes(): number { return this.items.filter(i => i.estado === 'pendiente' || i.estado === 'procesando').length }
   get totalListos(): number     { return this.items.filter(i => i.estado === 'listo').length }
   get totalErrores(): number    { return this.items.filter(i => i.estado === 'error').length }
-
-  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
-    this.mensaje = texto
-    this.tipoMensaje = tipo
-    setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges() }, 3500)
-  }
 }

@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { Capilla } from '../../../core/models/capilla.model'
 import { RouterLink } from '@angular/router';
 import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso} from '../../../core/utils/auth.utils';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-capillas',
@@ -41,6 +40,9 @@ export class Capillas implements OnInit {
   capillaStock: Capilla | null = null;
   cantidadStock = 0;
 
+  modalToggleAbierto = false;
+  itemToggle: any = null;
+
   modalEliminarAbierto = false;
   capillaEliminar: Capilla | null = null;
 
@@ -62,8 +64,8 @@ export class Capillas implements OnInit {
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mostrarMensaje('Error al cargar capillas', 'error');
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al cargar capillas', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -133,7 +135,7 @@ export class Capillas implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
     } else {
       this.capillaService.crear(this.form).subscribe({
@@ -142,7 +144,7 @@ export class Capillas implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al crear', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
       });
     }
   }
@@ -165,7 +167,7 @@ export class Capillas implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -188,7 +190,7 @@ export class Capillas implements OnInit {
         this.cerrarModalStock();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al actualizar stock', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar stock', 'error'),
     });
   }
 
@@ -203,27 +205,26 @@ export class Capillas implements OnInit {
 
   toggleActivo(c: Capilla): void {
     const nuevoEstado = !c.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.itemToggle = { ...c, nuevoEstado, nombre: c.modelo };
+    this.modalToggleAbierto = true;
+  }
 
-    Swal.fire({
-      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
-      text: `¿Deseas ${accion} la capilla "${c.modelo}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.capillaService.cambiarEstado(c.id, nuevoEstado).subscribe({
-          next: () => {
-            this.mostrarMensaje(`Capilla ${accion}da`, 'exito');
-            this.cargar();
-          },
-          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
-        });
-      }
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.capillaService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 }

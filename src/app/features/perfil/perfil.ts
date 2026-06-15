@@ -74,9 +74,9 @@ export class Perfil implements OnInit {
         this.guardando = false
         this.mostrarMensaje('Perfil actualizado correctamente', 'exito')
       },
-      error: () => {
+      error: (e) => {
         this.guardando = false
-        this.mostrarMensaje('Error al actualizar el perfil', 'error')
+        this.mostrarMensaje(e.error?.detail || 'Error al actualizar el perfil', 'error')
       }
     })
   }

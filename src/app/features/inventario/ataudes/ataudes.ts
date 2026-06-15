@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { Ataud } from '../../../core/models/ataud.model';
 import { RouterLink } from '@angular/router';
 import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso } from '../../../core/utils/auth.utils'
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-ataudes',
@@ -46,6 +45,9 @@ export class Ataudes implements OnInit {
   ataudStock: Ataud | null = null;
   cantidadStock = 0;
 
+  modalToggleAbierto = false;
+  itemToggle: any = null;
+
   modalEliminarAbierto = false;
   ataudEliminar: Ataud | null = null;
 
@@ -72,8 +74,8 @@ export class Ataudes implements OnInit {
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mostrarMensaje('Error al cargar ataúdes', 'error');
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al cargar ataúdes', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -188,7 +190,7 @@ export class Ataudes implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
     } else {
       this.ataudService.crear(this.form).subscribe({
@@ -197,7 +199,7 @@ export class Ataudes implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al crear', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
       });
     }
   }
@@ -220,7 +222,7 @@ export class Ataudes implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -243,7 +245,7 @@ export class Ataudes implements OnInit {
         this.cerrarModalStock();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al actualizar stock', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar stock', 'error'),
     });
   }
 
@@ -258,27 +260,26 @@ export class Ataudes implements OnInit {
 
   toggleActivo(a: Ataud): void {
     const nuevoEstado = !a.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.itemToggle = { ...a, nuevoEstado, nombre: a.modelo };
+    this.modalToggleAbierto = true;
+  }
 
-    Swal.fire({
-      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
-      text: `¿Deseas ${accion} el ataúd "${a.modelo}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.ataudService.cambiarEstado(a.id, nuevoEstado).subscribe({
-          next: () => {
-            this.mostrarMensaje(`Ataúd ${accion}do`, 'exito');
-            this.cargar();
-          },
-          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
-        });
-      }
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado, nombre } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.ataudService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 }

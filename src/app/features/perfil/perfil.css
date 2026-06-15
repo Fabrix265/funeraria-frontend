@@ -21,8 +21,6 @@
   --font-body:  'DM Sans', 'Segoe UI', sans-serif;
   --transition: 180ms ease;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
 .page-wrapper {
   min-height: 100vh;
   background: var(--bg);
@@ -90,10 +88,7 @@
 .btn-spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.toast { position: fixed; top: 1.5rem; right: 1.5rem; background: #0d2217; color: #7ecfa0; border: 1px solid rgba(74,158,106,.35); padding: 0.75rem 1.2rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; opacity: 0; pointer-events: none; transform: translateY(-8px); transition: opacity 0.25s, transform 0.25s; z-index: 2000; box-shadow: var(--shadow-sm); }
-.toast.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.toast--error { background: #1e0d0d; color: #d08080; border-color: rgba(176,48,48,.35); }
-.toast__icon { font-weight: 700; }
+
 
 
 

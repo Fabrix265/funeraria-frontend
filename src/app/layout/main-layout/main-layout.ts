@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { tienePermiso, esAdminActual } from '../../core/utils/auth.utils';
+import { ToastService } from '../../core/services/toast';
 
 @Component({
   selector: 'app-main-layout',
@@ -23,7 +24,7 @@ export class MainLayout implements OnInit {
   puedeVerFallecidos = false;
   puedeVerIA = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, public toast: ToastService) {}
 
   ngOnInit(): void {
     this.verificarTamano();

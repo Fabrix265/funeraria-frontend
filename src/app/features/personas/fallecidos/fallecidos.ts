@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms'
 import { PersonaService } from '../../../core/services/persona'
 import { RouterLink } from '@angular/router';
 import { puedeActualizar as Update, puedeEliminar as Delete } from '../../../core/utils/auth.utils';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-fallecidos',
@@ -33,6 +32,9 @@ export class Fallecidos implements OnInit {
   modalAbierto = false;
   fallecidoSeleccionado: any = null;
   form = { nombre: '', dni_fallecido: '' };
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   fallecidoEliminar: any = null;
@@ -120,33 +122,32 @@ export class Fallecidos implements OnInit {
         this.cerrarModal();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
     });
   }
 
   toggleActivo(f: any): void {
     const nuevoEstado = !f.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.itemToggle = { ...f, nuevoEstado, nombre: f.nombre };
+    this.modalToggleAbierto = true;
+  }
 
-    Swal.fire({
-      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
-      text: `¿Deseas ${accion} a "${f.nombre}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.personaService.cambiarEstadoFallecido(f.id, nuevoEstado).subscribe({
-          next: () => {
-            this.mostrarMensaje(`Fallecido ${accion}do`, 'exito');
-            this.cargar();
-          },
-          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
-        });
-      }
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.personaService.cambiarEstadoFallecido(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 
@@ -168,7 +169,7 @@ export class Fallecidos implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 

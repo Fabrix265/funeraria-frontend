@@ -248,7 +248,7 @@
 
 <!-- ── Modal: Pasajero ──────────────────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="modalPasajeroAbierto" (click)="cerrarModalPasajero()">
-  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+  <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal__header">
       <h2 class="modal__title">{{ modoEdicionPasajero ? 'Editar pasajero' : 'Nuevo pasajero' }}</h2>
       <button class="modal__close" (click)="cerrarModalPasajero()">✕</button>
@@ -257,12 +257,18 @@
       <div class="field">
         <label class="field__label">Nombre *</label>
         <input class="field__input" type="text" [(ngModel)]="formPasajero.nombre"
-          placeholder="Nombre completo" />
+          placeholder="Nombre completo" minlength="2" maxlength="100" #nomPasD="ngModel" />
+        <span class="field__error" *ngIf="nomPasD.invalid && nomPasD.touched">
+          Mínimo 2 caracteres
+        </span>
       </div>
       <div class="field">
         <label class="field__label">DNI *</label>
         <input class="field__input" type="text" [(ngModel)]="formPasajero.dni_pasajero"
-          placeholder="00000000" maxlength="8" />
+          placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniPasD="ngModel" />
+        <span class="field__error" *ngIf="dniPasD.invalid && dniPasD.touched">
+          8 dígitos numéricos
+        </span>
       </div>
     </div>
     <div class="modal__footer">
@@ -322,6 +328,26 @@
           <span class="spinner-xs"></span> Procesando...
         </span>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Eliminar pasajero ─────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="modalEliminarPasajeroAbierto" (click)="cerrarModalEliminarPasajero()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">Confirmar eliminación</h2>
+      <button class="modal__close" (click)="cerrarModalEliminarPasajero()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Eliminar el pasajero <strong>{{ pasajeroEliminar?.nombre }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalEliminarPasajero()">Cancelar</button>
+      <button class="btn btn--danger" (click)="confirmarEliminarPasajero()">Eliminar</button>
     </div>
   </div>
 </div>

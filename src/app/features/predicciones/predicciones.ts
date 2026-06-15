@@ -15,7 +15,8 @@ import {
   ApexTooltip,
   ApexPlotOptions,
   ApexGrid,
-  ApexStroke
+  ApexStroke,
+  ApexDataLabels
 } from 'ng-apexcharts'
 import { PrediccionService } from '../../core/services/prediccion'
 import {
@@ -44,6 +45,7 @@ export type ChartOptions = {
   labels?: string[]
   grid?: ApexGrid
   stroke?: ApexStroke
+  dataLabels?: ApexDataLabels
 }
 
 @Component({
@@ -172,12 +174,14 @@ export class Predicciones implements OnInit {
         data: datos.map(d => d.valor)
       }],
       chart: {
-        type: 'line',
+        type: 'area', 
         height: 320,
         background: 'transparent',
-        toolbar: { show: false }
+        toolbar: { show: false },
+        fontFamily: "'DM Sans', sans-serif"
       },
-      colors: ['#9db8e8'],
+      dataLabels: { enabled: false },
+      colors: ['#81d4fa'],
       title: { text: '' },
       xaxis: {
         categories: datos.map(d => d.mes),
@@ -190,9 +194,11 @@ export class Predicciones implements OnInit {
       fill: {
         type: 'gradient',
         gradient: {
+          shade: 'dark', 
+          type: 'vertical',
           shadeIntensity: 1,
           opacityFrom: 0.4,
-          opacityTo: 0.1,
+          opacityTo: 0.01,
           stops: [0, 90, 100]
         }
       },
@@ -203,6 +209,11 @@ export class Predicciones implements OnInit {
       grid: {
         borderColor: '#1e3a5f',
         strokeDashArray: 3
+      },
+      stroke: {
+        curve: 'smooth', 
+        width: 3,        
+        colors: ['#81d4fa'] 
       }
     }
   }
@@ -238,9 +249,11 @@ export class Predicciones implements OnInit {
         type: 'line',
         height: 350,
         background: 'transparent',
-        toolbar: { show: false }
+        toolbar: { show: false },
+        fontFamily: "'DM Sans', sans-serif"
       },
-      colors: ['#9db8e8', '#7ecfa0'],
+      dataLabels: { enabled: false },
+      colors: ['#81d4fa', '#7ecfa0'],
       title: { text: '' },
       xaxis: {
         categories: todasFechas,
@@ -258,8 +271,9 @@ export class Predicciones implements OnInit {
         labels: { colors: '#e8edf5' }
       },
       stroke: {
-        width: [2, 2],
-        dashArray: [0, 5]
+        width: [3, 3],
+        dashArray: [0, 5],
+        colors: ['#81d4fa', '#7ecfa0'] 
       },
       tooltip: {
         theme: 'dark',
@@ -286,7 +300,8 @@ export class Predicciones implements OnInit {
         type: 'bar',
         height: 350,
         background: 'transparent',
-        toolbar: { show: false }
+        toolbar: { show: false },
+        fontFamily: "'DM Sans', sans-serif"
       },
       colors: ['#9db8e8', '#7ecfa0', '#c0aad8'],
       title: { text: '' },
@@ -377,7 +392,7 @@ export class Predicciones implements OnInit {
 
     this.chartNecesidadesAtaudes = {
       series: seriesAtaude,
-      chart: { type: 'bar', stacked: true, height: 300, background: 'transparent', toolbar: { show: false } },
+      chart: { type: 'bar', stacked: true, height: 300, background: 'transparent', toolbar: { show: false }, fontFamily: "'DM Sans', sans-serif" },
       colors: colores,
       title: { text: '' },
       xaxis: { categories: meses, labels: { style: { colors: '#7a92b0', fontSize: '11px' } } },
@@ -403,7 +418,7 @@ export class Predicciones implements OnInit {
 
     this.chartNecesidadesCapillas = {
       series: seriesCapilla,
-      chart: { type: 'bar', stacked: true, height: 300, background: 'transparent', toolbar: { show: false } },
+      chart: { type: 'bar', stacked: true, height: 300, background: 'transparent', toolbar: { show: false }, fontFamily: "'DM Sans', sans-serif" },
       colors: colores.slice().reverse(),
       title: { text: '' },
       xaxis: { categories: meses, labels: { style: { colors: '#7a92b0', fontSize: '11px' } } },

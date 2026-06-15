@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Servicio } from '../../../core/services/servicio';
 import { ReniecService } from '../../../core/services/reniec';
+import { ToastService } from '../../../core/services/toast';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -24,9 +25,6 @@ export class ServicioCreate implements OnInit {
   esEdicion = false;
   idEditar: number | null = null;
   guardando = false;
-  mensaje = '';
-  tipoMensaje: 'exito' | 'error' = 'exito';
-
   iaMeta: any = null;
 
   verificandoFallecido = false;
@@ -62,7 +60,8 @@ export class ServicioCreate implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private zone: NgZone,
-    private cdr: ChangeDetectorRef,
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -93,7 +92,6 @@ export class ServicioCreate implements OnInit {
     this.form.contratante.nombre = ia.contratante_nombre || '';
     this.form.contratante.dni = ia.contratante_dni || '';
     this.form.contratante.telefono = ia.contratante_telefono || '';
-
 
     if (this.form.fallecido.nombre && this.form.fallecido.dni_fallecido) {
       this.fallecidoVerificado = true;
@@ -154,7 +152,7 @@ export class ServicioCreate implements OnInit {
   verificarFallecido(): void {
     const dni = this.form.fallecido.dni_fallecido?.trim();
     if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
-      this.mostrarMensaje('Ingresa un DNI válido de 8 dígitos para el fallecido', 'error');
+      this.toast.mostrar('Ingresa un DNI válido de 8 dígitos para el fallecido', 'error');
       return;
     }
 
@@ -168,7 +166,7 @@ export class ServicioCreate implements OnInit {
           this.form.fallecido.nombre = res.nombre_completo || '';
           this.fallecidoVerificado = true;
           this.verificandoFallecido = false;
-          this.mostrarMensaje('DNI del fallecido verificado correctamente', 'exito');
+          this.toast.mostrar('DNI del fallecido verificado correctamente', 'exito');
           this.cdr.detectChanges();
         }),
       error: (err) =>
@@ -176,9 +174,9 @@ export class ServicioCreate implements OnInit {
           this.verificandoFallecido = false;
           this.fallecidoVerificado = false;
           this.form.fallecido.nombre = '';
-          this.mostrarMensaje(
+          this.toast.mostrar(
             err.error?.detail || 'No se pudo verificar el DNI del fallecido',
-            'error',
+            'error'
           );
           this.cdr.detectChanges();
         }),
@@ -188,7 +186,7 @@ export class ServicioCreate implements OnInit {
   verificarContratante(): void {
     const dni = this.form.contratante.dni?.trim();
     if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
-      this.mostrarMensaje('Ingresa un DNI válido de 8 dígitos para el contratante', 'error');
+      this.toast.mostrar('Ingresa un DNI válido de 8 dígitos para el contratante', 'error');
       return;
     }
 
@@ -202,7 +200,7 @@ export class ServicioCreate implements OnInit {
           this.form.contratante.nombre = res.nombre_completo || '';
           this.contratanteVerificado = true;
           this.verificandoContratante = false;
-          this.mostrarMensaje('DNI del contratante verificado correctamente', 'exito');
+          this.toast.mostrar('DNI del contratante verificado correctamente', 'exito');
           this.cdr.detectChanges();
         }),
       error: (err) =>
@@ -210,9 +208,9 @@ export class ServicioCreate implements OnInit {
           this.verificandoContratante = false;
           this.contratanteVerificado = false;
           this.form.contratante.nombre = '';
-          this.mostrarMensaje(
+          this.toast.mostrar(
             err.error?.detail || 'No se pudo verificar el DNI del contratante',
-            'error',
+            'error'
           );
           this.cdr.detectChanges();
         }),
@@ -305,17 +303,22 @@ export class ServicioCreate implements OnInit {
 
   guardar(): void {
     if (!this.form.direccion_velacion || !this.form.fecha || !this.form.id_capilla) {
-      this.mostrarMensaje('Completa los campos requeridos: dirección, fecha y capilla', 'error');
+      this.toast.mostrar('Completa los campos requeridos: dirección, fecha y capilla', 'error');
+      return;
+    }
+
+    if (!this.form.costo || this.form.costo <= 0) {
+      this.toast.mostrar('El costo del servicio debe ser mayor a 0', 'error');
       return;
     }
 
     if (!this.fallecidoVerificado) {
-      this.mostrarMensaje('Debes verificar el DNI del fallecido antes de continuar', 'error');
+      this.toast.mostrar('Debes verificar el DNI del fallecido antes de continuar', 'error');
       return;
     }
 
     if (!this.contratanteVerificado) {
-      this.mostrarMensaje('Debes verificar el DNI del contratante antes de continuar', 'error');
+      this.toast.mostrar('Debes verificar el DNI del contratante antes de continuar', 'error');
       return;
     }
 
@@ -352,30 +355,26 @@ export class ServicioCreate implements OnInit {
 
     if (this.esEdicion && this.idEditar) {
       this.servicioService.actualizar(this.idEditar, payload).subscribe({
-        next: () => this.zone.run(() => this.router.navigate(['/servicios', this.idEditar])),
-        error: (err) =>
-          this.zone.run(() => {
-            this.guardando = false;
-            this.mostrarMensaje(err.error?.detail || 'Error al actualizar el servicio', 'error');
-          }),
+        next: () => this.zone.run(() => {
+          this.toast.mostrar('Servicio actualizado correctamente', 'exito');
+          setTimeout(() => this.router.navigate(['/servicios', this.idEditar]), 2500);
+        }),
+        error: (err) => this.zone.run(() => {
+          this.guardando = false;
+          this.toast.mostrar(err.error?.detail || 'Error al actualizar el servicio', 'error');
+        })
       });
     } else {
       this.servicioService.crear(payload).subscribe({
-        next: () => this.zone.run(() => this.router.navigate(['/servicios'])),
-        error: (err) =>
-          this.zone.run(() => {
-            this.guardando = false;
-            this.mostrarMensaje(err.error?.detail || 'Error al crear el servicio', 'error');
-          }),
+        next: () => this.zone.run(() => {
+          this.toast.mostrar('Servicio creado correctamente', 'exito');
+          setTimeout(() => this.router.navigate(['/servicios']), 2500);
+        }),
+        error: (err) => this.zone.run(() => {
+          this.guardando = false;
+          this.toast.mostrar(err.error?.detail || 'Error al crear el servicio', 'error');
+        })
       });
     }
-  }
-
-  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
-    this.mensaje = texto;
-    this.tipoMensaje = tipo;
-    setTimeout(() => {
-      this.mensaje = '';
-    }, 3500);
   }
 }
