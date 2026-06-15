@@ -90,7 +90,7 @@
             <th>Nombre</th>
             <th>DNI</th>
             <th>Teléfono</th>
-            <th>Estado</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
@@ -101,7 +101,7 @@
             <td class="tabla__mono">{{ c.dni }}</td>
             <td class="tabla__tel">{{ c.telefono }}</td>
             <td>
-              <label class="switch" [class.switch--active]="c.activo" (click)="toggleActivo(c); $event.stopPropagation()">
+              <label class="switch" [class.switch--active]="c.activo" (click)="toggleActivo(c); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>

@@ -104,7 +104,7 @@
             <th>Modelo</th>
             <th>Color</th>
             <th>Stock</th>
-            <th>Estado</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar || puedeActualizarStock">Acciones</th>
           </tr>
         </thead>
@@ -124,7 +124,7 @@
               </span>
             </td>
             <td>
-              <label class="switch" [class.switch--active]="a.activo" (click)="toggleActivo(a); $event.stopPropagation()">
+              <label class="switch" [class.switch--active]="a.activo" (click)="toggleActivo(a); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>

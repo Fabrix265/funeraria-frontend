@@ -84,7 +84,7 @@
             <th>ID</th>
             <th>Nombre</th>
             <th>DNI</th>
-            <th>Estado</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
@@ -94,7 +94,7 @@
             <td class="tabla__nombre">{{ f.nombre }}</td>
             <td class="tabla__dni">{{ f.dni_fallecido }}</td>
             <td>
-              <label class="switch" [class.switch--active]="f.activo" (click)="toggleActivo(f); $event.stopPropagation()">
+              <label class="switch" [class.switch--active]="f.activo" (click)="toggleActivo(f); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>

@@ -55,7 +55,7 @@
           <tr>
             <th>ID</th>
             <th>Tipo</th>
-            <th>Estado</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
@@ -69,7 +69,7 @@
               </span>
             </td>
             <td>
-              <label class="switch" [class.switch--active]="v.activo" (click)="toggleActivo(v); $event.stopPropagation()">
+              <label class="switch" [class.switch--active]="v.activo" (click)="toggleActivo(v); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>
