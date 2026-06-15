@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Servicio } from '../../../core/services/servicio';
 import { PasajeroService } from '../../../core/services/pasajero';
 import { PagoService } from '../../../core/services/pago';
+import { ToastService } from '../../../core/services/toast';
 import { Pago } from '../../../core/models/pago.model';
 import { puedeActualizar, puedeEliminar as puedeEliminarFn, puedeCrear } from '../../../core/utils/auth.utils';
 import { loadStripe, Stripe, StripeCardElement } from '@stripe/stripe-js';
@@ -27,8 +28,6 @@ export class ServicioDetail implements OnInit {
   servicio: any = null;
   cargando = true;
   modalEliminarAbierto = false;
-  mensaje = '';
-  tipoMensaje: 'exito' | 'error' = 'exito';
 
   pasajeros: any[] = [];
   cargandoPasajeros = false;
@@ -55,6 +54,7 @@ export class ServicioDetail implements OnInit {
     private pagoService: PagoService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -117,20 +117,20 @@ export class ServicioDetail implements OnInit {
     if (this.modoEdicionPasajero && this.pasajeroSeleccionado) {
       this.pasajeroService.actualizar(this.pasajeroSeleccionado.id, this.formPasajero).subscribe({
         next: () => {
-          this.mostrarMensaje('Pasajero actualizado', 'exito');
+          this.toast.mostrar('Pasajero actualizado', 'exito');
           this.cargarPasajeros();
           this.cerrarModalPasajero();
         },
-        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar pasajero', 'error'),
+        error: (e) => this.toast.mostrar(e.error?.detail || 'Error al actualizar pasajero', 'error'),
       });
     } else {
       this.pasajeroService.crear(this.servicio.id, this.formPasajero).subscribe({
         next: () => {
-          this.mostrarMensaje('Pasajero agregado', 'exito');
+          this.toast.mostrar('Pasajero agregado', 'exito');
           this.cargarPasajeros();
           this.cerrarModalPasajero();
         },
-        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear pasajero', 'error'),
+        error: (e) => this.toast.mostrar(e.error?.detail || 'Error al crear pasajero', 'error'),
       });
     }
   }
@@ -149,11 +149,11 @@ export class ServicioDetail implements OnInit {
     if (!this.pasajeroEliminar) return;
     this.pasajeroService.eliminar(this.pasajeroEliminar.id).subscribe({
       next: () => {
-        this.mostrarMensaje('Pasajero eliminado', 'exito');
+        this.toast.mostrar('Pasajero eliminado', 'exito');
         this.cargarPasajeros();
         this.cerrarModalEliminarPasajero();
       },
-      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar pasajero', 'error'),
+      error: (e) => this.toast.mostrar(e.error?.detail || 'Error al eliminar pasajero', 'error'),
     });
   }
 
@@ -164,11 +164,11 @@ export class ServicioDetail implements OnInit {
     if (!this.servicio) return;
     this.servicioService.eliminar(this.servicio.id).subscribe({
       next: () => {
-        this.mostrarMensaje('Servicio eliminado', 'exito');
+        this.toast.mostrar('Servicio eliminado', 'exito');
         setTimeout(() => this.router.navigate(['/servicios']), 1200);
       },
       error: (e) => {
-        this.mostrarMensaje(e.error?.detail || 'Error al eliminar servicio', 'error');
+        this.toast.mostrar(e.error?.detail || 'Error al eliminar servicio', 'error');
         this.cerrarModalEliminar();
       },
     });
@@ -271,11 +271,5 @@ export class ServicioDetail implements OnInit {
       cancelado: 'Cancelado',
     };
     return map[estado] ?? estado;
-  }
-
-  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
-    this.mensaje = texto;
-    this.tipoMensaje = tipo;
-    setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges(); }, 3500);
   }
 }

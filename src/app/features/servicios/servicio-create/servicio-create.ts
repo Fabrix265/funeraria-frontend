@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
 import { HttpClient } from '@angular/common/http'
 import { Servicio } from '../../../core/services/servicio'
+import { ToastService } from '../../../core/services/toast'
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -24,8 +25,6 @@ export class ServicioCreate implements OnInit {
   esEdicion   = false
   idEditar: number | null = null
   guardando   = false
-  mensaje     = ''
-  tipoMensaje: 'exito' | 'error' = 'exito'
 
   iaMeta: any = null
 
@@ -55,7 +54,8 @@ export class ServicioCreate implements OnInit {
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
-    private zone: NgZone
+    private zone: NgZone,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -207,11 +207,11 @@ export class ServicioCreate implements OnInit {
 
   guardar(): void {
     if (!this.form.direccion_velacion || !this.form.fecha || !this.form.id_capilla) {
-      this.mostrarMensaje('Completa los campos requeridos: dirección, fecha y capilla', 'error')
+      this.toast.mostrar('Completa los campos requeridos: dirección, fecha y capilla', 'error')
       return
     }
     if (!this.form.costo || this.form.costo <= 0) {
-      this.mostrarMensaje('El costo del servicio debe ser mayor a 0', 'error')
+      this.toast.mostrar('El costo del servicio debe ser mayor a 0', 'error')
       return
     }
 
@@ -247,32 +247,26 @@ export class ServicioCreate implements OnInit {
     if (this.esEdicion && this.idEditar) {
       this.servicioService.actualizar(this.idEditar, payload).subscribe({
         next: () => this.zone.run(() => {
-          this.mostrarMensaje('Servicio actualizado correctamente', 'exito')
+          this.toast.mostrar('Servicio actualizado correctamente', 'exito')
           setTimeout(() => this.router.navigate(['/servicios', this.idEditar]), 2500)
         }),
         error: (err) => this.zone.run(() => {
           this.guardando = false
-          this.mostrarMensaje(err.error?.detail || 'Error al actualizar el servicio', 'error')
+          this.toast.mostrar(err.error?.detail || 'Error al actualizar el servicio', 'error')
         })
       })
     } else {
       this.servicioService.crear(payload).subscribe({
         next: () => this.zone.run(() => {
-          this.mostrarMensaje('Servicio creado correctamente', 'exito')
+          this.toast.mostrar('Servicio creado correctamente', 'exito')
           setTimeout(() => this.router.navigate(['/servicios']), 2500)
         }),
         error: (err) => this.zone.run(() => {
           this.guardando = false
-          this.mostrarMensaje(err.error?.detail || 'Error al crear el servicio', 'error')
+          this.toast.mostrar(err.error?.detail || 'Error al crear el servicio', 'error')
         })
       })
     }
-  }
-
-  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
-    this.mensaje = texto
-    this.tipoMensaje = tipo
-    setTimeout(() => { this.mensaje = '' }, 3500)
   }
 
 }

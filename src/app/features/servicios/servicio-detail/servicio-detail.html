@@ -1,11 +1,5 @@
 <div class="page-wrapper">
 
-  <!-- Toast -->
-  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
-    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
-    {{ mensaje }}
-  </div>
-
   <div class="table-loader" *ngIf="cargando">
     <div class="spinner"></div>
   </div>

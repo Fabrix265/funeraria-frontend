@@ -120,6 +120,11 @@
 
     <main class="main-content">
       <router-outlet></router-outlet>
+
+      <div class="toast" [class.visible]="toast.mensaje()" [class.toast--error]="toast.tipoMensaje() === 'error'">
+        <span class="toast__icon">{{ toast.tipoMensaje() === 'exito' ? '✓' : '✕' }}</span>
+        {{ toast.mensaje() }}
+      </div>
     </main>
   </div>
 
