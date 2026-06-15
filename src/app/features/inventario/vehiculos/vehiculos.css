@@ -156,6 +156,7 @@
   .vehiculos-grid { gap: 0.5rem; }
   .vehiculo-check { width: 100%; }
 }
+
 .filtros-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
