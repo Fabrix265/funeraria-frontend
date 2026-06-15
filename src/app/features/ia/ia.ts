@@ -262,7 +262,7 @@ export class Ia implements OnInit {
       next: () => {
         this.mostrarMensaje('Servicio guardado correctamente', 'exito')
         const item = this.itemSeleccionado!
-        setTimeout(() => { this.eliminar(item) }, 1200)
+        setTimeout(() => { this.eliminar(item) }, 2500)
         this.guardando = false
       },
       error: (err) => {

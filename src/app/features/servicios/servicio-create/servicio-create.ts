@@ -248,7 +248,7 @@ export class ServicioCreate implements OnInit {
       this.servicioService.actualizar(this.idEditar, payload).subscribe({
         next: () => this.zone.run(() => {
           this.mostrarMensaje('Servicio actualizado correctamente', 'exito')
-          setTimeout(() => this.router.navigate(['/servicios', this.idEditar]), 1200)
+          setTimeout(() => this.router.navigate(['/servicios', this.idEditar]), 2500)
         }),
         error: (err) => this.zone.run(() => {
           this.guardando = false
@@ -259,7 +259,7 @@ export class ServicioCreate implements OnInit {
       this.servicioService.crear(payload).subscribe({
         next: () => this.zone.run(() => {
           this.mostrarMensaje('Servicio creado correctamente', 'exito')
-          setTimeout(() => this.router.navigate(['/servicios']), 1200)
+          setTimeout(() => this.router.navigate(['/servicios']), 2500)
         }),
         error: (err) => this.zone.run(() => {
           this.guardando = false
