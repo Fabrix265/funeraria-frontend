@@ -23,8 +23,6 @@
   --font-body:   'DM Sans', 'Segoe UI', sans-serif;
   --transition:  180ms ease;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
 .page-wrapper {
   min-height: 100vh;
   background: var(--bg);
