@@ -5,7 +5,6 @@ import { PersonaService } from '../../../core/services/persona'
 import { Contratante } from '../../../core/models/contratante.model'
 import { RouterLink } from '@angular/router';
 import { puedeActualizar as checkActualizar, puedeEliminar as checkEliminar } from '../../../core/utils/auth.utils';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-contratantes',
@@ -34,6 +33,9 @@ export class Contratantes implements OnInit {
   modalAbierto = false;
   contratanteSeleccionado: Contratante | null = null;
   form = { nombre: '', dni: '', telefono: '' };
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   contratanteEliminar: Contratante | null = null;
@@ -123,33 +125,32 @@ export class Contratantes implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
   }
 
   toggleActivo(c: Contratante): void {
     const nuevoEstado = !c.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.itemToggle = { ...c, nuevoEstado, nombre: c.nombre };
+    this.modalToggleAbierto = true;
+  }
 
-    Swal.fire({
-      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
-      text: `¿Deseas ${accion} a "${c.nombre}"?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.personaService.cambiarEstadoContratante(c.id, nuevoEstado).subscribe({
-          next: () => {
-            this.mostrarMensaje(`Contratante ${accion}do`, 'exito');
-            this.cargar();
-          },
-          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
-        });
-      }
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.personaService.cambiarEstadoContratante(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 
@@ -171,7 +172,7 @@ export class Contratantes implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 

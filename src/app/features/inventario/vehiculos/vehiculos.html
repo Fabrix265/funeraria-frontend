@@ -55,7 +55,7 @@
           <tr>
             <th>ID</th>
             <th>Tipo</th>
-            <th>Estado</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
@@ -69,7 +69,7 @@
               </span>
             </td>
             <td>
-              <label class="switch" [class.switch--active]="v.activo" (click)="toggleActivo(v); $event.stopPropagation()">
+              <label class="switch" [class.switch--active]="v.activo" (click)="toggleActivo(v); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>
@@ -124,6 +124,27 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalToggleAbierto" (click)="cerrarModalToggle()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Confirmar cambio de estado</h2>
+      <button class="modal__close" (click)="cerrarModalToggle()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Deseas {{ itemToggle?.nuevoEstado ? 'activar' : 'desactivar' }}
+        <strong>{{ itemToggle?.nombre }}</strong>?
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalToggle()">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarToggle()">
+        {{ itemToggle?.nuevoEstado ? 'Activar' : 'Desactivar' }}
+      </button>
     </div>
   </div>
 </div>

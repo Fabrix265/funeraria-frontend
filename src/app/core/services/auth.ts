@@ -22,6 +22,7 @@ export class Auth {
         tap((res) => {
           if (res.access_token) {
             localStorage.setItem('token', res.access_token);
+            localStorage.setItem('loginTime', String(Date.now()));
           }
           if (res.user?.roles) {
             localStorage.setItem('roles', JSON.stringify(res.user.roles));

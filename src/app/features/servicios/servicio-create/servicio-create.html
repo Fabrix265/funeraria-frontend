@@ -1,12 +1,5 @@
 <div class="page-wrapper">
 
-  <!-- Toast -->
-  <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
-    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
-    {{ mensaje }}
-  </div>
-
-  <!-- Cabecera -->
   <header class="page-header">
     <div class="page-header__left">
       <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard">⊞</a>
@@ -17,7 +10,6 @@
     </div>
   </header>
 
-  <!-- Banner IA -->
   <div class="ia-banner" *ngIf="iaMeta">
     <span class="ia-banner__icon">📷</span>
     <span>Datos pre-llenados desde extracción IA. Revisa y completa los campos faltantes.</span>
@@ -35,17 +27,18 @@
     </div>
   </div>
 
-  <!-- Formulario -->
   <div class="form-grid">
 
-    <!-- Datos del servicio -->
     <div class="form-card">
       <h2 class="form-card__title">📋 Datos del servicio</h2>
       <div class="form-card__body">
         <div class="field field--full">
           <label class="field__label">Dirección de velación *</label>
           <input class="field__input" type="text" [(ngModel)]="form.direccion_velacion"
-            name="direccion" placeholder="Ej: Av. Los Alamos 123" />
+            name="direccion" placeholder="Ej: Av. Los Alamos 123" required minlength="3" maxlength="200" #dirServ="ngModel" />
+          <span class="field__error" *ngIf="dirServ.invalid && dirServ.touched">
+            Mínimo 3 caracteres
+          </span>
         </div>
         <div class="field">
           <label class="field__label">Fecha *</label>
@@ -53,7 +46,7 @@
         </div>
         <div class="field">
           <label class="field__label">Costo (S/)</label>
-          <input class="field__input" type="number" [(ngModel)]="form.costo" name="costo" min="0" step="0.01" />
+          <input class="field__input" type="number" [(ngModel)]="form.costo" name="costo" min="0.01" step="0.01" />
         </div>
         <div class="field">
           <label class="field__label">Tipo de pago</label>
@@ -72,46 +65,80 @@
       </div>
     </div>
 
-    <!-- Fallecido -->
     <div class="form-card">
       <h2 class="form-card__title">🕊 Fallecido</h2>
       <div class="form-card__body">
         <div class="field field--full">
-          <label class="field__label">Nombre completo</label>
-          <input class="field__input" type="text" [(ngModel)]="form.fallecido.nombre"
-            name="fallecido_nombre" placeholder="Nombre y apellidos" />
+          <label class="field__label">DNI Fallecido *</label>
+          <div class="field__inline">
+            <input class="field__input" type="text" [(ngModel)]="form.fallecido.dni_fallecido"
+                   name="fallecido_dni" placeholder="00000000" maxlength="8"
+                   [disabled]="verificandoFallecido"
+                   (ngModelChange)="onDniFallecidoChange()" />
+            <button type="button" class="btn btn--ghost btn--sm"
+                    (click)="verificarFallecido()"
+                    [disabled]="verificandoFallecido || !form.fallecido.dni_fallecido">
+              <span class="btn-spinner" *ngIf="verificandoFallecido"></span>
+              {{ verificandoFallecido ? 'Verificando...' : 'Verificar' }}
+            </button>
+          </div>
         </div>
         <div class="field field--full">
-          <label class="field__label">DNI Fallecido</label>
-          <input class="field__input" type="text" [(ngModel)]="form.fallecido.dni_fallecido"
-            name="fallecido_dni" placeholder="00000000" maxlength="8" />
+          <label class="field__label">Nombre completo</label>
+          <input class="field__input" type="text" [value]="form.fallecido.nombre"
+                 name="fallecido_nombre" placeholder="Se completará al verificar el DNI"
+                 readonly disabled />
+          <p class="form-hint" *ngIf="!fallecidoVerificado">
+            Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
+          </p>
+          <p class="form-hint form-hint--ok" *ngIf="fallecidoVerificado">
+            ✓ Verificado en RENIEC
+          </p>
         </div>
       </div>
     </div>
 
-    <!-- Contratante -->
     <div class="form-card">
       <h2 class="form-card__title">👤 Contratante</h2>
       <div class="form-card__body">
         <div class="field field--full">
-          <label class="field__label">Nombre completo</label>
-          <input class="field__input" type="text" [(ngModel)]="form.contratante.nombre"
-            name="contratante_nombre" placeholder="Nombre y apellidos" />
+          <label class="field__label">DNI *</label>
+          <div class="field__inline">
+            <input class="field__input" type="text" [(ngModel)]="form.contratante.dni"
+                   name="contratante_dni" placeholder="00000000" maxlength="8"
+                   [disabled]="verificandoContratante"
+                   (ngModelChange)="onDniContratanteChange()" />
+            <button type="button" class="btn btn--ghost btn--sm"
+                    (click)="verificarContratante()"
+                    [disabled]="verificandoContratante || !form.contratante.dni">
+              <span class="btn-spinner" *ngIf="verificandoContratante"></span>
+              {{ verificandoContratante ? 'Verificando...' : 'Verificar' }}
+            </button>
+          </div>
         </div>
-        <div class="field">
-          <label class="field__label">DNI</label>
-          <input class="field__input" type="text" [(ngModel)]="form.contratante.dni"
-            name="contratante_dni" placeholder="00000000" maxlength="8" />
+        <div class="field field--full">
+          <label class="field__label">Nombre completo</label>
+          <input class="field__input" type="text" [value]="form.contratante.nombre"
+                 name="contratante_nombre" placeholder="Se completará al verificar el DNI"
+                 readonly disabled />
+          <p class="form-hint" *ngIf="!contratanteVerificado">
+            Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
+          </p>
+          <p class="form-hint form-hint--ok" *ngIf="contratanteVerificado">
+            ✓ Verificado en RENIEC
+          </p>
         </div>
         <div class="field">
           <label class="field__label">Teléfono</label>
           <input class="field__input" type="tel" [(ngModel)]="form.contratante.telefono"
-            name="contratante_tel" placeholder="9XXXXXXXX" />
+            name="contratante_tel" placeholder="9XXXXXXXX" maxlength="9" pattern="^[0-9]{9}$" #telCont="ngModel" />
+          <span class="field__error" *ngIf="telCont.invalid && telCont.touched">
+            9 dígitos numéricos
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Capilla -->
     <div class="form-card">
       <h2 class="form-card__title">⛪ Capilla *</h2>
       <div class="form-card__body">
@@ -127,7 +154,6 @@
       </div>
     </div>
 
-    <!-- Ataúd -->
     <div class="form-card">
       <h2 class="form-card__title">⚰ Ataúd</h2>
       <div class="form-card__body">
@@ -143,7 +169,6 @@
       </div>
     </div>
 
-    <!-- Vehículos -->
     <div class="form-card form-card--full">
       <h2 class="form-card__title">🚗 Vehículos asignados</h2>
       <div class="form-card__body">
@@ -167,7 +192,6 @@
       </div>
     </div>
 
-    <!-- Pasajeros -->
     <div class="form-card form-card--full" *ngIf="puedeAgregarPasajeros">
       <h2 class="form-card__title">🧍 Pasajeros (opcional)</h2>
       <div class="form-card__body">
@@ -194,7 +218,6 @@
 
   </div>
 
-  <!-- Footer -->
   <div class="form-footer">
     <button class="btn btn--ghost" (click)="cancelar()">Cancelar</button>
     <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
@@ -205,9 +228,8 @@
 
 </div>
 
-<!-- Modal Pasajero -->
 <div class="modal-overlay" *ngIf="modalPasajeroAbierto" (click)="cerrarModalPasajero()">
-  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+  <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal__header">
       <h2 class="modal__title">{{ modoEdicionPasajero ? 'Editar pasajero' : 'Nuevo pasajero' }}</h2>
       <button class="modal__close" (click)="cerrarModalPasajero()">✕</button>
@@ -216,12 +238,18 @@
       <div class="field">
         <label class="field__label">Nombre *</label>
         <input class="field__input" type="text" [(ngModel)]="pasajeroForm.nombre"
-          placeholder="Nombre completo" />
+          placeholder="Nombre completo" minlength="2" maxlength="100" #nomPas="ngModel" />
+        <span class="field__error" *ngIf="nomPas.invalid && nomPas.touched">
+          Mínimo 2 caracteres
+        </span>
       </div>
       <div class="field">
         <label class="field__label">DNI *</label>
         <input class="field__input" type="text" [(ngModel)]="pasajeroForm.dni_pasajero"
-          placeholder="00000000" maxlength="8" />
+          placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniPas="ngModel" />
+        <span class="field__error" *ngIf="dniPas.invalid && dniPas.touched">
+          8 dígitos numéricos
+        </span>
       </div>
     </div>
     <div class="modal__footer">

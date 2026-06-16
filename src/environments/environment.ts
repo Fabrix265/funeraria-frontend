@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000',
-  iaApiUrl: 'https://seeing-belly-charms-connectors.trycloudflare.com'
+  apiUrl: 'https://funeraria-inventario-inteligente-wv7g.onrender.com',
+  iaApiUrl: 'https://novels-necklace-advocacy-hearing.trycloudflare.com',
+  stripePublicKey: 'apkPublica'
 };

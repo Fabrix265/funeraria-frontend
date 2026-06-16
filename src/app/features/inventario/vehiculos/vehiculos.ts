@@ -6,7 +6,6 @@ import { Vehiculo, TipoVehiculo } from '../../../core/models/vehiculo.model';
 import { RouterLink } from '@angular/router';
 import { esAdminActual } from '../../../core/utils/auth.utils';
 import { puedeCrear, puedeActualizar, puedeEliminar } from '../../../core/utils/auth.utils';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-vehiculos',
@@ -48,6 +47,9 @@ export class Vehiculos implements OnInit {
   vehiculoSeleccionado: Vehiculo | null = null;
   form = { tipo: '' as TipoVehiculo | '' };
 
+  modalToggleAbierto = false;
+  itemToggle: any = null;
+
   modalEliminarAbierto = false;
   vehiculoEliminar: Vehiculo | null = null;
 
@@ -68,8 +70,8 @@ export class Vehiculos implements OnInit {
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mostrarMensaje('Error al cargar vehículos', 'error');
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al cargar vehículos', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -110,7 +112,7 @@ export class Vehiculos implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
     } else {
       this.vehiculoService.crear(this.form).subscribe({
@@ -119,7 +121,7 @@ export class Vehiculos implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al crear', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
       });
     }
   }
@@ -142,7 +144,7 @@ export class Vehiculos implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -157,27 +159,26 @@ export class Vehiculos implements OnInit {
 
   toggleActivo(v: Vehiculo): void {
     const nuevoEstado = !v.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.itemToggle = { ...v, nuevoEstado, nombre: `${this.etiqueta(v.tipo)} #${v.id}` };
+    this.modalToggleAbierto = true;
+  }
 
-    Swal.fire({
-      title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} registro?`,
-      text: `¿Deseas ${accion} el vehículo "${this.etiqueta(v.tipo)}" #${v.id}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.vehiculoService.cambiarEstado(v.id, nuevoEstado).subscribe({
-          next: () => {
-            this.mostrarMensaje(`Vehículo ${accion}do`, 'exito');
-            this.cargar();
-          },
-          error: () => this.mostrarMensaje(`Error al ${accion}`, 'error'),
-        });
-      }
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.vehiculoService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 

@@ -1,0 +1,333 @@
+<div class="page-wrapper">
+
+  <!-- Cabecera -->
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard">⊞</a>
+      <span class="page-header__icon">📊</span>
+      <div>
+        <h1 class="page-header__title">Pronósticos</h1>
+        <p class="page-header__sub">Modelos de predicción temporal</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="pred-tabs">
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'modelos'"
+      (click)="cambiarTab('modelos')">Modelos</button>
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'prediccion'"
+      (click)="cambiarTab('prediccion')">Predicción</button>
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'comparacion'"
+      (click)="cambiarTab('comparacion')">Comparación</button>
+    <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'necesidades'"
+      (click)="cambiarTab('necesidades')">Necesidades</button>
+  </nav>
+
+  <!-- Tab: Modelos -->
+  <div class="pred-content" *ngIf="tabActiva === 'modelos'">
+
+    <div class="pred-info-row">
+      <div class="form-card">
+        <h2 class="form-card__title">📈 Información general</h2>
+        <div class="form-card__body" *ngIf="modelosInfo">
+          <div class="info-item">
+            <span class="info-item__label">Período de entrenamiento</span>
+            <span class="info-item__value">{{ modelosInfo.train_periodo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Período de prueba</span>
+            <span class="info-item__value">{{ modelosInfo.test_periodo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Meses entrenamiento</span>
+            <span class="info-item__value">{{ modelosInfo.train_months }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Meses prueba</span>
+            <span class="info-item__value">{{ modelosInfo.test_months }}</span>
+          </div>
+          <div class="info-item info-item--full">
+            <span class="info-item__label">Modelos disponibles</span>
+            <div class="tag-list">
+              <span class="tag" *ngFor="let m of modelosInfo.modelos">{{ m }}</span>
+            </div>
+          </div>
+          <div class="info-item info-item--full">
+            <span class="info-item__label">Targets</span>
+            <div class="tag-list">
+              <span class="tag tag--target" *ngFor="let t of modelosInfo.targets">{{ t }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-card__title">📉 Histórico de servicios</h2>
+        <div class="form-card__body form-card__body--chart" *ngIf="chartHistorial.series">
+          <apx-chart
+            [series]="chartHistorial.series!"
+            [chart]="chartHistorial.chart!"
+            [xaxis]="chartHistorial.xaxis!"
+            [yaxis]="chartHistorial.yaxis!"
+            [colors]="chartHistorial.colors!"
+            [legend]="chartHistorial.legend!"
+            [fill]="chartHistorial.fill!"
+            [tooltip]="chartHistorial.tooltip!"
+            [grid]="chartHistorial.grid!"
+            [stroke]="chartHistorial.stroke!"
+          ></apx-chart>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Predicción -->
+  <div class="pred-content" *ngIf="tabActiva === 'prediccion'">
+
+    <div class="form-card">
+      <h2 class="form-card__title">⚙ Configurar predicción</h2>
+      <div class="form-card__body">
+        <div class="field">
+          <label class="field__label">Modelo</label>
+          <select class="field__input" [(ngModel)]="modeloSeleccionado">
+            <option *ngFor="let m of modelos" [value]="m">{{ m | titlecase }}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Variable objetivo</label>
+          <select class="field__input" [(ngModel)]="targetSeleccionado">
+            <option *ngFor="let t of targets" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Meses a predecir</label>
+          <input class="field__input" type="number" min="1" max="24" [(ngModel)]="pasos" />
+        </div>
+        <div class="field field--btn">
+          <button class="btn btn--primary" (click)="ejecutarPrediccion()" [disabled]="cargando">
+            <span class="btn-spinner" *ngIf="cargando"></span>
+            {{ cargando ? 'Procesando...' : 'Predecir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pred-error" *ngIf="error">
+      <span>✕</span> {{ error }}
+    </div>
+
+    <div class="form-card" *ngIf="resultadoPrediccion">
+      <h2 class="form-card__title">📊 Resultado - {{ resultadoPrediccion.modelo }} | {{ resultadoPrediccion.target }}</h2>
+      <div class="form-card__body form-card__body--chart">
+        <apx-chart
+          [series]="chartPrediccion.series!"
+          [chart]="chartPrediccion.chart!"
+          [xaxis]="chartPrediccion.xaxis!"
+          [yaxis]="chartPrediccion.yaxis!"
+          [colors]="chartPrediccion.colors!"
+          [legend]="chartPrediccion.legend!"
+          [stroke]="chartPrediccion.stroke!"
+          [tooltip]="chartPrediccion.tooltip!"
+          [grid]="chartPrediccion.grid!"
+        ></apx-chart>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="resultadoPrediccion">
+      <h2 class="form-card__title">📋 Tabla de predicciones</h2>
+      <div class="form-card__body">
+        <div class="pred-table-wrap">
+          <table class="pred-table">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Valor estimado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of resultadoPrediccion.predicciones">
+                <td>{{ p.mes }}</td>
+                <td>{{ p.valor | number:'1.0-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Comparación -->
+  <div class="pred-content" *ngIf="tabActiva === 'comparacion'">
+
+    <div class="form-card">
+      <h2 class="form-card__title">⚖ Comparación de modelos</h2>
+      <div class="form-card__body">
+        <div class="field">
+          <label class="field__label">Target</label>
+          <select class="field__input" [(ngModel)]="targetComparacion"
+            (ngModelChange)="cambiarTargetComparacion()">
+            <option value="servicios_totales">Servicios totales</option>
+            <option value="monto_total">Monto total</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-card__body form-card__body--chart" *ngIf="chartComparacion.series">
+        <apx-chart
+          [series]="chartComparacion.series!"
+          [chart]="chartComparacion.chart!"
+          [xaxis]="chartComparacion.xaxis!"
+          [yaxis]="chartComparacion.yaxis!"
+          [colors]="chartComparacion.colors!"
+          [legend]="chartComparacion.legend!"
+          [fill]="chartComparacion.fill!"
+          [tooltip]="chartComparacion.tooltip!"
+          [grid]="chartComparacion.grid!"
+        ></apx-chart>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="comparativa">
+      <h2 class="form-card__title">📋 Métricas detalladas</h2>
+      <div class="form-card__body">
+        <div class="pred-table-wrap">
+          <table class="pred-table">
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th>MAE</th>
+                <th>RMSE</th>
+                <th>R²</th>
+                <th>MAPE (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of comparativa.metricas">
+                <td *ngIf="m.target === targetComparacion">{{ m.modelo }}</td>
+                <td *ngIf="m.target === targetComparacion">{{ formatearMetrica(m.mae) }}</td>
+                <td *ngIf="m.target === targetComparacion">{{ formatearMetrica(m.rmse) }}</td>
+                <td *ngIf="m.target === targetComparacion">{{ formatearMetrica(m.r2) }}</td>
+                <td *ngIf="m.target === targetComparacion">{{ formatearMetrica(m.mape) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Necesidades -->
+  <div class="pred-content" *ngIf="tabActiva === 'necesidades'">
+
+    <div class="form-card">
+      <h2 class="form-card__title">📦 Calcular necesidades de inventario</h2>
+      <div class="form-card__body">
+        <div class="field">
+          <label class="field__label">Modelo</label>
+          <select class="field__input" [(ngModel)]="modeloSeleccionado">
+            <option *ngFor="let m of modelos" [value]="m">{{ m | titlecase }}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Mes inicio</label>
+          <input class="field__input" type="month" [(ngModel)]="mesInicio" />
+        </div>
+        <div class="field">
+          <label class="field__label">Mes fin</label>
+          <input class="field__input" type="month" [(ngModel)]="mesFin" />
+        </div>
+        <div class="field field--btn">
+          <button class="btn btn--primary" (click)="calcularNecesidades()" [disabled]="cargandoDistribucion">
+            <span class="btn-spinner" *ngIf="cargandoDistribucion"></span>
+            {{ cargandoDistribucion ? 'Calculando...' : 'Calcular' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="resultadoDistribucion">
+      <h2 class="form-card__title">🪦 Ataúdes estimados por mes</h2>
+      <div class="form-card__body form-card__body--chart">
+        <apx-chart
+          [series]="chartNecesidadesAtaudes.series!"
+          [chart]="chartNecesidadesAtaudes.chart!"
+          [xaxis]="chartNecesidadesAtaudes.xaxis!"
+          [yaxis]="chartNecesidadesAtaudes.yaxis!"
+          [colors]="chartNecesidadesAtaudes.colors!"
+          [legend]="chartNecesidadesAtaudes.legend!"
+          [fill]="chartNecesidadesAtaudes.fill!"
+          [tooltip]="chartNecesidadesAtaudes.tooltip!"
+          [plotOptions]="chartNecesidadesAtaudes.plotOptions!"
+          [grid]="chartNecesidadesAtaudes.grid!"
+        ></apx-chart>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="resultadoDistribucion">
+      <h2 class="form-card__title">🏛 Capillas estimadas por mes</h2>
+      <div class="form-card__body form-card__body--chart">
+        <apx-chart
+          [series]="chartNecesidadesCapillas.series!"
+          [chart]="chartNecesidadesCapillas.chart!"
+          [xaxis]="chartNecesidadesCapillas.xaxis!"
+          [yaxis]="chartNecesidadesCapillas.yaxis!"
+          [colors]="chartNecesidadesCapillas.colors!"
+          [legend]="chartNecesidadesCapillas.legend!"
+          [fill]="chartNecesidadesCapillas.fill!"
+          [tooltip]="chartNecesidadesCapillas.tooltip!"
+          [plotOptions]="chartNecesidadesCapillas.plotOptions!"
+          [grid]="chartNecesidadesCapillas.grid!"
+        ></apx-chart>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="resultadoDistribucion">
+      <h2 class="form-card__title">🪦 Ataúdes — desglose por mes</h2>
+      <div class="form-card__body">
+        <div class="pred-table-wrap">
+          <table class="pred-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th *ngFor="let p of resultadoDistribucion.predicciones">{{ p.mes }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of tiposAtaude">
+                <td class="pred-table__label">{{ t }}</td>
+                <td *ngFor="let p of resultadoDistribucion.predicciones">{{ formatearNumero(buscarCantidad(p.ataudes, t)) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card" *ngIf="resultadoDistribucion">
+      <h2 class="form-card__title">🏛 Capillas — desglose por mes</h2>
+      <div class="form-card__body">
+        <div class="pred-table-wrap">
+          <table class="pred-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th *ngFor="let p of resultadoDistribucion.predicciones">{{ p.mes }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of tiposCapilla">
+                <td class="pred-table__label">{{ t }}</td>
+                <td *ngFor="let p of resultadoDistribucion.predicciones">{{ formatearNumero(buscarCantidad(p.capillas, t)) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

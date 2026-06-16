@@ -1,10 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
 import { Router, RouterLink } from '@angular/router'
 import { environment } from '../../../environments/environment'
 import { VehiculoService } from '../../core/services/vehiculo'
+import { ToastService } from '../../core/services/toast'
 import { Vehiculo } from '../../core/models/vehiculo.model'
 
 type EstadoItem = 'pendiente' | 'procesando' | 'listo' | 'error'
@@ -62,8 +63,6 @@ export class Ia implements OnInit {
     { key: 'microbus',     label: 'Microbús' },
   ]
 
-  mensaje = ''
-  tipoMensaje: 'exito' | 'error' = 'exito'
   guardando = false
 
   constructor(
@@ -71,7 +70,7 @@ export class Ia implements OnInit {
   private router: Router,
   private cdr: ChangeDetectorRef,
   private vehiculoService: VehiculoService,
-  private ngZone: NgZone
+  private toast: ToastService
 ) {}
 
 
@@ -161,35 +160,17 @@ export class Ia implements OnInit {
   }
 
   private async enviarImagen(archivo: File): Promise<any> {
-  const archivoComprimido = await this.comprimirImagen(archivo)
-  const form = new FormData()
-  form.append('file', archivoComprimido)
+    const archivoComprimido = await this.comprimirImagen(archivo)
+    const form = new FormData()
+    form.append('file', archivoComprimido)
 
-  return new Promise((resolve, reject) => {
-    this.http.post(`${this.iaApi}/ia/process-contract`, form).subscribe({
-      next: (respuesta: any) => {
-        const tarea_id = respuesta?.tarea_id
-        if (!tarea_id) { reject(new Error('No tarea_id')); return }
-
-        const intervalo = this.ngZone.run(() => setInterval(() => {
-          this.http.get(`${this.iaApi}/ia/task/${tarea_id}`).subscribe({
-            next: (tarea: any) => {
-              if (tarea.estado === 'listo') {
-                clearInterval(intervalo)
-                resolve(tarea.resultado)
-              } else if (tarea.estado === 'error') {
-                clearInterval(intervalo)
-                reject(new Error(tarea.error))
-              }
-            },
-            error: (err) => { clearInterval(intervalo); reject(err) }
-          })
-        }, 15000))
-      },
-      error: reject
+    return new Promise((resolve, reject) => {
+      this.http.post(`${this.iaApi}/ia/process-contract`, form).subscribe({
+        next: (respuesta: any) => resolve(respuesta),
+        error: reject
+      })
     })
-  })
-}
+  }
 
   private mapearDatos(raw: any): DatosContrato {
     return {
@@ -245,7 +226,7 @@ export class Ia implements OnInit {
     const d = this.itemSeleccionado.datos
 
     if (!d.direccion_velacion || !d.fecha) {
-      this.mostrarMensaje('Completa al menos la dirección y la fecha', 'error')
+      this.toast.mostrar('Completa al menos la dirección y la fecha', 'error')
       return
     }
 
@@ -259,11 +240,14 @@ export class Ia implements OnInit {
       costo:                parseFloat(d.costo) || 0,
       fecha:                d.fecha,
       cantidad_cargadores:  [4, 6].includes(d.cantidad_cargadores ?? 0) ? d.cantidad_cargadores : null,
-      fallecido:            { nombre: d.fallecido_nombre },
-      contratante:          {
-        nombre:   d.contratante_nombre,
-        dni:      d.contratante_dni,
-        telefono: d.contratante_telefono
+      fallecido: {
+        nombre:         d.fallecido_nombre || 'S/N',
+        dni_fallecido:  d.contratante_dni || '00000000'
+      },
+      contratante: {
+        nombre:   d.contratante_nombre || 'S/N',
+        dni:      d.contratante_dni || '00000000',
+        telefono: d.contratante_telefono || '000000000'
       },
       ids_vehiculos:        idsVehiculos,
       id_ataud:             null,
@@ -276,14 +260,14 @@ export class Ia implements OnInit {
     this.guardando = true
     this.http.post(`${this.mainApi}/services/`, payload).subscribe({
       next: () => {
-        this.mostrarMensaje('Servicio guardado correctamente', 'exito')
+        this.toast.mostrar('Servicio guardado correctamente', 'exito')
         const item = this.itemSeleccionado!
-        setTimeout(() => { this.eliminar(item) }, 1200)
+        setTimeout(() => { this.eliminar(item) }, 2500)
         this.guardando = false
       },
       error: (err) => {
         const detalle = err?.error?.detail ?? 'Error al guardar el servicio'
-        this.mostrarMensaje(detalle, 'error')
+        this.toast.mostrar(detalle, 'error')
         this.guardando = false
       }
     })
@@ -292,10 +276,4 @@ export class Ia implements OnInit {
   get totalPendientes(): number { return this.items.filter(i => i.estado === 'pendiente' || i.estado === 'procesando').length }
   get totalListos(): number     { return this.items.filter(i => i.estado === 'listo').length }
   get totalErrores(): number    { return this.items.filter(i => i.estado === 'error').length }
-
-  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
-    this.mensaje = texto
-    this.tipoMensaje = tipo
-    setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges() }, 3500)
-  }
 }

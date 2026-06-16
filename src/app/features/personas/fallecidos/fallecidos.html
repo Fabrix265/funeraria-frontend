@@ -84,7 +84,7 @@
             <th>ID</th>
             <th>Nombre</th>
             <th>DNI</th>
-            <th>Estado</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
@@ -94,7 +94,7 @@
             <td class="tabla__nombre">{{ f.nombre }}</td>
             <td class="tabla__dni">{{ f.dni_fallecido }}</td>
             <td>
-              <label class="switch" [class.switch--active]="f.activo" (click)="toggleActivo(f); $event.stopPropagation()">
+              <label class="switch" [class.switch--active]="f.activo" (click)="toggleActivo(f); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>
@@ -125,7 +125,10 @@
       </div>
       <div class="field">
         <label class="field__label">DNI Fallecido *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.dni_fallecido" placeholder="00000000" maxlength="8" />
+        <input class="field__input" type="text" [(ngModel)]="form.dni_fallecido" placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniF="ngModel" />
+        <span class="field__error" *ngIf="dniF.invalid && dniF.touched">
+          Debe ser exactamente 8 dígitos numéricos
+        </span>
       </div>
     </div>
     <div class="modal__footer">
@@ -150,6 +153,27 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalToggleAbierto" (click)="cerrarModalToggle()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Confirmar cambio de estado</h2>
+      <button class="modal__close" (click)="cerrarModalToggle()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Deseas {{ itemToggle?.nuevoEstado ? 'activar' : 'desactivar' }}
+        <strong>{{ itemToggle?.nombre }}</strong>?
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalToggle()">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarToggle()">
+        {{ itemToggle?.nuevoEstado ? 'Activar' : 'Desactivar' }}
+      </button>
     </div>
   </div>
 </div>
