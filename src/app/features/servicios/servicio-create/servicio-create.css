@@ -32,7 +32,6 @@
   font-size: 0.92rem;
 }
 
-/* HEADER */
 .page-header {
   display: flex;
   align-items: center;
@@ -44,7 +43,6 @@
 .page-header__title { font-family: var(--font-head); font-size: 2rem; font-weight: 600; letter-spacing: 0.04em; }
 .page-header__sub { color: var(--text-muted); font-size: 0.78rem; margin-top: 2px; letter-spacing: 0.04em; }
 
-/* BUTTONS */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -77,7 +75,6 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* FORM GRID */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -85,7 +82,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* FORM CARDS */
 .form-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -115,7 +111,6 @@
   gap: 1rem;
 }
 
-/* FIELDS */
 .field { display: flex; flex-direction: column; gap: 0.4rem; }
 .field--full { grid-column: 1 / -1; }
 .field__label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
@@ -137,7 +132,6 @@
 .field__input option { background: var(--bg-card); color: var(--text); }
 .field__input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
 
-/* ERROR INLINE */
 .field__error {
   font-size: 0.75rem;
   color: #f87171;
@@ -145,11 +139,9 @@
   display: block;
 }
 
-/* HINTS */
 .form-hint { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
 .form-hint--ok { color: #4ade80; font-style: normal; font-weight: 500; }
 
-/* VEHÍCULOS CHECKBOXES */
 .vehiculos-grid {
   display: flex;
   flex-wrap: wrap;
@@ -173,7 +165,6 @@
 .vehiculo-check__input { display: none; }
 .vehiculo-check__id { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; margin-left: 0.2rem; }
 
-/* VEHICLE BADGES */
 .v-badge { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
 .v-badge__dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: .85; }
 .v-badge--porta_ataud  { color: #b8cad8; background: rgba(184,202,216,.1);  border: 1px solid rgba(184,202,216,.22); }
@@ -182,7 +173,6 @@
 .v-badge--auto         { color: #c0aad8; background: rgba(192,170,216,.1);  border: 1px solid rgba(192,170,216,.22); }
 .v-badge--microbus     { color: #d8c898; background: rgba(216,200,152,.1);  border: 1px solid rgba(216,200,152,.22); }
 
-/* FOOTER */
 .form-footer {
   display: flex;
   justify-content: flex-end;
@@ -191,7 +181,6 @@
   border-top: 1px solid var(--border);
 }
 
-/* Banner IA */
 .ia-banner {
   display: flex;
   flex-direction: column;

@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Servicio } from '../../../core/services/servicio';
 import { environment } from '../../../../environments/environment';
 import { ReniecService, ReniecResponse } from '../../../core/services/reniec';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-servicio-create',
@@ -50,10 +51,8 @@ export class ServicioCreate implements OnInit {
 
   readonly tiposPago = ['directo', 'seguro', 'mixto'];
 
-  // Fecha mínima = hoy (formato YYYY-MM-DD para input[type=date])
   readonly fechaMinima: string = new Date().toISOString().split('T')[0];
 
-  // Solo letras (incluyendo tildes y ñ), espacios y guiones
   private readonly NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-']+$/;
   private readonly DIRECCION_REGEX = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-.,#]+$/;
 
@@ -69,7 +68,6 @@ export class ServicioCreate implements OnInit {
     return fecha >= this.fechaMinima;
   }
 
-  // Estados de verificación DNI
   verificandoFallecido = false;
   fallecidoVerificado = false;
   errorFallecido = '';
@@ -78,7 +76,6 @@ export class ServicioCreate implements OnInit {
   contratanteVerificado = false;
   errorContratante = '';
 
-  // Errores inline
   errorDireccion = '';
   errorFecha = '';
 
@@ -93,8 +90,6 @@ export class ServicioCreate implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cargarCatalogos();
-
     const state = history.state;
     if (state?.ia) {
       this.aplicarDatosIA(state.ia);
@@ -104,8 +99,9 @@ export class ServicioCreate implements OnInit {
     if (idParam) {
       this.esEdicion = true;
       this.idEditar = Number(idParam);
-      this.cargarDatos(this.idEditar);
     }
+
+    this.cargarCatalogos();
   }
 
   aplicarDatosIA(ia: any): void {
@@ -123,14 +119,23 @@ export class ServicioCreate implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.http.get<any[]>(`${this.mainApi}/coffins?activo=true`).subscribe({
-      next: (res) => this.zone.run(() => (this.ataudes = res)),
-    });
-    this.http.get<any[]>(`${this.mainApi}/chapels?activo=true`).subscribe({
-      next: (res) => this.zone.run(() => (this.capillas = res)),
-    });
-    this.http.get<any[]>(`${this.mainApi}/vehicles?activo=true`).subscribe({
-      next: (res) => this.zone.run(() => (this.vehiculos = res)),
+    forkJoin({
+      ataudes: this.http.get<any[]>(`${this.mainApi}/coffins?activo=true`),
+      capillas: this.http.get<any[]>(`${this.mainApi}/chapels?activo=true`),
+      vehiculos: this.http.get<any[]>(`${this.mainApi}/vehicles?activo=true`),
+    }).subscribe({
+      next: ({ ataudes, capillas, vehiculos }) => {
+        this.zone.run(() => {
+          this.ataudes = ataudes;
+          this.capillas = capillas;
+          this.vehiculos = vehiculos;
+
+          // Solo ahora los selects tienen opciones → cargar datos del servicio
+          if (this.esEdicion && this.idEditar) {
+            this.cargarDatos(this.idEditar);
+          }
+        });
+      },
     });
   }
 
@@ -162,13 +167,13 @@ export class ServicioCreate implements OnInit {
               ? res.pasajeros.map((p: any) => ({ nombre: p.nombre, dni_pasajero: p.dni_pasajero }))
               : [],
           };
-          // En modo edición, consideramos verificados los DNIs si ya tienen datos
           if (this.form.fallecido.nombre && this.form.fallecido.dni_fallecido) {
             this.fallecidoVerificado = true;
           }
           if (this.form.contratante.nombre && this.form.contratante.dni) {
             this.contratanteVerificado = true;
           }
+          this.cdr.detectChanges();
         });
       },
     });
@@ -247,7 +252,6 @@ export class ServicioCreate implements OnInit {
   }
 
   guardar(): void {
-    // Validación de DNI verificados
     if (!this.fallecidoVerificado) {
       this.mostrarMensaje('Verifica el DNI del Fallecido con RENIEC antes de continuar', 'error');
       return;
@@ -257,26 +261,22 @@ export class ServicioCreate implements OnInit {
       return;
     }
 
-    // Validación de campos requeridos
     if (!this.form.direccion_velacion || !this.form.fecha || !this.form.id_capilla) {
       this.mostrarMensaje('Completa los campos requeridos: dirección, fecha y capilla', 'error');
       return;
     }
 
-    // Validación de dirección (sin caracteres especiales)
     if (!this.validarDireccion(this.form.direccion_velacion)) {
       this.mostrarMensaje('La dirección contiene caracteres no permitidos', 'error');
       return;
     }
 
-    // Validación de fecha (no puede ser anterior a hoy)
     if (!this.form.fecha || !this.validarFecha(this.form.fecha)) {
       this.errorFecha = 'La fecha no puede ser anterior al día de hoy';
       this.mostrarMensaje('La fecha del servicio no puede ser anterior al día de hoy', 'error');
       return;
     }
 
-    // Validación de nombres (sin caracteres especiales)
     if (!this.validarNombre(this.form.fallecido.nombre)) {
       this.mostrarMensaje('El nombre del fallecido contiene caracteres no permitidos', 'error');
       return;
@@ -346,9 +346,6 @@ export class ServicioCreate implements OnInit {
     }, 3500);
   }
 
-  /**
-   * Verifica el DNI del Fallecido con RENIEC y auto-llena el nombre
-   */
   verificarFallecido(): void {
     const dni = this.form.fallecido.dni_fallecido;
     if (!dni || dni.length !== 8) {
@@ -380,9 +377,6 @@ export class ServicioCreate implements OnInit {
     });
   }
 
-  /**
-   * Verifica el DNI del Contratante con RENIEC y auto-llena el nombre
-   */
   verificarContratante(): void {
     const dni = this.form.contratante.dni;
     if (!dni || dni.length !== 8) {
@@ -418,7 +412,6 @@ export class ServicioCreate implements OnInit {
   private _dniContratanteVerificado = '';
 
   onDniFallecidoChange(): void {
-    // Solo resetear si el DNI cambió respecto al que fue verificado
     if (this.form.fallecido.dni_fallecido !== this._dniFallecidoVerificado) {
       this.fallecidoVerificado = false;
       this.errorFallecido = '';
