@@ -137,7 +137,17 @@
 .field__input option { background: var(--bg-card); color: var(--text); }
 .field__input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
 
+/* ERROR INLINE */
+.field__error {
+  font-size: 0.75rem;
+  color: #f87171;
+  margin-top: 2px;
+  display: block;
+}
+
+/* HINTS */
 .form-hint { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
+.form-hint--ok { color: #4ade80; font-style: normal; font-weight: 500; }
 
 /* VEHÍCULOS CHECKBOXES */
 .vehiculos-grid {
@@ -181,7 +191,7 @@
   border-top: 1px solid var(--border);
 }
 
-/* ── Banner IA ── */
+/* Banner IA */
 .ia-banner {
   display: flex;
   flex-direction: column;
@@ -192,16 +202,10 @@
   border-radius: var(--radius);
   color: var(--text-light);
   font-size: 0.88rem;
+  margin-bottom: 1.5rem;
 }
-
 .ia-banner__icon { font-size: 1.1rem; margin-right: 0.25rem; }
-
-.ia-sugerencias {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
+.ia-sugerencias { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .ia-sugerencia {
   display: inline-flex;
   align-items: center;
@@ -213,7 +217,6 @@
   font-size: 0.78rem;
   color: var(--text-muted);
 }
-
 .ia-sugerencia strong { color: var(--text-light); }
 
 .field__inline {
@@ -221,23 +224,13 @@
   gap: 8px;
   align-items: stretch;
 }
-
-.field__inline .field__input {
-  flex: 1;
-}
-
-.field__inline .btn {
-  white-space: nowrap;
-}
-
-.form-hint--ok {
-  color: #16a34a;
-  font-weight: 500;
-}
+.field__inline .field__input { flex: 1; }
+.field__inline .btn { white-space: nowrap; }
 
 .field__input[readonly],
 .field__input:disabled {
-  background-color: #f1f5f9;
-  color: #475569;
+  background-color: rgba(10,22,40,0.7);
+  color: var(--text-muted);
   cursor: not-allowed;
+  opacity: 0.75;
 }

@@ -4,9 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Servicio } from '../../../core/services/servicio';
-import { ReniecService } from '../../../core/services/reniec';
-import { ToastService } from '../../../core/services/toast';
 import { environment } from '../../../../environments/environment';
+import { ReniecService, ReniecResponse } from '../../../core/services/reniec';
 
 @Component({
   selector: 'app-servicio-create',
@@ -25,12 +24,10 @@ export class ServicioCreate implements OnInit {
   esEdicion = false;
   idEditar: number | null = null;
   guardando = false;
-  iaMeta: any = null;
+  mensaje = '';
+  tipoMensaje: 'exito' | 'error' = 'exito';
 
-  verificandoFallecido = false;
-  verificandoContratante = false;
-  fallecidoVerificado = false;
-  contratanteVerificado = false;
+  iaMeta: any = null;
 
   form: any = {
     direccion_velacion: '',
@@ -53,15 +50,46 @@ export class ServicioCreate implements OnInit {
 
   readonly tiposPago = ['directo', 'seguro', 'mixto'];
 
+  // Fecha mínima = hoy (formato YYYY-MM-DD para input[type=date])
+  readonly fechaMinima: string = new Date().toISOString().split('T')[0];
+
+  // Solo letras (incluyendo tildes y ñ), espacios y guiones
+  private readonly NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-']+$/;
+  private readonly DIRECCION_REGEX = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-.,#]+$/;
+
+  private validarDireccion(dir: string): boolean {
+    return dir.trim().length >= 3 && this.DIRECCION_REGEX.test(dir.trim());
+  }
+
+  private validarNombre(nombre: string): boolean {
+    return nombre.trim().length > 0 && this.NOMBRE_REGEX.test(nombre.trim());
+  }
+
+  private validarFecha(fecha: string): boolean {
+    return fecha >= this.fechaMinima;
+  }
+
+  // Estados de verificación DNI
+  verificandoFallecido = false;
+  fallecidoVerificado = false;
+  errorFallecido = '';
+
+  verificandoContratante = false;
+  contratanteVerificado = false;
+  errorContratante = '';
+
+  // Errores inline
+  errorDireccion = '';
+  errorFecha = '';
+
   constructor(
     private servicioService: Servicio,
-    private reniecService: ReniecService,
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
     private zone: NgZone,
-    private toast: ToastService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private reniecService: ReniecService,
   ) {}
 
   ngOnInit(): void {
@@ -92,13 +120,6 @@ export class ServicioCreate implements OnInit {
     this.form.contratante.nombre = ia.contratante_nombre || '';
     this.form.contratante.dni = ia.contratante_dni || '';
     this.form.contratante.telefono = ia.contratante_telefono || '';
-
-    if (this.form.fallecido.nombre && this.form.fallecido.dni_fallecido) {
-      this.fallecidoVerificado = true;
-    }
-    if (this.form.contratante.nombre && this.form.contratante.dni) {
-      this.contratanteVerificado = true;
-    }
   }
 
   cargarCatalogos(): void {
@@ -141,93 +162,17 @@ export class ServicioCreate implements OnInit {
               ? res.pasajeros.map((p: any) => ({ nombre: p.nombre, dni_pasajero: p.dni_pasajero }))
               : [],
           };
-
-          if (this.form.fallecido.nombre) this.fallecidoVerificado = true;
-          if (this.form.contratante.nombre) this.contratanteVerificado = true;
+          // En modo edición, consideramos verificados los DNIs si ya tienen datos
+          if (this.form.fallecido.nombre && this.form.fallecido.dni_fallecido) {
+            this.fallecidoVerificado = true;
+          }
+          if (this.form.contratante.nombre && this.form.contratante.dni) {
+            this.contratanteVerificado = true;
+          }
         });
       },
     });
   }
-
-  verificarFallecido(): void {
-    const dni = this.form.fallecido.dni_fallecido?.trim();
-    if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
-      this.toast.mostrar('Ingresa un DNI válido de 8 dígitos para el fallecido', 'error');
-      return;
-    }
-
-    this.verificandoFallecido = true;
-    this.fallecidoVerificado = false;
-    this.form.fallecido.nombre = '';
-
-    this.reniecService.consultar(dni).subscribe({
-      next: (res) =>
-        this.zone.run(() => {
-          this.form.fallecido.nombre = res.nombre_completo || '';
-          this.fallecidoVerificado = true;
-          this.verificandoFallecido = false;
-          this.toast.mostrar('DNI del fallecido verificado correctamente', 'exito');
-          this.cdr.detectChanges();
-        }),
-      error: (err) =>
-        this.zone.run(() => {
-          this.verificandoFallecido = false;
-          this.fallecidoVerificado = false;
-          this.form.fallecido.nombre = '';
-          this.toast.mostrar(
-            err.error?.detail || 'No se pudo verificar el DNI del fallecido',
-            'error'
-          );
-          this.cdr.detectChanges();
-        }),
-    });
-  }
-
-  verificarContratante(): void {
-    const dni = this.form.contratante.dni?.trim();
-    if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
-      this.toast.mostrar('Ingresa un DNI válido de 8 dígitos para el contratante', 'error');
-      return;
-    }
-
-    this.verificandoContratante = true;
-    this.contratanteVerificado = false;
-    this.form.contratante.nombre = '';
-
-    this.reniecService.consultar(dni).subscribe({
-      next: (res) =>
-        this.zone.run(() => {
-          this.form.contratante.nombre = res.nombre_completo || '';
-          this.contratanteVerificado = true;
-          this.verificandoContratante = false;
-          this.toast.mostrar('DNI del contratante verificado correctamente', 'exito');
-          this.cdr.detectChanges();
-        }),
-      error: (err) =>
-        this.zone.run(() => {
-          this.verificandoContratante = false;
-          this.contratanteVerificado = false;
-          this.form.contratante.nombre = '';
-          this.toast.mostrar(
-            err.error?.detail || 'No se pudo verificar el DNI del contratante',
-            'error'
-          );
-          this.cdr.detectChanges();
-        }),
-    });
-  }
-
-  onDniFallecidoChange(): void {
-    this.fallecidoVerificado = false;
-    this.form.fallecido.nombre = '';
-  }
-
-  onDniContratanteChange(): void {
-    this.contratanteVerificado = false;
-    this.form.contratante.nombre = '';
-  }
-
-  // ===== Vehículos / Pasajeros =====
 
   toggleVehiculo(id: number): void {
     if (this.form.ids_vehiculos.includes(id)) {
@@ -302,23 +247,42 @@ export class ServicioCreate implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.direccion_velacion || !this.form.fecha || !this.form.id_capilla) {
-      this.toast.mostrar('Completa los campos requeridos: dirección, fecha y capilla', 'error');
-      return;
-    }
-
-    if (!this.form.costo || this.form.costo <= 0) {
-      this.toast.mostrar('El costo del servicio debe ser mayor a 0', 'error');
-      return;
-    }
-
+    // Validación de DNI verificados
     if (!this.fallecidoVerificado) {
-      this.toast.mostrar('Debes verificar el DNI del fallecido antes de continuar', 'error');
+      this.mostrarMensaje('Verifica el DNI del Fallecido con RENIEC antes de continuar', 'error');
+      return;
+    }
+    if (!this.contratanteVerificado) {
+      this.mostrarMensaje('Verifica el DNI del Contratante con RENIEC antes de continuar', 'error');
       return;
     }
 
-    if (!this.contratanteVerificado) {
-      this.toast.mostrar('Debes verificar el DNI del contratante antes de continuar', 'error');
+    // Validación de campos requeridos
+    if (!this.form.direccion_velacion || !this.form.fecha || !this.form.id_capilla) {
+      this.mostrarMensaje('Completa los campos requeridos: dirección, fecha y capilla', 'error');
+      return;
+    }
+
+    // Validación de dirección (sin caracteres especiales)
+    if (!this.validarDireccion(this.form.direccion_velacion)) {
+      this.mostrarMensaje('La dirección contiene caracteres no permitidos', 'error');
+      return;
+    }
+
+    // Validación de fecha (no puede ser anterior a hoy)
+    if (!this.form.fecha || !this.validarFecha(this.form.fecha)) {
+      this.errorFecha = 'La fecha no puede ser anterior al día de hoy';
+      this.mostrarMensaje('La fecha del servicio no puede ser anterior al día de hoy', 'error');
+      return;
+    }
+
+    // Validación de nombres (sin caracteres especiales)
+    if (!this.validarNombre(this.form.fallecido.nombre)) {
+      this.mostrarMensaje('El nombre del fallecido contiene caracteres no permitidos', 'error');
+      return;
+    }
+    if (!this.validarNombre(this.form.contratante.nombre)) {
+      this.mostrarMensaje('El nombre del contratante contiene caracteres no permitidos', 'error');
       return;
     }
 
@@ -355,26 +319,134 @@ export class ServicioCreate implements OnInit {
 
     if (this.esEdicion && this.idEditar) {
       this.servicioService.actualizar(this.idEditar, payload).subscribe({
-        next: () => this.zone.run(() => {
-          this.toast.mostrar('Servicio actualizado correctamente', 'exito');
-          setTimeout(() => this.router.navigate(['/servicios', this.idEditar]), 2500);
-        }),
-        error: (err) => this.zone.run(() => {
-          this.guardando = false;
-          this.toast.mostrar(err.error?.detail || 'Error al actualizar el servicio', 'error');
-        })
+        next: () => this.zone.run(() => this.router.navigate(['/servicios', this.idEditar])),
+        error: (err) =>
+          this.zone.run(() => {
+            this.guardando = false;
+            this.mostrarMensaje(err.error?.detail || 'Error al actualizar el servicio', 'error');
+          }),
       });
     } else {
       this.servicioService.crear(payload).subscribe({
-        next: () => this.zone.run(() => {
-          this.toast.mostrar('Servicio creado correctamente', 'exito');
-          setTimeout(() => this.router.navigate(['/servicios']), 2500);
-        }),
-        error: (err) => this.zone.run(() => {
-          this.guardando = false;
-          this.toast.mostrar(err.error?.detail || 'Error al crear el servicio', 'error');
-        })
+        next: () => this.zone.run(() => this.router.navigate(['/servicios'])),
+        error: (err) =>
+          this.zone.run(() => {
+            this.guardando = false;
+            this.mostrarMensaje(err.error?.detail || 'Error al crear el servicio', 'error');
+          }),
       });
+    }
+  }
+
+  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
+    this.mensaje = texto;
+    this.tipoMensaje = tipo;
+    setTimeout(() => {
+      this.mensaje = '';
+    }, 3500);
+  }
+
+  /**
+   * Verifica el DNI del Fallecido con RENIEC y auto-llena el nombre
+   */
+  verificarFallecido(): void {
+    const dni = this.form.fallecido.dni_fallecido;
+    if (!dni || dni.length !== 8) {
+      this.mostrarMensaje('Ingresa un DNI válido de 8 dígitos para el fallecido', 'error');
+      return;
+    }
+
+    this.verificandoFallecido = true;
+    this.fallecidoVerificado = false;
+    this.form.fallecido.nombre = '';
+
+    this.reniecService.consultar(dni).subscribe({
+      next: (data: ReniecResponse) => {
+        this.form.fallecido.nombre = data.nombre_completo;
+        this.fallecidoVerificado = true;
+        this.errorFallecido = '';
+        this.verificandoFallecido = false;
+        this._dniFallecidoVerificado = this.form.fallecido.dni_fallecido;
+        this.cdr.detectChanges();
+        this.mostrarMensaje(`✓ Fallecido verificado: ${data.nombre_completo}`, 'exito');
+      },
+      error: (err) => {
+        this.form.fallecido.nombre = '';
+        this.fallecidoVerificado = false;
+        this.verificandoFallecido = false;
+        this.errorFallecido = err.error?.detail || 'DNI no encontrado en RENIEC';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  /**
+   * Verifica el DNI del Contratante con RENIEC y auto-llena el nombre
+   */
+  verificarContratante(): void {
+    const dni = this.form.contratante.dni;
+    if (!dni || dni.length !== 8) {
+      this.mostrarMensaje('Ingresa un DNI válido de 8 dígitos para el contratante', 'error');
+      return;
+    }
+
+    this.verificandoContratante = true;
+    this.contratanteVerificado = false;
+    this.form.contratante.nombre = '';
+
+    this.reniecService.consultar(dni).subscribe({
+      next: (data: ReniecResponse) => {
+        this.form.contratante.nombre = data.nombre_completo;
+        this.contratanteVerificado = true;
+        this.errorContratante = '';
+        this.verificandoContratante = false;
+        this._dniContratanteVerificado = this.form.contratante.dni;
+        this.cdr.detectChanges();
+        this.mostrarMensaje(`✓ Contratante verificado: ${data.nombre_completo}`, 'exito');
+      },
+      error: (err) => {
+        this.form.contratante.nombre = '';
+        this.contratanteVerificado = false;
+        this.verificandoContratante = false;
+        this.errorContratante = err.error?.detail || 'DNI no encontrado en RENIEC';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private _dniFallecidoVerificado = '';
+  private _dniContratanteVerificado = '';
+
+  onDniFallecidoChange(): void {
+    // Solo resetear si el DNI cambió respecto al que fue verificado
+    if (this.form.fallecido.dni_fallecido !== this._dniFallecidoVerificado) {
+      this.fallecidoVerificado = false;
+      this.errorFallecido = '';
+      this.form.fallecido.nombre = '';
+    }
+  }
+
+  onDniContratanteChange(): void {
+    if (this.form.contratante.dni !== this._dniContratanteVerificado) {
+      this.contratanteVerificado = false;
+      this.errorContratante = '';
+      this.form.contratante.nombre = '';
+    }
+  }
+
+  onDireccionChange(): void {
+    if (this.form.direccion_velacion && !this.validarDireccion(this.form.direccion_velacion)) {
+      this.errorDireccion = 'Solo se permiten letras, números, espacios, comas y guiones';
+    } else {
+      this.errorDireccion = '';
+    }
+  }
+
+  onFechaChange(): void {
+    if (this.form.fecha && this.form.fecha < this.fechaMinima) {
+      this.errorFecha = 'La fecha no puede ser anterior al día de hoy';
+    } else {
+      this.errorFecha = '';
     }
   }
 }
