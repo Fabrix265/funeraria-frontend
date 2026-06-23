@@ -13,7 +13,6 @@
   <div class="ia-banner" *ngIf="iaMeta">
     <span class="ia-banner__icon">📷</span>
     <span>Datos pre-llenados desde extracción IA. Revisa y completa los campos faltantes.</span>
-
     <div class="ia-sugerencias" *ngIf="iaMeta.ataud_modelo || iaMeta.capilla_modelo || iaMeta.vehiculos?.length">
       <span class="ia-sugerencia" *ngIf="iaMeta.ataud_modelo">
         ⚰ Ataúd sugerido: <strong>{{ iaMeta.ataud_modelo }}{{ iaMeta.ataud_color ? ' — ' + iaMeta.ataud_color : '' }}</strong>
@@ -35,14 +34,16 @@
         <div class="field field--full">
           <label class="field__label">Dirección de velación *</label>
           <input class="field__input" type="text" [(ngModel)]="form.direccion_velacion"
-            name="direccion" placeholder="Ej: Av. Los Alamos 123" required minlength="3" maxlength="200" #dirServ="ngModel" />
-          <span class="field__error" *ngIf="dirServ.invalid && dirServ.touched">
-            Mínimo 3 caracteres
-          </span>
+                 name="direccion" placeholder="Ej: Av. Los Alamos 123" required minlength="3" maxlength="200"
+                 #dirServ="ngModel" (ngModelChange)="onDireccionChange()" />
+          <span class="field__error" *ngIf="dirServ.invalid && dirServ.touched">Mínimo 3 caracteres</span>
+          <span class="field__error" *ngIf="errorDireccion">{{ errorDireccion }}</span>
         </div>
         <div class="field">
           <label class="field__label">Fecha *</label>
-          <input class="field__input" type="date" [(ngModel)]="form.fecha" name="fecha" />
+          <input class="field__input" type="date" [(ngModel)]="form.fecha" name="fecha"
+                 [min]="fechaMinima" (ngModelChange)="onFechaChange()" />
+          <span class="field__error" *ngIf="errorFecha">{{ errorFecha }}</span>
         </div>
         <div class="field">
           <label class="field__label">Costo (S/)</label>
@@ -82,18 +83,17 @@
               {{ verificandoFallecido ? 'Verificando...' : 'Verificar' }}
             </button>
           </div>
+          <span class="field__error" *ngIf="errorFallecido">{{ errorFallecido }}</span>
         </div>
         <div class="field field--full">
           <label class="field__label">Nombre completo</label>
           <input class="field__input" type="text" [value]="form.fallecido.nombre"
                  name="fallecido_nombre" placeholder="Se completará al verificar el DNI"
                  readonly disabled />
-          <p class="form-hint" *ngIf="!fallecidoVerificado">
+          <p class="form-hint" *ngIf="!fallecidoVerificado && !errorFallecido">
             Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
           </p>
-          <p class="form-hint form-hint--ok" *ngIf="fallecidoVerificado">
-            ✓ Verificado en RENIEC
-          </p>
+          <p class="form-hint form-hint--ok" *ngIf="fallecidoVerificado">✓ Verificado en RENIEC</p>
         </div>
       </div>
     </div>
@@ -115,26 +115,23 @@
               {{ verificandoContratante ? 'Verificando...' : 'Verificar' }}
             </button>
           </div>
+          <span class="field__error" *ngIf="errorContratante">{{ errorContratante }}</span>
         </div>
         <div class="field field--full">
           <label class="field__label">Nombre completo</label>
           <input class="field__input" type="text" [value]="form.contratante.nombre"
                  name="contratante_nombre" placeholder="Se completará al verificar el DNI"
                  readonly disabled />
-          <p class="form-hint" *ngIf="!contratanteVerificado">
+          <p class="form-hint" *ngIf="!contratanteVerificado && !errorContratante">
             Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
           </p>
-          <p class="form-hint form-hint--ok" *ngIf="contratanteVerificado">
-            ✓ Verificado en RENIEC
-          </p>
+          <p class="form-hint form-hint--ok" *ngIf="contratanteVerificado">✓ Verificado en RENIEC</p>
         </div>
         <div class="field">
           <label class="field__label">Teléfono</label>
           <input class="field__input" type="tel" [(ngModel)]="form.contratante.telefono"
-            name="contratante_tel" placeholder="9XXXXXXXX" maxlength="9" pattern="^[0-9]{9}$" #telCont="ngModel" />
-          <span class="field__error" *ngIf="telCont.invalid && telCont.touched">
-            9 dígitos numéricos
-          </span>
+                 name="contratante_tel" placeholder="9XXXXXXXX" maxlength="9" pattern="^[0-9]{9}$" #telCont="ngModel" />
+          <span class="field__error" *ngIf="telCont.invalid && telCont.touched">9 dígitos numéricos</span>
         </div>
       </div>
     </div>
@@ -174,14 +171,10 @@
       <div class="form-card__body">
         <p class="form-hint" *ngIf="vehiculos.length === 0">Cargando vehículos...</p>
         <div class="vehiculos-grid" *ngIf="vehiculos.length > 0">
-          <label
-            *ngFor="let v of vehiculos"
-            class="vehiculo-check"
-            [class.vehiculo-check--activo]="estaSeleccionado(v.id)"
-          >
+          <label *ngFor="let v of vehiculos" class="vehiculo-check"
+                 [class.vehiculo-check--activo]="estaSeleccionado(v.id)">
             <input type="checkbox" class="vehiculo-check__input"
-              [checked]="estaSeleccionado(v.id)"
-              (change)="toggleVehiculo(v.id)" />
+                   [checked]="estaSeleccionado(v.id)" (change)="toggleVehiculo(v.id)" />
             <span class="v-badge" [ngClass]="'v-badge--' + v.tipo">
               <span class="v-badge__dot"></span>
               {{ etiquetaVehiculo(v.tipo) }}
@@ -198,7 +191,6 @@
         <p class="form-hint" *ngIf="form.pasajeros.length === 0">
           Agrega pasajeros si el vehículo asignado es tipo Auto o Microbús.
         </p>
-
         <div class="pasajeros-list" *ngIf="form.pasajeros.length > 0">
           <div class="pasajero-row" *ngFor="let p of form.pasajeros; let i = index">
             <span class="pasajero-row__nombre">{{ p.nombre }}</span>
@@ -209,7 +201,6 @@
             </div>
           </div>
         </div>
-
         <button class="btn btn--ghost btn--sm" (click)="abrirModalPasajero()">
           <span>+</span> Agregar pasajero
         </button>
@@ -238,18 +229,14 @@
       <div class="field">
         <label class="field__label">Nombre *</label>
         <input class="field__input" type="text" [(ngModel)]="pasajeroForm.nombre"
-          placeholder="Nombre completo" minlength="2" maxlength="100" #nomPas="ngModel" />
-        <span class="field__error" *ngIf="nomPas.invalid && nomPas.touched">
-          Mínimo 2 caracteres
-        </span>
+               placeholder="Nombre completo" minlength="2" maxlength="100" #nomPas="ngModel" />
+        <span class="field__error" *ngIf="nomPas.invalid && nomPas.touched">Mínimo 2 caracteres</span>
       </div>
       <div class="field">
         <label class="field__label">DNI *</label>
         <input class="field__input" type="text" [(ngModel)]="pasajeroForm.dni_pasajero"
-          placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniPas="ngModel" />
-        <span class="field__error" *ngIf="dniPas.invalid && dniPas.touched">
-          8 dígitos numéricos
-        </span>
+               placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniPas="ngModel" />
+        <span class="field__error" *ngIf="dniPas.invalid && dniPas.touched">8 dígitos numéricos</span>
       </div>
     </div>
     <div class="modal__footer">
