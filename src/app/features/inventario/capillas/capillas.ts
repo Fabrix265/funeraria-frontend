@@ -29,6 +29,8 @@ export class Capillas implements OnInit {
   modelosFiltrados: string[] = [];
   mostrarDrop = false;
 
+  filtroActivo = 'true';
+
   modalAbierto = false;
   modoEdicion = false;
   capillaSeleccionada: Capilla | null = null;
@@ -37,6 +39,9 @@ export class Capillas implements OnInit {
   modalStockAbierto = false;
   capillaStock: Capilla | null = null;
   cantidadStock = 0;
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   capillaEliminar: Capilla | null = null;
@@ -52,15 +57,15 @@ export class Capillas implements OnInit {
 
   cargar(): void {
     this.cargando = true;
-    this.capillaService.listar(this.modeloQuery || undefined).subscribe({
+    this.capillaService.listar(this.modeloQuery || undefined, this.filtroActivo).subscribe({
       next: (data) => {
         this.capillas = data;
         this.modelosUnicos = [...new Set(data.map((c) => c.modelo))].sort();
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mostrarMensaje('Error al cargar capillas', 'error');
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al cargar capillas', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -96,6 +101,7 @@ export class Capillas implements OnInit {
 
   limpiarFiltro(): void {
     this.modeloQuery = '';
+    this.filtroActivo = 'true';
     this.cargar();
   }
 
@@ -129,7 +135,7 @@ export class Capillas implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
     } else {
       this.capillaService.crear(this.form).subscribe({
@@ -138,7 +144,7 @@ export class Capillas implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al crear', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
       });
     }
   }
@@ -161,7 +167,7 @@ export class Capillas implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -184,7 +190,7 @@ export class Capillas implements OnInit {
         this.cerrarModalStock();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al actualizar stock', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar stock', 'error'),
     });
   }
 
@@ -195,5 +201,30 @@ export class Capillas implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(c: Capilla): void {
+    const nuevoEstado = !c.activo;
+    this.itemToggle = { ...c, nuevoEstado, nombre: c.modelo };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.capillaService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+    });
   }
 }

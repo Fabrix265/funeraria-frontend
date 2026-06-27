@@ -17,8 +17,6 @@
   --transition: 200ms ease;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
 .dash-wrapper {
   min-height: 100vh;
   background: var(--bg);

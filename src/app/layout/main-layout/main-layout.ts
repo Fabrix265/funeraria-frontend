@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { tienePermiso, esAdminActual } from '../../core/utils/auth.utils';
+import { ToastService } from '../../core/services/toast';
 
 @Component({
   selector: 'app-main-layout',
@@ -12,7 +13,6 @@ import { tienePermiso, esAdminActual } from '../../core/utils/auth.utils';
 })
 export class MainLayout implements OnInit {
   esAdmin = false;
-  mensajePronostico = false;
   sidebarAbierto = true;
   esMobile = false;
 
@@ -24,7 +24,7 @@ export class MainLayout implements OnInit {
   puedeVerFallecidos = false;
   puedeVerIA = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, public toast: ToastService) {}
 
   ngOnInit(): void {
     this.verificarTamano();
@@ -55,13 +55,6 @@ export class MainLayout implements OnInit {
 
   cerrarSidebarMobile(): void {
     if (this.esMobile) this.sidebarAbierto = false;
-  }
-
-  mostrarPronostico(): void {
-    this.mensajePronostico = true;
-    setTimeout(() => {
-      this.mensajePronostico = false;
-    }, 3000);
   }
 
   logout(): void {

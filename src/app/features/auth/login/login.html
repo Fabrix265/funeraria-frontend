@@ -27,7 +27,12 @@
             [(ngModel)]="username"
             (keyup.enter)="login()"
             autocomplete="username"
+            minlength="3"
+            #usuario="ngModel"
           />
+          <span class="field__error" *ngIf="usuario.invalid && usuario.touched">
+            Mínimo 3 caracteres
+          </span>
         </div>
 
         <div class="field">
@@ -40,6 +45,8 @@
               [(ngModel)]="password"
               (keyup.enter)="login()"
               autocomplete="current-password"
+              minlength="6"
+              #contra="ngModel"
             />
             <button
               class="field__eye"
@@ -50,6 +57,9 @@
               {{ mostrarPassword ? '👁️‍🗨️' : '👁' }}
             </button>
           </div>
+          <span class="field__error" *ngIf="contra.invalid && contra.touched">
+            Mínimo 6 caracteres
+          </span>
         </div>
 
         <div class="login-error" *ngIf="error">

@@ -12,8 +12,7 @@ export class Navbar {
 
   logout(){
 
-    localStorage.removeItem('token')
-    localStorage.removeItem('cargo')
+    localStorage.clear()
 
     this.router.navigate(['/login'])
 

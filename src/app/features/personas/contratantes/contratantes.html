@@ -54,6 +54,15 @@
         />
       </div>
 
+      <div class="filtro-group">
+        <label class="filtro-label">Estado</label>
+        <select class="filtro-input" [(ngModel)]="filtroActivo" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
       <div class="filtro-group filtro-group--action">
         <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
         <button class="btn btn--secondary" (click)="aplicarFiltros()">Buscar</button>
@@ -81,15 +90,22 @@
             <th>Nombre</th>
             <th>DNI</th>
             <th>Teléfono</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of contratantes" class="tabla__fila">
+          <tr *ngFor="let c of contratantes" class="tabla__fila" [class.tabla__fila--inactivo]="!c.activo">
             <td class="tabla__id">#{{ c.id }}</td>
             <td class="tabla__nombre">{{ c.nombre }}</td>
             <td class="tabla__mono">{{ c.dni }}</td>
             <td class="tabla__tel">{{ c.telefono }}</td>
+            <td>
+              <label class="switch" [class.switch--active]="c.activo" (click)="toggleActivo(c); $event.stopPropagation()" *ngIf="puedeEditar">
+                <span class="switch__track"></span>
+                <span class="switch__thumb"></span>
+              </label>
+            </td>
             <td class="tabla__acciones" *ngIf="puedeEditar || puedeEliminar">
               <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(c)">✎</button>
               <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(c)">✕</button>
@@ -116,11 +132,17 @@
       </div>
       <div class="field">
         <label class="field__label">DNI *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.dni" placeholder="00000000" maxlength="8" />
+        <input class="field__input" type="text" [(ngModel)]="form.dni" placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniC="ngModel" />
+        <span class="field__error" *ngIf="dniC.invalid && dniC.touched">
+          Debe ser exactamente 8 dígitos numéricos
+        </span>
       </div>
       <div class="field">
         <label class="field__label">Teléfono</label>
-        <input class="field__input" type="tel" [(ngModel)]="form.telefono" placeholder="9XXXXXXXX" />
+        <input class="field__input" type="tel" [(ngModel)]="form.telefono" placeholder="9XXXXXXXX" maxlength="9" pattern="^[0-9]{9}$" #telC="ngModel" />
+        <span class="field__error" *ngIf="telC.invalid && telC.touched">
+          Debe ser exactamente 9 dígitos numéricos
+        </span>
       </div>
     </div>
     <div class="modal__footer">
@@ -145,6 +167,27 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalToggleAbierto" (click)="cerrarModalToggle()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Confirmar cambio de estado</h2>
+      <button class="modal__close" (click)="cerrarModalToggle()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Deseas {{ itemToggle?.nuevoEstado ? 'activar' : 'desactivar' }}
+        <strong>{{ itemToggle?.nombre }}</strong>?
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalToggle()">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarToggle()">
+        {{ itemToggle?.nuevoEstado ? 'Activar' : 'Desactivar' }}
+      </button>
     </div>
   </div>
 </div>

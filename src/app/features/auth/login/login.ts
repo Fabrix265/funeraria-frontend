@@ -32,8 +32,12 @@ export class Login {
       next: () => {
         this.router.navigate(['/dashboard'])
       },
-      error: () => {
-        this.error    = 'Usuario o contraseña incorrectos'
+      error: (err) => {
+        if (err.status === 403) {
+          this.error = 'La cuenta está desactivada. Contacte al administrador.'
+        } else {
+          this.error = err.error?.detail || 'Usuario o contraseña incorrectos'
+        }
         this.cargando = false
       }
     })

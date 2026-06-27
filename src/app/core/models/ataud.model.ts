@@ -3,4 +3,5 @@ export interface Ataud {
   modelo: string;
   color: string;
   stock: number;
+  activo: boolean;
 }

@@ -27,9 +27,14 @@ export class Fallecidos implements OnInit {
   nombresFiltrados: string[] = [];
   mostrarDropNombre = false;
 
+  filtroActivo = 'true';
+
   modalAbierto = false;
   fallecidoSeleccionado: any = null;
-  form = { nombre: '', dni: '' };
+  form = { nombre: '', dni_fallecido: '' };
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   fallecidoEliminar: any = null;
@@ -46,7 +51,7 @@ export class Fallecidos implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.personaService
-      .listarFallecidos(this.nombreQuery || undefined, this.dniQuery || undefined)
+      .listarFallecidos(this.nombreQuery || undefined, this.dniQuery || undefined, this.filtroActivo)
       .subscribe({
         next: (data) => {
           this.fallecidos = data;
@@ -91,12 +96,13 @@ export class Fallecidos implements OnInit {
   limpiarFiltros(): void {
     this.nombreQuery = '';
     this.dniQuery = '';
+    this.filtroActivo = 'true';
     this.cargar();
   }
 
   abrirModalEditar(f: any): void {
     this.fallecidoSeleccionado = f;
-    this.form = { nombre: f.nombre, dni: f.dni };
+    this.form = { nombre: f.nombre, dni_fallecido: f.dni_fallecido };
     this.modalAbierto = true;
   }
 
@@ -106,7 +112,7 @@ export class Fallecidos implements OnInit {
 
   guardar(): void {
     if (!this.fallecidoSeleccionado) return;
-    if (!this.form.nombre || !this.form.dni) {
+    if (!this.form.nombre || !this.form.dni_fallecido) {
       this.mostrarMensaje('Nombre y DNI son requeridos', 'error');
       return;
     }
@@ -116,7 +122,32 @@ export class Fallecidos implements OnInit {
         this.cerrarModal();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
+    });
+  }
+
+  toggleActivo(f: any): void {
+    const nuevoEstado = !f.activo;
+    this.itemToggle = { ...f, nuevoEstado, nombre: f.nombre };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.personaService.cambiarEstadoFallecido(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
   }
 
@@ -138,7 +169,7 @@ export class Fallecidos implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 

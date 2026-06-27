@@ -24,6 +24,7 @@ import { Perfil } from './features/perfil/perfil'
 import { MainLayout } from './layout/main-layout/main-layout'
 
 import { Ia } from './features/ia/ia'
+import { Predicciones } from './features/predicciones/predicciones'
 import { permisoGuard } from './core/guards/permisos-guard';
 
 export const routes: Routes = [
@@ -111,6 +112,10 @@ export const routes: Routes = [
       {
         path: 'ia',
         component: Ia,
+      },
+      {
+        path: 'predicciones',
+        component: Predicciones,
       },
       {
         path: 'roles',

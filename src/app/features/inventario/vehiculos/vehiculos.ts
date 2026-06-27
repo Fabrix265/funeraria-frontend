@@ -24,6 +24,8 @@ export class Vehiculos implements OnInit {
   mensaje = '';
   tipoMensaje: 'exito' | 'error' = 'exito';
 
+  filtroActivo = 'true';
+
   readonly tiposVehiculo: TipoVehiculo[] = [
     'porta_ataud',
     'porta_flores',
@@ -45,6 +47,9 @@ export class Vehiculos implements OnInit {
   vehiculoSeleccionado: Vehiculo | null = null;
   form = { tipo: '' as TipoVehiculo | '' };
 
+  modalToggleAbierto = false;
+  itemToggle: any = null;
+
   modalEliminarAbierto = false;
   vehiculoEliminar: Vehiculo | null = null;
 
@@ -59,14 +64,14 @@ export class Vehiculos implements OnInit {
 
   cargar(): void {
     this.cargando = true;
-    this.vehiculoService.listar().subscribe({
+    this.vehiculoService.listar(undefined, this.filtroActivo).subscribe({
       next: (data) => {
         this.vehiculos = data;
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mostrarMensaje('Error al cargar vehículos', 'error');
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al cargar vehículos', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -107,7 +112,7 @@ export class Vehiculos implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
     } else {
       this.vehiculoService.crear(this.form).subscribe({
@@ -116,7 +121,7 @@ export class Vehiculos implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al crear', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
       });
     }
   }
@@ -139,7 +144,7 @@ export class Vehiculos implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -150,5 +155,35 @@ export class Vehiculos implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(v: Vehiculo): void {
+    const nuevoEstado = !v.activo;
+    this.itemToggle = { ...v, nuevoEstado, nombre: `${this.etiqueta(v.tipo)} #${v.id}` };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.vehiculoService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+    });
+  }
+
+  limpiarFiltros(): void {
+    this.filtroActivo = 'true';
+    this.cargar();
   }
 }

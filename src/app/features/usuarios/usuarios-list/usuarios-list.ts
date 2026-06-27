@@ -18,6 +18,8 @@ export class UsuariosList implements OnInit {
   mensaje = '';
   tipoMensaje: 'exito' | 'error' = 'exito';
 
+  filtroActivo = '';
+
   modalAbierto = false;
   mostrarPassword = false;
   guardando = false;
@@ -27,6 +29,9 @@ export class UsuariosList implements OnInit {
   usuarioEditandoId: number | null = null;
   editando = false;
   formEditar = { username: '', role_id: 0, password: '' };
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   usuarioEliminar: UserLeer | null = null;
@@ -43,7 +48,7 @@ export class UsuariosList implements OnInit {
 
   cargar(): void {
     this.cargando = true;
-    this.userService.listar().subscribe({
+    this.userService.listarConFiltro(this.filtroActivo).subscribe({
       next: (res) => {
         this.usuarios = res;
         this.cargando = false;
@@ -166,7 +171,7 @@ export class UsuariosList implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -177,5 +182,35 @@ export class UsuariosList implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(u: UserLeer): void {
+    const nuevoEstado = !u.activo;
+    this.itemToggle = { ...u, nuevoEstado, nombre: u.username };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.userService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+    });
+  }
+
+  limpiarFiltros(): void {
+    this.filtroActivo = '';
+    this.cargar();
   }
 }

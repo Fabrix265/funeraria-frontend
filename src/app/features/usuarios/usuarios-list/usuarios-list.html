@@ -19,6 +19,26 @@
     </button>
   </header>
 
+  <section class="filtros-panel">
+    <h3 class="filtros-panel__titulo">Filtros</h3>
+    <div class="filtros-grid">
+
+      <div class="filtro-group">
+        <label class="filtro-label">Estado</label>
+        <select class="filtro-input" [(ngModel)]="filtroActivo" (change)="cargar()">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="filtro-group filtro-group--action">
+        <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
+      </div>
+
+    </div>
+  </section>
+
   <section class="table-section">
 
     <div class="table-loader" *ngIf="cargando">
@@ -37,11 +57,12 @@
           <th>ID</th>
           <th>Usuario</th>
           <th>Cargo</th>
+          <th>Estado</th>
           <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let u of usuarios" class="tabla__fila">
+        <tr *ngFor="let u of usuarios" class="tabla__fila" [class.tabla__fila--inactivo]="!u.activo">
           <td class="tabla__id">#{{ u.id }}</td>
           <td class="tabla__nombre">{{ u.username }}</td>
 
@@ -57,6 +78,13 @@
             <span *ngIf="!u.roles || u.roles.length === 0" class="cargo-badge">
               Sin Rol
             </span>
+          </td>
+
+          <td>
+            <label class="switch" [class.switch--active]="u.activo" (click)="toggleActivo(u); $event.stopPropagation()">
+              <span class="switch__track"></span>
+              <span class="switch__thumb"></span>
+            </label>
           </td>
 
           <td class="tabla__acciones">
@@ -81,7 +109,10 @@
     <div class="modal__body">
       <div class="field">
         <label class="field__label">Usuario *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.username" placeholder="Nombre de usuario" />
+        <input class="field__input" type="text" [(ngModel)]="form.username" placeholder="Nombre de usuario" minlength="3" maxlength="30" #usernameU="ngModel" />
+        <span class="field__error" *ngIf="usernameU.invalid && usernameU.touched">
+          Mínimo 3, máximo 30 caracteres
+        </span>
       </div>
       <div class="field">
         <label class="field__label">Contraseña *</label>
@@ -91,11 +122,16 @@
             [type]="mostrarPassword ? 'text' : 'password'"
             [(ngModel)]="form.password"
             placeholder="••••••••"
+            minlength="6"
+            #passU="ngModel"
           />
           <button class="field__eye" type="button" (click)="mostrarPassword = !mostrarPassword">
             {{ mostrarPassword ? '🙈' : '👁' }}
           </button>
         </div>
+        <span class="field__error" *ngIf="passU.invalid && passU.touched">
+          Mínimo 6 caracteres
+        </span>
       </div>
       <div class="field">
         <label class="field__label">Cargo *</label>
@@ -167,6 +203,27 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalToggleAbierto" (click)="cerrarModalToggle()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Confirmar cambio de estado</h2>
+      <button class="modal__close" (click)="cerrarModalToggle()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Deseas {{ itemToggle?.nuevoEstado ? 'activar' : 'desactivar' }}
+        <strong>{{ itemToggle?.nombre }}</strong>?
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalToggle()">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarToggle()">
+        {{ itemToggle?.nuevoEstado ? 'Activar' : 'Desactivar' }}
+      </button>
     </div>
   </div>
 </div>

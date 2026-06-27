@@ -9,5 +9,6 @@ export interface Vehiculo {
 
   id: number
   tipo: TipoVehiculo
+  activo: boolean
 
 }

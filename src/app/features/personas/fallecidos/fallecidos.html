@@ -43,6 +43,20 @@
         </div>
       </div>
 
+      <div class="filtro-group">
+        <label class="filtro-label">DNI</label>
+        <input class="filtro-input" type="text" placeholder="Buscar por DNI..."
+          [(ngModel)]="dniQuery" maxlength="8" />
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">Estado</label>
+        <select class="filtro-input" [(ngModel)]="filtroActivo" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
 
       <div class="filtro-group filtro-group--action">
         <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
@@ -69,13 +83,22 @@
           <tr>
             <th>ID</th>
             <th>Nombre</th>
+            <th>DNI</th>
+            <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let f of fallecidos" class="tabla__fila">
+          <tr *ngFor="let f of fallecidos" class="tabla__fila" [class.tabla__fila--inactivo]="!f.activo">
             <td class="tabla__id">#{{ f.id }}</td>
             <td class="tabla__nombre">{{ f.nombre }}</td>
+            <td class="tabla__dni">{{ f.dni_fallecido }}</td>
+            <td>
+              <label class="switch" [class.switch--active]="f.activo" (click)="toggleActivo(f); $event.stopPropagation()" *ngIf="puedeEditar">
+                <span class="switch__track"></span>
+                <span class="switch__thumb"></span>
+              </label>
+            </td>
             <td class="tabla__acciones">
               <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(f)">✎</button>
               <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(f)">✕</button>
@@ -101,8 +124,11 @@
         <input class="field__input" type="text" [(ngModel)]="form.nombre" placeholder="Nombre completo" />
       </div>
       <div class="field">
-        <label class="field__label">DNI *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.dni" placeholder="00000000" maxlength="8" />
+        <label class="field__label">DNI Fallecido *</label>
+        <input class="field__input" type="text" [(ngModel)]="form.dni_fallecido" placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniF="ngModel" />
+        <span class="field__error" *ngIf="dniF.invalid && dniF.touched">
+          Debe ser exactamente 8 dígitos numéricos
+        </span>
       </div>
     </div>
     <div class="modal__footer">
@@ -127,6 +153,27 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalToggleAbierto" (click)="cerrarModalToggle()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Confirmar cambio de estado</h2>
+      <button class="modal__close" (click)="cerrarModalToggle()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Deseas {{ itemToggle?.nuevoEstado ? 'activar' : 'desactivar' }}
+        <strong>{{ itemToggle?.nombre }}</strong>?
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalToggle()">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarToggle()">
+        {{ itemToggle?.nuevoEstado ? 'Activar' : 'Desactivar' }}
+      </button>
     </div>
   </div>
 </div>

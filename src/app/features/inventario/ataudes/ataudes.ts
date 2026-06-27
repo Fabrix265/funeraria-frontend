@@ -26,6 +26,7 @@ export class Ataudes implements OnInit {
 
   filtroModelo = '';
   filtroColor = '';
+  filtroActivo = 'true';
   modeloQuery = '';
   colorQuery = '';
   modelosUnicos: string[] = [];
@@ -44,6 +45,9 @@ export class Ataudes implements OnInit {
   ataudStock: Ataud | null = null;
   cantidadStock = 0;
 
+  modalToggleAbierto = false;
+  itemToggle: any = null;
+
   modalEliminarAbierto = false;
   ataudEliminar: Ataud | null = null;
 
@@ -61,6 +65,7 @@ export class Ataudes implements OnInit {
     const filtros: any = {};
     if (this.filtroModelo) filtros['modelo'] = this.filtroModelo;
     if (this.filtroColor) filtros['color'] = this.filtroColor;
+    if (this.filtroActivo) filtros['activo'] = this.filtroActivo;
 
     this.ataudService.listar(filtros).subscribe({
       next: (data) => {
@@ -69,8 +74,8 @@ export class Ataudes implements OnInit {
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.mostrarMensaje('Error al cargar ataúdes', 'error');
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al cargar ataúdes', 'error');
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -149,6 +154,7 @@ export class Ataudes implements OnInit {
   limpiarFiltros(): void {
     this.filtroModelo = '';
     this.filtroColor = '';
+    this.filtroActivo = 'true';
     this.modeloQuery = '';
     this.colorQuery = '';
     this.cargar();
@@ -184,7 +190,7 @@ export class Ataudes implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
     } else {
       this.ataudService.crear(this.form).subscribe({
@@ -193,7 +199,7 @@ export class Ataudes implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al crear', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
       });
     }
   }
@@ -216,7 +222,7 @@ export class Ataudes implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
@@ -239,7 +245,7 @@ export class Ataudes implements OnInit {
         this.cerrarModalStock();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al actualizar stock', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar stock', 'error'),
     });
   }
 
@@ -250,5 +256,30 @@ export class Ataudes implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  toggleActivo(a: Ataud): void {
+    const nuevoEstado = !a.activo;
+    this.itemToggle = { ...a, nuevoEstado, nombre: a.modelo };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado, nombre } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.ataudService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+    });
   }
 }

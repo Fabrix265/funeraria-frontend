@@ -43,17 +43,13 @@
         <span class="stat-card__name">Vehículos</span>
         <span class="stat-card__arrow">→</span>
       </a>
-      <button class="stat-card stat-card--disabled" (click)="mostrarPronostico()">
+      <a routerLink="/predicciones" class="stat-card stat-card--prono" *ngIf="puedeVerPronostico">
         <span class="stat-card__icon">📊</span>
         <span class="stat-card__name">Pronóstico</span>
-        <span class="stat-card__pill">Próximamente</span>
-      </button>
+        <span class="stat-card__arrow">→</span>
+      </a>
     </div>
   </section>
-
-  <div class="toast-prono" [class.visible]="mensajePronostico">
-    <span>🔒</span> Módulo aún no disponible
-  </div>
 
   <!-- Personas -->
   <section class="dash-section" *ngIf="puedeVerContratantes || puedeVerFallecidos">

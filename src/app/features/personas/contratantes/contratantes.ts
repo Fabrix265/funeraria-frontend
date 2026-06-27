@@ -28,9 +28,14 @@ export class Contratantes implements OnInit {
   nombresFiltrados: string[] = [];
   mostrarDropNombre = false;
 
+  filtroActivo = 'true';
+
   modalAbierto = false;
   contratanteSeleccionado: Contratante | null = null;
   form = { nombre: '', dni: '', telefono: '' };
+
+  modalToggleAbierto = false;
+  itemToggle: any = null;
 
   modalEliminarAbierto = false;
   contratanteEliminar: Contratante | null = null;
@@ -47,7 +52,7 @@ export class Contratantes implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.personaService
-      .listarContratantes(this.nombreQuery || undefined, this.dniQuery || undefined)
+      .listarContratantes(this.nombreQuery || undefined, this.dniQuery || undefined, this.filtroActivo)
       .subscribe({
         next: (data) => {
           this.contratantes = data;
@@ -92,6 +97,7 @@ export class Contratantes implements OnInit {
   limpiarFiltros(): void {
     this.nombreQuery = '';
     this.dniQuery = '';
+    this.filtroActivo = 'true';
     this.cargar();
   }
 
@@ -119,8 +125,33 @@ export class Contratantes implements OnInit {
           this.cerrarModal();
           this.cargar();
         },
-        error: () => this.mostrarMensaje('Error al actualizar', 'error'),
+        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
       });
+  }
+
+  toggleActivo(c: Contratante): void {
+    const nuevoEstado = !c.activo;
+    this.itemToggle = { ...c, nuevoEstado, nombre: c.nombre };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.personaService.cambiarEstadoContratante(id, nuevoEstado).subscribe({
+      next: () => {
+        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.cerrarModalToggle();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+    });
   }
 
   abrirModalEliminar(c: Contratante): void {
@@ -141,7 +172,7 @@ export class Contratantes implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: () => this.mostrarMensaje('Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 

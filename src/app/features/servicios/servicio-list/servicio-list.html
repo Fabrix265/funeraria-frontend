@@ -25,9 +25,15 @@
       </div>
 
       <div class="filtro-group">
-        <label class="filtro-label">DNI</label>
+        <label class="filtro-label">DNI Contratante</label>
         <input class="filtro-input" type="text" placeholder="Buscar por DNI..."
           [(ngModel)]="filtros.dni" />
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">DNI Fallecido</label>
+        <input class="filtro-input" type="text" placeholder="Buscar por DNI fallecido..."
+          [(ngModel)]="filtros.dni_fallecido" maxlength="8" />
       </div>
 
       <div class="filtro-group">
