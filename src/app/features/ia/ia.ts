@@ -164,11 +164,36 @@ export class Ia implements OnInit {
     const form = new FormData()
     form.append('file', archivoComprimido)
 
-    return new Promise((resolve, reject) => {
+    // Fase 1: enviar imagen, obtener tarea_id
+    const respuesta: any = await new Promise((resolve, reject) => {
       this.http.post(`${this.iaApi}/ia/process-contract`, form).subscribe({
-        next: (respuesta: any) => resolve(respuesta),
+        next: (res) => resolve(res),
         error: reject
       })
+    })
+
+    const tareaId = respuesta.tarea_id
+
+    // Fase 2: polling cada 3 segundos hasta que termine
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        this.http.get(`${this.iaApi}/ia/task/${tareaId}`).subscribe({
+          next: (tarea: any) => {
+            if (tarea.estado === 'listo') {
+              clearInterval(interval)
+              resolve(tarea.resultado)
+            } else if (tarea.estado === 'error') {
+              clearInterval(interval)
+              reject(new Error(tarea.error))
+            }
+            // si "procesando", sigue esperando
+          },
+          error: (err) => {
+            clearInterval(interval)
+            reject(err)
+          }
+        })
+      }, 3000)
     })
   }
 
