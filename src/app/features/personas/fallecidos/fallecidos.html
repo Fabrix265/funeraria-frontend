@@ -121,7 +121,13 @@
     <div class="modal__body">
       <div class="field">
         <label class="field__label">Nombre *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.nombre" placeholder="Nombre completo" />
+        <input class="field__input" type="text" [(ngModel)]="form.nombre" placeholder="Nombre completo"
+               minlength="2" maxlength="100" required
+               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$"
+               #nombreF="ngModel" />
+        <span class="field__error" *ngIf="nombreF.invalid && nombreF.touched">
+          Solo letras, espacios y guiones
+        </span>
       </div>
       <div class="field">
         <label class="field__label">DNI Fallecido *</label>

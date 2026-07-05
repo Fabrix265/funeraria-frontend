@@ -103,7 +103,11 @@
         </div>
         <div class="field">
           <label class="field__label">Meses a predecir</label>
-          <input class="field__input" type="number" min="1" max="24" [(ngModel)]="pasos" />
+          <input class="field__input" type="text" inputmode="numeric"
+                 [(ngModel)]="pasos" pattern="^[0-9]{1,2}$" #pasosP="ngModel" />
+          <span class="field__error" *ngIf="pasosP.invalid && pasosP.touched">
+            Número de 1 o 2 dígitos (1-24)
+          </span>
         </div>
         <div class="field field--btn">
           <button class="btn btn--primary" (click)="ejecutarPrediccion()" [disabled]="cargando">

@@ -81,7 +81,7 @@
           </td>
 
           <td>
-            <label class="switch" [class.switch--active]="u.activo" (click)="toggleActivo(u); $event.stopPropagation()">
+            <label class="switch" [class.switch--active]="u.activo" [class.switch--disabled]="u.id === currentUserId" (click)="u.id !== currentUserId && toggleActivo(u); $event.stopPropagation()">
               <span class="switch__track"></span>
               <span class="switch__thumb"></span>
             </label>
@@ -109,9 +109,9 @@
     <div class="modal__body">
       <div class="field">
         <label class="field__label">Usuario *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.username" placeholder="Nombre de usuario" minlength="3" maxlength="30" #usernameU="ngModel" />
+        <input class="field__input" type="text" [(ngModel)]="form.username" placeholder="Nombre de usuario" minlength="3" maxlength="30" pattern="^[a-zA-Z0-9]+(?:[._\-][a-zA-Z0-9]+)*$" #usernameU="ngModel" />
         <span class="field__error" *ngIf="usernameU.invalid && usernameU.touched">
-          Mínimo 3, máximo 30 caracteres
+          Letras, números, puntos, guiones. Sin espacios ni signos especiales
         </span>
       </div>
       <div class="field">

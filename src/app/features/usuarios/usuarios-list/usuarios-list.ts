@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { UserService, UserLeer, RoleLeer } from '../../../core/services/user';
+import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -17,6 +18,7 @@ export class UsuariosList implements OnInit {
   cargando = false;
   mensaje = '';
   tipoMensaje: 'exito' | 'error' = 'exito';
+  currentUserId: number = 0;
 
   filtroActivo = '';
 
@@ -38,10 +40,12 @@ export class UsuariosList implements OnInit {
 
   constructor(
     private userService: UserService,
+    private auth: Auth,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    this.currentUserId = this.auth.getCurrentUserId();
     this.cargar();
     this.cargarRoles();
   }
@@ -185,6 +189,7 @@ export class UsuariosList implements OnInit {
   }
 
   toggleActivo(u: UserLeer): void {
+    if (u.id === this.currentUserId) return;
     const nuevoEstado = !u.activo;
     this.itemToggle = { ...u, nuevoEstado, nombre: u.username };
     this.modalToggleAbierto = true;

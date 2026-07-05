@@ -257,9 +257,11 @@
       <div class="field">
         <label class="field__label">Nombre *</label>
         <input class="field__input" type="text" [(ngModel)]="formPasajero.nombre"
-          placeholder="Nombre completo" minlength="2" maxlength="100" #nomPasD="ngModel" />
+          placeholder="Nombre completo" minlength="2" maxlength="100"
+          pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$"
+          #nomPasD="ngModel" />
         <span class="field__error" *ngIf="nomPasD.invalid && nomPasD.touched">
-          Mínimo 2 caracteres
+          Solo letras, espacios y guiones
         </span>
       </div>
       <div class="field">
