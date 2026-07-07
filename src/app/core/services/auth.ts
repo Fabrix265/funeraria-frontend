@@ -24,6 +24,9 @@ export class Auth {
             localStorage.setItem('token', res.access_token);
             localStorage.setItem('loginTime', String(Date.now()));
           }
+          if (res.user?.id) {
+            localStorage.setItem('userId', String(res.user.id));
+          }
           if (res.user?.roles) {
             localStorage.setItem('roles', JSON.stringify(res.user.roles));
           }
@@ -45,6 +48,10 @@ export class Auth {
 
   getToken() {
     return localStorage.getItem('token');
+  }
+
+  getCurrentUserId(): number {
+    return Number(localStorage.getItem('userId')) || 0;
   }
 
   logout() {

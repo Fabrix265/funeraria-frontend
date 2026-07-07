@@ -28,6 +28,7 @@
             (keyup.enter)="login()"
             autocomplete="username"
             minlength="3"
+            maxlength="30"
             #usuario="ngModel"
           />
           <span class="field__error" *ngIf="usuario.invalid && usuario.touched">
@@ -46,6 +47,7 @@
               (keyup.enter)="login()"
               autocomplete="current-password"
               minlength="6"
+              maxlength="50"
               #contra="ngModel"
             />
             <button
@@ -70,7 +72,7 @@
         <button
           class="login-btn"
           (click)="login()"
-          [disabled]="cargando || !username || !password"
+          [disabled]="cargando || usuario.invalid || contra.invalid"
         >
           <span class="login-btn__spinner" *ngIf="cargando"></span>
           <span>{{ cargando ? 'Ingresando...' : 'Ingresar' }}</span>

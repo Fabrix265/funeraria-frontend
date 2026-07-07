@@ -151,20 +151,30 @@
     <div class="modal__body">
       <div class="field" *ngIf="!modoEdicion">
         <label class="field__label">Stock inicial</label>
-        <input class="field__input" type="number" [(ngModel)]="form.stock" min="0" />
+        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="form.stock"
+               pattern="^[0-9]+$" #stockA="ngModel" />
+        <span class="field__error" *ngIf="stockA.invalid && stockA.touched">
+          Solo números enteros positivos
+        </span>
       </div>
       <div class="field">
         <label class="field__label">Modelo *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.modelo" placeholder="Ej: Clásico Premium" minlength="1" maxlength="100" #modeloA="ngModel" />
+        <input class="field__input" type="text" [(ngModel)]="form.modelo" placeholder="Ej: Clásico Premium"
+               minlength="1" maxlength="100"
+               pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,]+)*$"
+               #modeloA="ngModel" />
         <span class="field__error" *ngIf="modeloA.invalid && modeloA.touched">
-          El modelo es requerido
+          Letras, números, espacios, guiones, puntos o comas
         </span>
       </div>
       <div class="field">
         <label class="field__label">Color *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.color" placeholder="Ej: Negro" minlength="1" maxlength="50" #colorA="ngModel" />
+        <input class="field__input" type="text" [(ngModel)]="form.color" placeholder="Ej: Negro"
+               minlength="1" maxlength="50"
+               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\-]+)*$"
+               #colorA="ngModel" />
         <span class="field__error" *ngIf="colorA.invalid && colorA.touched">
-          El color es requerido
+          Solo letras, espacios y guiones
         </span>
       </div>
     </div>
@@ -188,7 +198,11 @@
       </p>
       <div class="field">
         <label class="field__label">Cantidad (+ para sumar, − para restar)</label>
-        <input class="field__input" type="number" [(ngModel)]="cantidadStock" placeholder="Ej: 5 o -2" />
+        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="cantidadStock"
+               placeholder="Ej: 5 o -2" pattern="^-?[0-9]+$" #cantidadStockA="ngModel" />
+        <span class="field__error" *ngIf="cantidadStockA.invalid && cantidadStockA.touched">
+          Solo números enteros
+        </span>
       </div>
     </div>
     <div class="modal__footer">

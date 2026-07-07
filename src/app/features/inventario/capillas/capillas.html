@@ -121,14 +121,21 @@
     <div class="modal__body">
       <div class="field">
         <label class="field__label">Modelo *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.modelo" placeholder="Ej: Capilla Classic A" minlength="1" maxlength="100" #modeloCap="ngModel" />
+        <input class="field__input" type="text" [(ngModel)]="form.modelo" placeholder="Ej: Capilla Classic A"
+               minlength="1" maxlength="100"
+               pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,]+)*$"
+               #modeloCap="ngModel" />
         <span class="field__error" *ngIf="modeloCap.invalid && modeloCap.touched">
-          El modelo es requerido
+          Letras, números, espacios, guiones, puntos o comas
         </span>
       </div>
       <div class="field" *ngIf="!modoEdicion">
         <label class="field__label">Stock inicial</label>
-        <input class="field__input" type="number" [(ngModel)]="form.stock" min="0" />
+        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="form.stock"
+               pattern="^[0-9]+$" #stockCap="ngModel" />
+        <span class="field__error" *ngIf="stockCap.invalid && stockCap.touched">
+          Solo números enteros positivos
+        </span>
       </div>
     </div>
     <div class="modal__footer">
@@ -151,7 +158,11 @@
       </p>
       <div class="field">
         <label class="field__label">Cantidad (+ para sumar, − para restar)</label>
-        <input class="field__input" type="number" [(ngModel)]="cantidadStock" placeholder="Ej: 3 o -1" />
+        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="cantidadStock"
+               placeholder="Ej: 3 o -1" pattern="^-?[0-9]+$" #cantidadStockCap="ngModel" />
+        <span class="field__error" *ngIf="cantidadStockCap.invalid && cantidadStockCap.touched">
+          Solo números enteros
+        </span>
       </div>
     </div>
     <div class="modal__footer">
