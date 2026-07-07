@@ -46,6 +46,7 @@
             [(ngModel)]="username"
             placeholder="Dejar vacío para no cambiar"
             minlength="3"
+            maxlength="30"
             #usernameP="ngModel"
           />
           <span class="field__error" *ngIf="usernameP.invalid && usernameP.touched">
@@ -62,6 +63,7 @@
               [(ngModel)]="password"
               placeholder="Dejar vacío para no cambiar"
               minlength="6"
+              maxlength="50"
               #passP="ngModel"
             />
             <button class="field__eye" type="button" (click)="togglePassword()">
@@ -81,11 +83,17 @@
               [type]="mostrarConfirmar ? 'text' : 'password'"
               [(ngModel)]="confirmar"
               placeholder="Repite la contraseña"
+              minlength="6"
+              maxlength="50"
+              #confirmarP="ngModel"
             />
             <button class="field__eye" type="button" (click)="toggleConfirmar()">
               {{ mostrarConfirmar ? '👁️‍🗨️' : '👁' }}
             </button>
           </div>
+          <span class="field__error" *ngIf="confirmarP.invalid && confirmarP.touched">
+            Mínimo 6 caracteres
+          </span>
         </div>
 
         <div class="card__footer">

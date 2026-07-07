@@ -78,9 +78,12 @@
     <div class="modal__body">
       <div class="field">
         <label class="field__label">Nombre del rol *</label>
-        <input class="field__input" type="text" [(ngModel)]="form.nombre" placeholder="Ej: Auditoría, Supervisor..." minlength="3" maxlength="50" #nombreRol="ngModel" />
+        <input class="field__input" type="text" [(ngModel)]="form.nombre" placeholder="Ej: Auditoría, Supervisor..."
+               minlength="3" maxlength="50"
+               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\-]+)*$"
+               #nombreRol="ngModel" />
         <span class="field__error" *ngIf="nombreRol.invalid && nombreRol.touched">
-          Mínimo 3, máximo 50 caracteres
+          Solo letras, espacios y guiones
         </span>
       </div>
       <div class="field">
