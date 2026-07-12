@@ -31,6 +31,7 @@
             (input)="onNombreInput()"
             (focus)="abrirDropNombre()"
             (blur)="cerrarDropNombre()"
+            (keyup.enter)="aplicarFiltros()"
           />
           <span class="filtro-combo__arrow">▾</span>
           <ul class="filtro-dropdown" *ngIf="mostrarDropNombre && nombresFiltrados.length">
@@ -45,8 +46,10 @@
 
       <div class="filtro-group">
         <label class="filtro-label">DNI</label>
-        <input class="filtro-input" type="text" placeholder="Buscar por DNI..."
-          [(ngModel)]="dniQuery" maxlength="8" />
+        <input class="filtro-input" type="text" inputmode="numeric" placeholder="Buscar por DNI..."
+               [ngModel]="dniQuery" (ngModelChange)="onDniQueryChange($event)"
+               (keyup.enter)="aplicarFiltros()" maxlength="8" />
+        <span class="filtro-error" *ngIf="errorDni">{{ errorDni }}</span>
       </div>
 
       <div class="filtro-group">
