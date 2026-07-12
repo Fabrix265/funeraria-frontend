@@ -21,24 +21,31 @@
       <div class="filtro-group">
         <label class="filtro-label">Nombre fallecido / contratante</label>
         <input class="filtro-input" type="text" placeholder="Buscar por nombre..."
-          [(ngModel)]="filtros.nombre" />
+               [ngModel]="filtros.nombre" (ngModelChange)="onNombreFiltroChange($event)"
+               (keyup.enter)="aplicarFiltros()" />
+        <span class="filtro-error" *ngIf="erroresFiltro.nombre">{{ erroresFiltro.nombre }}</span>
       </div>
 
       <div class="filtro-group">
         <label class="filtro-label">DNI Contratante</label>
-        <input class="filtro-input" type="text" placeholder="Buscar por DNI..."
-          [(ngModel)]="filtros.dni" maxlength="8" />
+        <input class="filtro-input" type="text" placeholder="Buscar por DNI..." inputmode="numeric"
+               [ngModel]="filtros.dni" (ngModelChange)="onDniFiltroChange($event)"
+               (keyup.enter)="aplicarFiltros()" maxlength="8" />
+        <span class="filtro-error" *ngIf="erroresFiltro.dni">{{ erroresFiltro.dni }}</span>
       </div>
 
       <div class="filtro-group">
         <label class="filtro-label">DNI Fallecido</label>
-        <input class="filtro-input" type="text" placeholder="Buscar por DNI fallecido..."
-          [(ngModel)]="filtros.dni_fallecido" maxlength="8" />
+        <input class="filtro-input" type="text" placeholder="Buscar por DNI fallecido..." inputmode="numeric"
+               [ngModel]="filtros.dni_fallecido" (ngModelChange)="onDniFallecidoFiltroChange($event)"
+               (keyup.enter)="aplicarFiltros()" maxlength="8" />
+        <span class="filtro-error" *ngIf="erroresFiltro.dni_fallecido">{{ erroresFiltro.dni_fallecido }}</span>
       </div>
 
       <div class="filtro-group">
         <label class="filtro-label">Fecha</label>
-        <input class="filtro-input" type="date" [(ngModel)]="filtros.fecha" />
+        <input class="filtro-input" type="date" [(ngModel)]="filtros.fecha"
+               (keyup.enter)="aplicarFiltros()" />
       </div>
 
       <div class="filtro-group filtro-group--action">
