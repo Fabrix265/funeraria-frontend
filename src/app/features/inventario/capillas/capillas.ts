@@ -87,6 +87,7 @@ export class Capillas implements OnInit {
   seleccionarModelo(m: string): void {
     this.modeloQuery = m;
     this.mostrarDrop = false;
+    this.cargar();
   }
 
   cerrarDrop(): void {
@@ -220,7 +221,10 @@ export class Capillas implements OnInit {
     const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.capillaService.cambiarEstado(id, nuevoEstado).subscribe({
       next: () => {
-        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.mostrarMensaje(
+          `${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`,
+          'exito',
+        );
         this.cerrarModalToggle();
         this.cargar();
       },

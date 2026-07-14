@@ -33,7 +33,7 @@ export class ServicioCreate implements OnInit {
   form: any = {
     direccion_velacion: '',
     tipo_pago: 'directo',
-    costo: 0,
+    costo: 100,
     fecha: '',
     id_capilla: null,
     id_ataud: null,
@@ -54,7 +54,8 @@ export class ServicioCreate implements OnInit {
   readonly fechaMinima: string = new Date().toISOString().split('T')[0];
 
   private readonly NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
-  private readonly DIRECCION_REGEX = /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ#]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,#]+)*$/;
+  private readonly DIRECCION_REGEX =
+    /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ#]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,#]+)*$/;
 
   private validarDireccion(dir: string): boolean {
     return dir.trim().length >= 3 && this.DIRECCION_REGEX.test(dir.trim());
@@ -78,6 +79,8 @@ export class ServicioCreate implements OnInit {
 
   errorDireccion = '';
   errorFecha = '';
+  errorTelefono = '';
+  errorCosto = '';
 
   constructor(
     private servicioService: Servicio,
@@ -441,5 +444,45 @@ export class ServicioCreate implements OnInit {
     } else {
       this.errorFecha = '';
     }
+  }
+
+  onTelefonoInput(): void {
+    const soloNumeros = (this.form.contratante.telefono || '').replace(/[^0-9]/g, '');
+    if (soloNumeros !== this.form.contratante.telefono) {
+      this.errorTelefono = 'Solo se permiten números';
+    } else {
+      this.errorTelefono = '';
+    }
+    this.form.contratante.telefono = soloNumeros;
+  }
+
+  onCostoChange(): void {
+    const costo = Number(this.form.costo);
+    if (this.form.costo === null || this.form.costo === '' || isNaN(costo) || costo < 100) {
+      this.errorCosto = 'El costo mínimo es S/ 100';
+    } else if ((costo - 100) % 10 !== 0) {
+      this.errorCosto = 'El costo debe variar en múltiplos de 10 (Ej: 100, 110, 120...)';
+    } else {
+      this.errorCosto = '';
+    }
+  }
+
+  get formValido(): boolean {
+    return !!(
+      this.form.direccion_velacion &&
+      this.validarDireccion(this.form.direccion_velacion) &&
+      this.form.fecha &&
+      this.validarFecha(this.form.fecha) &&
+      this.form.costo &&
+      Number(this.form.costo) >= 100 &&
+      (Number(this.form.costo) - 100) % 10 === 0 &&
+      this.form.id_capilla &&
+      this.form.fallecido.dni_fallecido &&
+      this.fallecidoVerificado &&
+      this.form.contratante.dni &&
+      this.contratanteVerificado &&
+      this.form.contratante.telefono &&
+      /^[0-9]{9}$/.test(this.form.contratante.telefono)
+    );
   }
 }

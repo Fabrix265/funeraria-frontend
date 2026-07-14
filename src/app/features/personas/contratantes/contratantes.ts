@@ -24,6 +24,7 @@ export class Contratantes implements OnInit {
 
   nombreQuery = '';
   dniQuery = '';
+  errorDni = '';
   nombresUnicos: string[] = [];
   nombresFiltrados: string[] = [];
   mostrarDropNombre = false;
@@ -52,7 +53,11 @@ export class Contratantes implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.personaService
-      .listarContratantes(this.nombreQuery || undefined, this.dniQuery || undefined, this.filtroActivo)
+      .listarContratantes(
+        this.nombreQuery || undefined,
+        this.dniQuery || undefined,
+        this.filtroActivo,
+      )
       .subscribe({
         next: (data) => {
           this.contratantes = data;
@@ -82,6 +87,7 @@ export class Contratantes implements OnInit {
   seleccionarNombre(n: string): void {
     this.nombreQuery = n;
     this.mostrarDropNombre = false;
+    this.cargar();
   }
 
   cerrarDropNombre(): void {
@@ -97,6 +103,7 @@ export class Contratantes implements OnInit {
   limpiarFiltros(): void {
     this.nombreQuery = '';
     this.dniQuery = '';
+    this.errorDni = '';
     this.filtroActivo = 'true';
     this.cargar();
   }
@@ -146,7 +153,10 @@ export class Contratantes implements OnInit {
     const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.personaService.cambiarEstadoContratante(id, nuevoEstado).subscribe({
       next: () => {
-        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.mostrarMensaje(
+          `${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`,
+          'exito',
+        );
         this.cerrarModalToggle();
         this.cargar();
       },
@@ -183,5 +193,11 @@ export class Contratantes implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  onDniQueryChange(valor: string): void {
+    const limpio = valor.replace(/[^0-9]/g, '').slice(0, 8);
+    this.errorDni = limpio !== valor ? 'Solo números, máximo 8 dígitos' : '';
+    this.dniQuery = limpio;
   }
 }

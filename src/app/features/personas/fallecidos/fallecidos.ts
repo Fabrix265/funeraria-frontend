@@ -13,8 +13,8 @@ import { puedeActualizar as Update, puedeEliminar as Delete } from '../../../cor
   styleUrls: ['./fallecidos.css'],
 })
 export class Fallecidos implements OnInit {
-  puedeEditar = Update('fallecidos')
-  puedeEliminar = Delete('fallecidos')
+  puedeEditar = Update('fallecidos');
+  puedeEliminar = Delete('fallecidos');
 
   fallecidos: any[] = [];
   cargando = false;
@@ -23,6 +23,7 @@ export class Fallecidos implements OnInit {
 
   nombreQuery = '';
   dniQuery = '';
+  errorDni = '';
   nombresUnicos: string[] = [];
   nombresFiltrados: string[] = [];
   mostrarDropNombre = false;
@@ -51,7 +52,11 @@ export class Fallecidos implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.personaService
-      .listarFallecidos(this.nombreQuery || undefined, this.dniQuery || undefined, this.filtroActivo)
+      .listarFallecidos(
+        this.nombreQuery || undefined,
+        this.dniQuery || undefined,
+        this.filtroActivo,
+      )
       .subscribe({
         next: (data) => {
           this.fallecidos = data;
@@ -81,6 +86,7 @@ export class Fallecidos implements OnInit {
   seleccionarNombre(n: string): void {
     this.nombreQuery = n;
     this.mostrarDropNombre = false;
+    this.cargar();
   }
 
   cerrarDropNombre(): void {
@@ -96,6 +102,7 @@ export class Fallecidos implements OnInit {
   limpiarFiltros(): void {
     this.nombreQuery = '';
     this.dniQuery = '';
+    this.errorDni = '';
     this.filtroActivo = 'true';
     this.cargar();
   }
@@ -143,7 +150,10 @@ export class Fallecidos implements OnInit {
     const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.personaService.cambiarEstadoFallecido(id, nuevoEstado).subscribe({
       next: () => {
-        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.mostrarMensaje(
+          `${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`,
+          'exito',
+        );
         this.cerrarModalToggle();
         this.cargar();
       },
@@ -180,5 +190,11 @@ export class Fallecidos implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  onDniQueryChange(valor: string): void {
+    const limpio = valor.replace(/[^0-9]/g, '').slice(0, 8);
+    this.errorDni = limpio !== valor ? 'Solo números, máximo 8 dígitos' : '';
+    this.dniQuery = limpio;
   }
 }
