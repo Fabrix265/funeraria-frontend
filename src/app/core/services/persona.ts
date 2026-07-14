@@ -16,7 +16,7 @@ export class PersonaService {
   listarFallecidos(nombre?: string, dni?: string, activo?: string): Observable<any[]> {
     let params = new HttpParams();
     if (nombre) params = params.set('nombre', nombre);
-    if (dni) params = params.set('dni', dni);
+    if (dni) params = params.set('dni_fallecido', dni);
     if (activo !== undefined && activo !== null && activo !== '') params = params.set('activo', activo);
 
     return this.http.get<any[]>(this.fallecidosApi, { params });

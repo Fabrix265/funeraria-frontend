@@ -163,3 +163,9 @@
   .vehiculos-grid { gap: 0.5rem; }
   .vehiculo-check { width: 100%; }
 }
+
+.filtro-error {
+  font-size: 0.72rem;
+  color: #f87171;
+  margin-top: 2px;
+}

@@ -47,10 +47,10 @@
           <span class="field__error" *ngIf="errorFecha">{{ errorFecha }}</span>
         </div>
         <div class="field">
-          <label class="field__label">Costo (S/)</label>
-          <input class="field__input" type="text" inputmode="decimal" [(ngModel)]="form.costo" name="costo"
-                 pattern="^[0-9]+(?:\.[0-9]{1,2})?$" #costoServ="ngModel" />
-          <span class="field__error" *ngIf="costoServ.invalid && costoServ.touched">Número positivo, máximo 2 decimales</span>
+          <label class="field__label">Costo (S/) *</label>
+          <input class="field__input" type="number" [(ngModel)]="form.costo" name="costo"
+                 min="100" step="10" (ngModelChange)="onCostoChange()" #costoServ="ngModel" />
+          <span class="field__error" *ngIf="errorCosto">{{ errorCosto }}</span>
         </div>
         <div class="field">
           <label class="field__label">Tipo de pago</label>
@@ -135,8 +135,10 @@
         <div class="field">
           <label class="field__label">Teléfono</label>
           <input class="field__input" type="tel" [(ngModel)]="form.contratante.telefono"
-                 name="contratante_tel" placeholder="9XXXXXXXX" maxlength="9" pattern="^[0-9]{9}$" #telCont="ngModel" />
+                 name="contratante_tel" placeholder="9XXXXXXXX" maxlength="9" pattern="^[0-9]{9}$"
+                 (input)="onTelefonoInput()" #telCont="ngModel" />
           <span class="field__error" *ngIf="telCont.invalid && telCont.touched">9 dígitos numéricos</span>
+          <span class="field__error" *ngIf="errorTelefono">{{ errorTelefono }}</span>
         </div>
       </div>
     </div>
@@ -216,7 +218,7 @@
 
   <div class="form-footer">
     <button class="btn btn--ghost" (click)="cancelar()">Cancelar</button>
-    <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
+    <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando || !formValido">
       <span class="btn-spinner" *ngIf="guardando"></span>
       {{ guardando ? 'Guardando...' : (esEdicion ? 'Guardar cambios' : 'Crear servicio') }}
     </button>

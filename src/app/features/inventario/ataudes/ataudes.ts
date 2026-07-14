@@ -103,6 +103,7 @@ export class Ataudes implements OnInit {
     this.modeloQuery = m;
     this.filtroModelo = m;
     this.mostrarDropModelo = false;
+    this.cargar();
   }
 
   limpiarModelo(): void {
@@ -132,6 +133,7 @@ export class Ataudes implements OnInit {
     this.colorQuery = c;
     this.filtroColor = c;
     this.mostrarDropColor = false;
+    this.cargar();
   }
 
   limpiarColor(): void {
@@ -275,7 +277,10 @@ export class Ataudes implements OnInit {
     const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.ataudService.cambiarEstado(id, nuevoEstado).subscribe({
       next: () => {
-        this.mostrarMensaje(`${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`, 'exito');
+        this.mostrarMensaje(
+          `${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`,
+          'exito',
+        );
         this.cerrarModalToggle();
         this.cargar();
       },
