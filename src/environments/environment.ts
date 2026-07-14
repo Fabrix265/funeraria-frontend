@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000',
-  iaApiUrl: 'http://localhost:9000',
-  stripePublicKey: 'apkPublica',
+  apiUrl: 'https://funeraria-inventario-inteligente-wv7g.onrender.com',
+  iaApiUrl: 'https://stuff-coordinates-caught-come.trycloudflare.com',
+  stripePublicKey: 'pk_test_51Tdk6E2RTm0YmClc6mTm2QlWDa7WIdOqJd5HAgML3ZXmlvm13ZInFRpSBaw3P5k8Ut57ZEu8FUphafJ1gkpYET3800pIHpr0vC'
 };
