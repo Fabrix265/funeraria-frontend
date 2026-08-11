@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://funeraria-inventario-inteligente-wv7g.onrender.com',
-  iaApiUrl: 'https://stuff-coordinates-caught-come.trycloudflare.com'
+  apiUrl: 'http://localhost:8000',
+  iaApiUrl: 'http://localhost:8001'
 };
 
