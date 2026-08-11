@@ -12,8 +12,17 @@
     </div>
   </header>
 
+  <!-- Servicio no disponible -->
+  <div class="empty-ia" *ngIf="servicioNoDisponible">
+    <div class="empty-ia__drop">
+      <span class="empty-ia__icon">⚠️</span>
+      <span class="empty-ia__text">Servicio de predicciones no disponible por el momento</span>
+      <span class="empty-ia__sub">El módulo de predicciones aún no está activo. Intenta más tarde.</span>
+    </div>
+  </div>
+
   <!-- Tabs -->
-  <nav class="pred-tabs">
+  <nav class="pred-tabs" *ngIf="!servicioNoDisponible">
     <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'modelos'"
       (click)="cambiarTab('modelos')">Modelos</button>
     <button class="pred-tabs__btn" [class.pred-tabs__btn--active]="tabActiva === 'prediccion'"
@@ -25,7 +34,7 @@
   </nav>
 
   <!-- Tab: Modelos -->
-  <div class="pred-content" *ngIf="tabActiva === 'modelos'">
+  <div class="pred-content" *ngIf="tabActiva === 'modelos' && !servicioNoDisponible">
 
     <div class="pred-info-row">
       <div class="form-card">
