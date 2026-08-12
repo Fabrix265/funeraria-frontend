@@ -30,13 +30,16 @@
 
 .sidebar {
   width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  max-width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  box-sizing: border-box;
   height: 100vh;
   background: var(--bg-card);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  transition: width var(--transition), transform var(--transition);
+  transition: width var(--transition), min-width var(--transition), max-width var(--transition), flex-basis var(--transition);
   overflow: hidden;
   position: sticky;
   top: 0;
@@ -45,6 +48,9 @@
 
 .sidebar-cerrado .sidebar {
   width: var(--sidebar-w-sm);
+  min-width: var(--sidebar-w-sm);
+  max-width: var(--sidebar-w-sm);
+  flex: 0 0 var(--sidebar-w-sm);
 }
 
 .sidebar__brand {
