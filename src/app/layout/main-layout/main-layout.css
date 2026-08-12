@@ -57,6 +57,18 @@
   white-space: nowrap;
   overflow: hidden;
   flex-shrink: 0;
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.sidebar__brand:hover {
+  background: var(--bg-hover);
 }
 
 .sidebar__brand-logo {

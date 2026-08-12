@@ -6,7 +6,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar__brand">
+    <div class="sidebar__brand" (click)="toggleSidebar()" title="Contraer / expandir menú">
       <span class="sidebar__brand-logo">MA</span>
       <span class="sidebar__brand-name">Aranzabal</span>
     </div>
@@ -110,12 +110,7 @@
 
   <div class="contenido">
     <header class="navbar">
-      <button class="navbar__toggle" (click)="toggleSidebar()" title="Menú">
-        <span class="navbar__toggle-bar"></span>
-        <span class="navbar__toggle-bar"></span>
-        <span class="navbar__toggle-bar"></span>
-      </button>
-      <span class="navbar__spacer"></span>
+       <span class="navbar__spacer"></span>
     </header>
 
     <main class="main-content">
