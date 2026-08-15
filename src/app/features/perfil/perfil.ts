@@ -32,18 +32,23 @@ export class Perfil implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cargoActual = localStorage.getItem('cargo') || '—'
+  try {
+    const roles: string[] = JSON.parse(localStorage.getItem('roles') ?? '[]')
+    this.cargoActual = roles.length ? roles.join(', ') : '—'
+  } catch {
+    this.cargoActual = '—'
+  }
 
-    const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        this.usernameActual = payload.username || payload.sub || payload.name || '—'
-      } catch {
-        this.usernameActual = '—'
-      }
+  const token = localStorage.getItem('token')
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      this.usernameActual = payload.username || payload.sub || payload.name || '—'
+    } catch {
+      this.usernameActual = '—'
     }
   }
+}
 
   togglePassword(): void  { this.mostrarPassword  = !this.mostrarPassword }
   toggleConfirmar(): void { this.mostrarConfirmar = !this.mostrarConfirmar }
