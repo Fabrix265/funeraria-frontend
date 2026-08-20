@@ -192,28 +192,6 @@
       </div>
     </div>
 
-    <div class="form-card form-card--full" *ngIf="puedeAgregarPasajeros">
-      <h2 class="form-card__title">🧍 Pasajeros (opcional)</h2>
-      <div class="form-card__body">
-        <p class="form-hint" *ngIf="form.pasajeros.length === 0">
-          Agrega pasajeros si el vehículo asignado es tipo Auto o Microbús.
-        </p>
-        <div class="pasajeros-list" *ngIf="form.pasajeros.length > 0">
-          <div class="pasajero-row" *ngFor="let p of form.pasajeros; let i = index">
-            <span class="pasajero-row__nombre">{{ p.nombre }}</span>
-            <span class="pasajero-row__dni">{{ p.dni_pasajero }}</span>
-            <div class="pasajero-row__acciones">
-              <button class="icon-btn icon-btn--edit" title="Editar" (click)="editarPasajero(i)">✎</button>
-              <button class="icon-btn icon-btn--delete" title="Quitar" (click)="quitarPasajero(i)">✕</button>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn--ghost btn--sm" (click)="abrirModalPasajero()">
-          <span>+</span> Agregar pasajero
-        </button>
-      </div>
-    </div>
-
   </div>
 
   <div class="form-footer">
@@ -224,35 +202,4 @@
     </button>
   </div>
 
-</div>
-
-<div class="modal-overlay" *ngIf="modalPasajeroAbierto" (click)="cerrarModalPasajero()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal__header">
-      <h2 class="modal__title">{{ modoEdicionPasajero ? 'Editar pasajero' : 'Nuevo pasajero' }}</h2>
-      <button class="modal__close" (click)="cerrarModalPasajero()">✕</button>
-    </div>
-      <div class="modal__body">
-      <div class="field">
-        <label class="field__label">Nombre *</label>
-        <input class="field__input" type="text" [(ngModel)]="pasajeroForm.nombre"
-               placeholder="Nombre completo" minlength="2" maxlength="100"
-               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$"
-               #nomPas="ngModel" />
-        <span class="field__error" *ngIf="nomPas.invalid && nomPas.touched">Solo letras, espacios y guiones</span>
-      </div>
-      <div class="field">
-        <label class="field__label">DNI *</label>
-        <input class="field__input" type="text" [(ngModel)]="pasajeroForm.dni_pasajero"
-               placeholder="00000000" maxlength="8" pattern="^[0-9]{8}$" #dniPas="ngModel" />
-        <span class="field__error" *ngIf="dniPas.invalid && dniPas.touched">8 dígitos numéricos</span>
-      </div>
-    </div>
-    <div class="modal__footer">
-      <button class="btn btn--ghost" (click)="cerrarModalPasajero()">Cancelar</button>
-      <button class="btn btn--primary" (click)="guardarPasajero()">
-        {{ modoEdicionPasajero ? 'Guardar cambios' : 'Agregar' }}
-      </button>
-    </div>
-  </div>
 </div>

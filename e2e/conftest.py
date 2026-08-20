@@ -41,20 +41,23 @@ def screenshot(driver, name):
 
 def login(driver, username=USERNAME, password=PASSWORD):
     driver.get(f"{BASE_URL}/login")
-    time.sleep(1)
+    time.sleep(2)
 
     user_input = driver.find_element("css selector", "input[placeholder='Nombre de usuario']")
     user_input.clear()
     user_input.send_keys(username)
+    time.sleep(1)
 
     pass_input = driver.find_element("css selector", "input[placeholder='••••••••']")
     pass_input.clear()
     pass_input.send_keys(password)
+    time.sleep(1)
 
     btn = driver.find_element("css selector", "button.login-btn")
+    time.sleep(1)
     btn.click()
 
-    time.sleep(2)
+    time.sleep(3)
 
 
 def wait_for_url(driver, expected_path, timeout=10):

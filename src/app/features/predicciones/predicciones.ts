@@ -86,6 +86,7 @@ export class Predicciones implements OnInit {
   mesFin: string = '2026-12'
   resultadoDistribucion: DistribucionCompletaResponse | null = null
   cargandoDistribucion = false
+  servicioNoDisponible = false
   tiposAtaude: string[] = []
   tiposCapilla: string[] = []
 
@@ -111,7 +112,10 @@ export class Predicciones implements OnInit {
         this.modelosInfo = info
         this.cdr.detectChanges()
       },
-      error: () => console.warn('No se pudo cargar info de modelos')
+      error: () => {
+        this.servicioNoDisponible = true
+        this.cdr.detectChanges()
+      }
     })
 
     this.prediccionService.historial('servicios_totales').subscribe({
