@@ -48,8 +48,7 @@ export class ServicioCreate implements OnInit {
   readonly fechaMinima: string = new Date().toISOString().split('T')[0];
 
   private readonly NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
-  private readonly DIRECCION_REGEX =
-    /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ#]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,#]+)*$/;
+  private readonly DIRECCION_REGEX = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*(?:\s+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*)*$/;
 
   private validarDireccion(dir: string): boolean {
     return dir.trim().length >= 3 && this.DIRECCION_REGEX.test(dir.trim());
