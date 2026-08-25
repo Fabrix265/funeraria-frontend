@@ -35,7 +35,7 @@
           <label class="field__label">Dirección de velación *</label>
           <input class="field__input" type="text" [(ngModel)]="form.direccion_velacion"
                  name="direccion" placeholder="Ej: Av. Los Alamos 123" required minlength="3" maxlength="200"
-                 pattern="^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ#]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,#]+)*$"
+                 pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*(?:\s+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*)*$"
                  #dirServ="ngModel" (ngModelChange)="onDireccionChange()" />
           <span class="field__error" *ngIf="dirServ.invalid && dirServ.touched">Mínimo 3 caracteres, debe contener al menos una letra</span>
           <span class="field__error" *ngIf="errorDireccion">{{ errorDireccion }}</span>
