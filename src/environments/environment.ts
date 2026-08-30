@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000',
+  apiUrl: 'https://funeraria-inventario-inteligente-wv7g.onrender.com',
   iaApiUrl: 'http://localhost:8001',
 };

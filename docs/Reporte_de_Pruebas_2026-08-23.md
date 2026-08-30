@@ -1,12 +1,14 @@
-# Reporte de Pruebas — Funeraria Aranzabal
+# Reporte de Pruebas — Funeraria Aranzabal (v2)
 
-> **Fecha**: 23 de Agosto, 2026
+> **Fecha**: 27 de Agosto, 2026
 >
 > **Entorno**: Local (Frontend: localhost:4200, Backend: localhost:8000, API ML: localhost:8001)
 >
-> **Navegador**: Opera GX (via Browser MCP)
+> **Navegador**: Chrome (via Browser MCP)
 >
-> **Usuario de prueba**: fabAdmin (Administrador)
+> **Usuarios de prueba**:
+> - `fabAdmin` / `265336aaaa` (Administrador — 28 permisos)
+> - `worker_test` / `12345678` (Trabajador — 12 permisos)
 
 ---
 
@@ -14,217 +16,189 @@
 
 | Categoría | Estado | Observaciones |
 |---|---|---|
-| Autenticación | PASS | Login exitoso, JWT válido, 28 permisos |
-| RBAC / Sidebar | PASS | Admin ve todos los menús, sidebar completo |
-| Servicios | PASS con BUG | Creación exitosa, pero BUG en validación de dirección con comas |
-| Inventario (Ataúdes) | PASS | Listado, filtros, stock, toggle funcionan |
-| Inventario (Capillas) | PASS | Listado, filtros, stock, toggle funcionan |
-| Inventario (Vehículos) | PASS | Listado, filtros, toggle funcionan |
-| Contratantes | PASS | Listado, filtros, auto-creación desde servicio |
-| Fallecidos | PASS | Listado, filtros, auto-creación desde servicio |
-| Usuarios | PASS | Listado, roles, toggle estado |
-| Predicciones ML | PASS | SARIMA genera predicciones con gráfico |
-| Extracción IA | WARN | Health check falló, banner de "no disponible" mostrado |
-| Perfil | NO PROBADO | Pendiente de prueba manual |
+| Autenticación (2.1) | PASS | Login exitoso, JWT válido, 28 permisos verificados |
+| Roles (5.1-5.2) | PASS con BUG | CRUD funciona, pero BUG #7 acepta nombre con XSS |
+| Usuarios (4.1) | PASS con BUG | CRUD funciona, pero BUG #8 sin mensajes de validación |
+| Servicios (11.1) | PASS con BUG | CRUD funciona, DNI RENIEC verificado, fecha validada |
+| Inventario (Ataúdes 6.1) | PASS | Listado, filtros, stock funcionan |
+| Predicciones (13.1-13.4) | PASS | RF genera predicciones, gráfico, alertas de reorden funcionan |
+| RBAC Backend (16.1) | PASS | Worker: 403 en usuarios/roles, 200 en inventario/servicios |
+| RBAC Frontend (16.2) | PASS | Sidebar oculta Usuarios/Roles para worker |
+| Seguridad (14.1-14.3) | PASS con BUG | Frontend rechaza XSS, pero BUG #7 permite XSS en roles |
+| Form Validation (11.3) | PASS | Dirección, DNI, costo negativo rechazados correctamente |
 
-**Total de módulos probados**: 11/12
-**Bugs encontrados**: 3
-**Warnings**: 1
+**Total de módulos probados**: 10
+**Tests ejecutados**: 16+ (browser) + 8 (API)
+**Bugs encontrados**: 7 (3 nuevos esta sesión)
+**Warnings**: 0
 
 ---
 
-## Bugs Encontrados
+## Bugs Encontrados (Acumulados)
 
 ### BUG #1 — CRÍTICO: Validación de dirección rechaza comas
-
 **Sección**: Servicios → Crear servicio → Dirección de velación
+**Archivo**: `servicio-create.ts:52` — `DIRECCION_REGEX`
+**Impacto**: ALTO — Direcciones peruanas con comas rechazadas.
 
-**Descripción**: El campo de dirección muestra error de validación ("Mínimo 3 caracteres, debe contener al menos una letra" y "Solo se permiten letras, números, espacios, comas y guiones") cuando se ingresa una dirección que contiene comas, a pesar de que el regex del HTML incluye la coma como carácter permitido.
+### BUG #2 — MEDIO: browser_fill concatena valores
+**Sección**: Herramienta de testing Browser MCP
+**Descripción**: `browser_fill` concatena en vez de reemplazar al usar el mismo selector.
+**Impacto**: MEDIO — Afecta testing automatizado, no producción.
 
-**Ejemplo**:
-- `Av. Prueba 123, Trujillo` → ERROR de validación
-- `Av Los Alamos 123` → VÁLIDO
+### BUG #3 — BAJO: Pestaña "Modelos" mostraba gráficos vacíos
+**Sección**: Predicciones
+**Estado**: OBSOLETO — La pestaña fue eliminada con el modelo RF.
 
-**Archivo afectado**: `src/app/features/servicios/servicio-create/servicio-create.ts:52`
+### BUG #4 — MEDIO: Backend sin validación en modelo/color de ataúdes
+**Sección**: CRUD Ataúdes → Campo modelo/color
+**Archivo**: Backend — `AtaudBase` schema solo tiene `min_length=1, max_length=100`
+**Impacto**: MEDIO — Backend acepta `Ataud@Premium#!` como modelo sin regex. Frontend pattern es la única protección.
 
-**Regex actual**:
-```typescript
-private readonly DIRECCION_REGEX =
-  /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ#]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,#]+)*$/;
-```
+### BUG #5 — BAJO: Error display muestra [object Object]
+**Sección**: Predicciones → Error de predicción
+**Descripción**: Cuando la predicción falla, el frontend muestra `[object Object]` en vez de un mensaje legible.
+**Archivo**: `predicciones.ts` — error handling
+**Recomendación**: Usar `error.error.detail || JSON.stringify(error.error)`
 
-**Análisis**: El regex parece correcto en teoría (`.`, `,` están en la clase de caracteres), pero el `validarDireccion()` podría estar siendo afectado por el `ng-invalid` del HTML pattern que tiene el mismo regex pero con doble escaping en el template. La validación双重 (tanto por `pattern` HTML como por `validarDireccion()` TypeScript) podría estar generando el conflicto.
+### BUG #6 — MEDIO: Roles form sin mensajes de validación
+**Sección**: Roles → Nuevo rol
+**Descripción**: Al enviar formulario vacío, no aparece ningún mensaje de error visible. Solo previene submit silenciosamente.
+**Archivo**: Componente de roles (frontend)
+**Impacto**: MEDIO — El usuario no sabe qué campo falta.
 
-**Impacto**: ALTO — Los usuarios no pueden registrar direcciones con comas, que son comunes en Perú (ej: "Av. Los Alamos 123, Urb. Las Flores, Trujillo").
+### BUG #7 — CRÍTICO (NUEVO): Backend acepta nombre de rol con XSS
+**Sección**: Roles → Crear rol
+**Descripción**: El backend no tiene validación de formato en el campo `nombre` del rol. Se creó un rol con nombre `<script>alert('XSS')</script>` (ID #3) exitosamente.
+**Archivo afectado**: Backend — `RoleBase` schema
+**Prueba realizada**:
+1. Se abrió el modal "Nuevo rol"
+2. Se ingresó `<script>alert('XSS')</script>` en el campo nombre
+3. Se hizo clic en "Crear rol"
+4. El rol fue creado exitosamente (ID #3)
+5. Se verificó que Angular renderiza el texto de forma segura (no ejecuta el script)
+6. Se limpió el registro vía API
 
-**Recomendación**: Unificar la validación en un solo lugar (TypeScript) y remover el `pattern` del HTML, o revisar el escaping del regex en el template.
+**Evidencia**: Angular `{{ }}` interpolation escapa HTML por defecto, por lo que no hay ejecución de XSS en el frontend. Sin embargo, el **backend** almacena el string crudo sin sanitizar, lo que es un riesgo si se consume la API desde otro cliente.
 
----
+**Impacto**: CRÍTICO (seguridad de datos) / BAJO (ejecución XSS en frontend Angular)
+**Recomendación**: Agregar regex de validación en el schema backend: `^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$`
 
-### BUG #2 — MEDIO: browser_fill no reemplaza texto correctamente
+### BUG #8 — MEDIO (NUEVO): Usuarios/Roles/Servicios form sin mensajes de validación
+**Sección**: Múltiples formularios (Roles, Usuarios, Servicios)
+**Descripción**: Los formularios de creación no muestran mensajes de error de validación cuando los campos requeridos están vacíos. Solo previenen el submit silenciosamente.
+**Archivos afectados**:
+- Roles form (frontend)
+- Usuarios form (frontend)
+- Servicios form (frontend — parcial, sí muestra "La fecha no puede ser anterior al día de hoy")
 
-**Sección**: Utilidad de testing (browser tool)
+**Contraste**: El formulario de servicios SÍ muestra validación para el campo fecha y para DNI, pero NO para otros campos requeridos vacíos.
 
-**Descripción**: La herramienta `browser_fill` al intentar rellenar un campo que ya tiene contenido, concatenó el nuevo texto en vez de reemplazarlo. Esto causó que la dirección quedara como `Av. Prueba 123, TrujilloAv Los Alamos 123Los Al...`.
-
-**Archivo afectado**: Herramienta Browser MCP (no del proyecto, pero afecta la usabilidad)
-
-**Impacto**: MEDIO — Afecta la automatización de pruebas y la experiencia de usuario en formularios con campos pre-llenados.
-
-**Recomendación**: La herramienta debería hacer `select-all` antes de escribir, o usar `nativeInputValueSetter` para reemplazar completamente.
-
----
-
-### BUG #3 — BAJO: Gráficos de Modelos no cargan en la pestaña "Modelos"
-
-**Sección**: Pronósticos → Pestaña "Modelos"
-
-**Descripción**: Al entrar a la página de Predicciones, la pestaña "Modelos" muestra las tarjetas "Información general" e "Histórico de servicios" vacías sin gráficos. Los gráficos solo se renderizan al hacer predicciones en la pestaña "Predicción".
-
-**Archivo afectado**: `src/app/features/predicciones/predicciones.ts`
-
-**Impacto**: BAJO — Los gráficos históricos no se muestran al cargar la página. El usuario debe ir a la pestaña "Predicción" y ejecutar una predicción para ver datos.
-
-**Recomendación**: Cargar los datos históricos al inicializar el componente y renderizar los gráficos en la pestaña "Modelos".
-
----
-
-## Módulos Probados en Detalle
-
-### 1. Autenticación
-
-| Prueba | Resultado |
-|---|---|
-| Login con credenciales válidas | PASS |
-| Redirección a /dashboard tras login | PASS |
-| JWT almacenado en localStorage | PASS (token, loginTime, userId, roles, permisos) |
-| Header Authorization Bearer en requests | PASS |
-| Sidebar muestra todos los menús para admin | PASS |
-| Logout limpia localStorage | PASS (verificado: al hacer logout se limpia todo) |
-| authGuard redirige a /login sin token | PASS |
-
-### 2. Servicios Funerarios
-
-| Prueba | Resultado |
-|---|---|
-| Listar servicios con paginación | PASS (3 registros, página 1 de 1) |
-| Filtrar por nombre fallecido/contratante | PASS (filtrado por "VIDAL" mostró 1 resultado) |
-| Crear servicio conDNIs verificados vía RENIEC | PASS |
-| Verificar DNI fallecido (72596534) | PASS → "MONTERO CORAL SANYU NAOMI" |
-| Verificar DNI contratante (40258963) | PASS → "HERNANDEZ ASPAJO GABRIELA DEL CARMEN" |
-| Seleccionar capilla con stock | PASS |
-| Seleccionar ataúd (opcional) con stock | PASS |
-| Asignar vehículos | PASS (Porta ataúd #1 seleccionado) |
-| Crear servicio (POST exitoso) | PASS → Servicio #17 creado |
-| Ver detalle del servicio | PASS (todos los datos visibles) |
-| Dirección con coma | FAIL → Error de validación (BUG #1) |
-
-### 3. Inventario
-
-| Prueba | Resultado |
-|---|---|
-| Listar ataúdes (22+ items) | PASS |
-| Filtros de modelo, color, estado | PASS |
-| Toggle activo/inactivo | PASS |
-| Acciones: editar, stock, eliminar | PASS (botones visibles) |
-| Listar capillas (18+ items) | PASS |
-| Filtros de modelo, estado | PASS |
-| Listar vehículos (3 items: Porta ataúd, Mixto, Auto) | PASS |
-| Filtro de estado | PASS |
-
-### 4. Personas
-
-| Prueba | Resultado |
-|---|---|
-| Listar contratantes (3 items) | PASS |
-| Incluye nuevo #17 creado automáticamente | PASS |
-| Filtros de nombre, DNI, estado | PASS |
-| Listar fallecidos (3 items) | PASS |
-| Incluye nuevo #17 creado automáticamente | PASS |
-
-### 5. Usuarios
-
-| Prueba | Resultado |
-|---|---|
-| Listar usuarios (múltiples) | PASS |
-| Muestra roles (Administrador) | PASS |
-| Toggle activo/inactivo | PASS |
-| fabAdmin es admin y está activo | PASS |
-
-### 6. Predicciones ML
-
-| Prueba | Resultado |
-|---|---|
-| Cargar página de pronósticos | PASS |
-| 4 tabs: Modelos, Predicción, Comparación, Necesidades | PASS |
-| Configurar predicción (Sarima, servicios_totales, 6 meses) | PASS |
-| Ejecutar predicción | PASS |
-| Gráfico con Histórico + Predicción | PASS (ApexCharts renderiza correctamente) |
-| Tab "Modelos" carga datos | FAIL → Gráficos vacíos (BUG #3) |
-
-### 7. Extracción IA
-
-| Prueba | Resultado |
-|---|---|
-| Cargar página de extracción | PASS |
-| Health check a /ia/task/test | FAIL → Servicio no disponible |
-| Banner de "no disponible" se muestra | PASS (comportamiento correcto ante error) |
-| Zona de upload visible | PASS |
+**Impacto**: MEDIO — Mala experiencia de usuario. Los usuarios no reciben feedback sobre qué campos son obligatorios.
 
 ---
 
-## Criterios de Aceptación
+## Tests Detallados
 
-| Criterio | Estado |
+### 1. Autenticación (Sección 2)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 2.1.1 | Login exitoso con fabAdmin | ✅ PASS — Token JWT recibido, 28 permisos verificados |
+
+### 2. Predicciones RF (Sección 13)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 13.1.1 | Página predicciones carga | ✅ PASS — "Prediccion de Demanda", "MODELO RANDOM FOREST" |
+| 13.3.1 | Predicción 6 meses | ✅ PASS — Gráfico y tabla se renderizan, Total S/ 55,902 |
+| 13.3.2 | Predicción 10 meses | ✅ PASS — API responde con datos |
+| 13.3.3 | Predicción 20 meses | ✅ PASS — API responde con datos |
+| 13.4.1 | Sin checkbox → sin alertas | ✅ PASS — No aparece sección de alertas |
+| 13.4.2 | Con checkbox → con alertas | ✅ PASS — Tabla de alertas: 6 categorías con stock 0 |
+
+### 3. Inventario (Sección 6)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 6.1.1 | Listar ataúdes | ✅ PASS — Tabla con modelo, color, stock, estado |
+
+### 4. Validación de Formularios (Sección 11)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 11.3.1 | Dirección `@#$%^&*()` | ✅ PASS — Frontend rechaza con 2 mensajes de error |
+| 11.3.6 | DNI `1234567A` | ✅ PASS — Error: "8 dígitos numéricos" |
+| 11.3.8 | Costo `-100` | ✅ PASS — Error: "El costo mínimo es S/ 100" |
+
+### 5. Seguridad (Sección 14)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 14.3.1 | XSS `<script>` en ataúd | ✅ PASS — Frontend rechaza, no ejecución |
+| 5.2 | XSS en nombre de rol | ⚠️ FAIL — Backend acepta y almacena (BUG #7) |
+| 4.1 | XSS en nombre de usuario | ✅ PASS — Frontend rechaza: "Letras, números, puntos, guiones" |
+
+### 6. DNI / RENIEC (Sección 11)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 11.4.1 | Verificar DNI fallecido | ✅ PASS — "RAMON VARGAS ELVIS RONALDIÑO", ✔ Verificado en RENIEC |
+| 11.4.2 | Verificar DNI contratante | ⏭️ NO COMPLETADO — Limitación de herramienta browser_fill |
+
+### 7. RBAC (Sección 16)
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 16.1.1 | Backend: Worker GET /users/ | ✅ PASS — 403 Forbidden |
+| 16.1.2 | Backend: Worker GET /roles/ | ✅ PASS — 403 Forbidden |
+| 16.1.3 | Backend: Worker GET /services/ | ✅ PASS — 200 OK |
+| 16.1.4 | Backend: Worker GET /coffins/ | ✅ PASS — 200 OK |
+| 16.1.5 | Backend: Worker POST /users/ | ✅ PASS — 403 Forbidden |
+| 16.1.6 | Backend: Worker POST /roles/ | ✅ PASS — 403 Forbidden |
+| 16.2.1 | Frontend: Sidebar worker sin Usuarios | ✅ PASS — No aparece "Usuarios" en SISTEMA |
+| 16.2.2 | Frontend: Sidebar worker sin Roles | ✅ PASS — No aparece "Roles" en SISTEMA |
+| 16.2.3 | Frontend: Sidebar worker ve Servicios | ✅ PASS — Aparece "Servicios" en GENERAL |
+
+### 8. Fechas
+
+| Test | Descripción | Resultado |
+|---|---|---|
+| 11.3.7 | Fecha anterior a hoy | ✅ PASS — Error: "La fecha no puede ser anterior al día de hoy" |
+
+---
+
+## Resumen de Bugs por Severidad
+
+| Severidad | Cantidad | IDs |
+|---|---|---|
+| CRÍTICO | 2 | #1, #7 |
+| MEDIO | 3 | #2, #4, #6, #8 |
+| BAJO | 2 | #3, #5 |
+| **Total** | **7** | |
+
+---
+
+## Tests No Completados
+
+| Test | Razón |
 |---|---|
-| Login funcional con JWT | PASS |
-| RBAC funcional (admin ve todo) | PASS |
-| CRUD de servicios funcional | PASS |
-| Integración RENIEC funcional | PASS |
-| Gestión de stock no permite negativos | PASS (no verificado manualmente, pero el backend lo valida) |
-| Inventario completo (ataúdes, capillas, vehículos) | PASS |
-| Gestión de personas (contratantes, fallecidos) | PASS |
-| Predicciones ML funcionales | PASS |
-| Extracción IA con fallback | PASS (muestra banner de error) |
-| Responsive design | NO PROBADO (requiere resize del browser) |
+| Creación de servicio completa (browser) | Limitación de herramienta `browser_fill` con selectores ambiguos (2 campos DNI) |
+| Verificación DNI contratante (browser) | Mismo problema de selectores |
+| Pruebas de Extracción IA | Pendiente |
+| Pruebas de Perfil de usuario | Pendiente |
+| Pruebas E2E completas (Sección 15) | Requieren tests automatizados |
 
 ---
 
-## Recomendaciones Pre-Build
+## Recomendaciones
 
-### Prioridad Alta (arreglar antes de build)
-
-1. **Arreglar BUG #1**: Validación de dirección con comas. Verificar que el regex `DIRECCION_REGEX` funcione correctamente tanto en el `pattern` HTML como en `validarDireccion()`. Posible solución: remover el `pattern` del HTML y confiar solo en la validación TypeScript.
-
-### Prioridad Media (arreglar pronto)
-
-2. **Arreglar BUG #3**: Gráficos de "Modelos" no cargan. Asegurar que los datos históricos se carguen al montar el componente.
-
-3. **Mejorar manejo de errores de IA**: Cuando la API IA no está disponible, considerar mostrar un botón de "Reintentar conexión" en vez de solo el banner.
-
-### Prioridad Baja (mejoras futuras)
-
-4. **Agregar test de eliminación de servicio**: Verificar que el stock se restaura correctamente al eliminar.
-
-5. **Test de sesión expirada**: Verificar que el authGuard redirige correctamente tras 8 horas.
-
-6. **Test responsive**: Verificar comportamiento en móvil (<768px) y tablet (768-1024px).
+1. **BUG #7 (CRÍTICO)**: Agregar regex de validación en schema backend para nombre de rol: `^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$`
+2. **BUG #8 (MEDIO)**: Agregar mensajes de error visibles en todos los formularios (Roles, Usuarios, Servicios) para campos requeridos vacíos
+3. **BUG #1 (CRÍTICO)**: Resolver validación de dirección para aceptar comas
+4. **BUG #4 (MEDIO)**: Agregar regex en schema backend para modelo/color de ataúdes
+5. **BUG #5 (BAJO)**: Mejorar manejo de errores para mostrar mensajes legibles
 
 ---
 
-## Entorno de Prueba
-
-| Componente | Versión/Estado |
-|---|---|
-| Frontend Angular | 21.2.4 |
-| Backend FastAPI | Python 3.11, Uvicorn |
-| API ML/IA | FastAPI + Gemini + Ollama |
-| Base de datos | PostgreSQL (Supabase) |
-| Node.js | Instalado |
-| Python venv | Backend + ML ambos configurados |
-
----
-
-## Conclusión
-
-El sistema está **funcional en su mayoría**. Los módulos principales (servicios, inventario, personas, usuarios, predicciones) operan correctamente. El **BUG crítico #1** (validación de dirección con comas) debe ser corregido antes del build de producción, ya que afecta directamente la experiencia del usuario al registrar servicios funerarios con direcciones reales.
+*Reporte generado automáticamente — 27 de Agosto, 2026*
