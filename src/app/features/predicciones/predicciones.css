@@ -195,3 +195,17 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* DEMANDA */
+.pred-table__total { border-top: 2px solid var(--border-2, #2a4f7c); }
+.pred-table__total td { font-weight: 600; color: var(--silver, #b8cad8); }
+.pred-table--alerta td { color: #e88b8b; }
+.pred-table--small { font-size: 0.82rem; }
+.pred-table--small th { padding: 0.5rem 0.75rem; }
+.pred-table--small td { padding: 0.45rem 0.75rem; }
+.desglose-title { font-size: 0.85rem; color: var(--silver, #b8cad8); margin: 0.75rem 0 0.35rem; font-weight: 600; letter-spacing: 0.03em; }
+
+.field__label input[type="checkbox"] {
+  margin-right: 0.4rem;
+  accent-color: var(--border-2, #2a4f7c);
+}

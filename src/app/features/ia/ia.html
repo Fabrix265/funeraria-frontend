@@ -12,11 +12,20 @@
     </div>
 
     <!-- Botón subir -->
-    <label class="btn btn--primary btn--upload">
+    <label class="btn btn--primary btn--upload" *ngIf="!servicioNoDisponible">
       <span>+ Agregar imágenes</span>
       <input type="file" accept="image/*" multiple (change)="onArchivosSeleccionados($event)" hidden />
     </label>
   </header>
+
+  <!-- Servicio no disponible -->
+  <div class="empty-ia" *ngIf="servicioNoDisponible">
+    <div class="empty-ia__drop">
+      <span class="empty-ia__icon">⚠️</span>
+      <span class="empty-ia__text">Servicio de extracción no disponible por el momento</span>
+      <span class="empty-ia__sub">El módulo de IA aún no está activo. Intenta más tarde.</span>
+    </div>
+  </div>
 
   <!-- Estado vacío -->
   <div class="empty-ia" *ngIf="items.length === 0">

@@ -27,6 +27,4 @@ export interface Servicio {
 
   vehiculos_asignados: Vehiculo[]
 
-  pasajeros?: { id: number; nombre: string; dni_pasajero: string; id_servicio: number }[]
-
 }

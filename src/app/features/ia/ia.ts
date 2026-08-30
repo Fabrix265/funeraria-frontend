@@ -64,6 +64,7 @@ export class Ia implements OnInit {
   ]
 
   guardando = false
+  servicioNoDisponible = false
 
   constructor(
   private http: HttpClient,
@@ -78,6 +79,13 @@ export class Ia implements OnInit {
     this.vehiculoService.listar().subscribe({
       next: (v) => this.vehiculosDB = v,
       error: () => console.warn('No se pudieron cargar vehículos')
+    })
+
+    this.http.get(`${this.iaApi}/ia/task/test`).subscribe({
+      error: () => {
+        this.servicioNoDisponible = true
+        this.cdr.detectChanges()
+      }
     })
   }
 

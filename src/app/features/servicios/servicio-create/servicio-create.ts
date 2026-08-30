@@ -41,21 +41,14 @@ export class ServicioCreate implements OnInit {
     fallecido: { nombre: '', dni_fallecido: '' },
     contratante: { nombre: '', dni: '', telefono: '' },
     ids_vehiculos: [],
-    pasajeros: [],
   };
-
-  pasajeroForm = { nombre: '', dni_pasajero: '' };
-  modalPasajeroAbierto = false;
-  modoEdicionPasajero = false;
-  pasajeroEditandoIndex: number | null = null;
 
   readonly tiposPago = ['directo', 'seguro', 'mixto'];
 
   readonly fechaMinima: string = new Date().toISOString().split('T')[0];
 
   private readonly NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
-  private readonly DIRECCION_REGEX =
-    /^(?=.*[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ#]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,#]+)*$/;
+  private readonly DIRECCION_REGEX = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*(?:\s+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*)*$/;
 
   private validarDireccion(dir: string): boolean {
     return dir.trim().length >= 3 && this.DIRECCION_REGEX.test(dir.trim());
@@ -166,9 +159,6 @@ export class ServicioCreate implements OnInit {
             ids_vehiculos: res.vehiculos_asignados
               ? res.vehiculos_asignados.map((v: any) => v.id)
               : [],
-            pasajeros: res.pasajeros
-              ? res.pasajeros.map((p: any) => ({ nombre: p.nombre, dni_pasajero: p.dni_pasajero }))
-              : [],
           };
           if (this.form.fallecido.nombre && this.form.fallecido.dni_fallecido) {
             this.fallecidoVerificado = true;
@@ -203,47 +193,6 @@ export class ServicioCreate implements OnInit {
       microbus: 'Microbús',
     };
     return map[tipo] ?? tipo;
-  }
-
-  get puedeAgregarPasajeros(): boolean {
-    if (this.form.ids_vehiculos.length === 0) return false;
-    return this.vehiculos
-      .filter((v) => this.form.ids_vehiculos.includes(v.id))
-      .some((v) => v.tipo === 'auto' || v.tipo === 'microbus');
-  }
-
-  abrirModalPasajero(): void {
-    this.modoEdicionPasajero = false;
-    this.pasajeroEditandoIndex = null;
-    this.pasajeroForm = { nombre: '', dni_pasajero: '' };
-    this.modalPasajeroAbierto = true;
-  }
-
-  editarPasajero(index: number): void {
-    this.modoEdicionPasajero = true;
-    this.pasajeroEditandoIndex = index;
-    this.pasajeroForm = { ...this.form.pasajeros[index] };
-    this.modalPasajeroAbierto = true;
-  }
-
-  cerrarModalPasajero(): void {
-    this.modalPasajeroAbierto = false;
-  }
-
-  guardarPasajero(): void {
-    if (!this.pasajeroForm.nombre || !this.pasajeroForm.dni_pasajero) {
-      return;
-    }
-    if (this.modoEdicionPasajero && this.pasajeroEditandoIndex !== null) {
-      this.form.pasajeros[this.pasajeroEditandoIndex] = { ...this.pasajeroForm };
-    } else {
-      this.form.pasajeros.push({ ...this.pasajeroForm });
-    }
-    this.cerrarModalPasajero();
-  }
-
-  quitarPasajero(index: number): void {
-    this.form.pasajeros.splice(index, 1);
   }
 
   cancelar(): void {
@@ -310,13 +259,6 @@ export class ServicioCreate implements OnInit {
       },
       ids_vehiculos: this.form.ids_vehiculos.map((v: any) => Number(v)),
     };
-
-    if (this.form.pasajeros.length > 0) {
-      payload.pasajeros = this.form.pasajeros.map((p: any) => ({
-        nombre: p.nombre,
-        dni_pasajero: p.dni_pasajero,
-      }));
-    }
 
     this.guardando = true;
 
