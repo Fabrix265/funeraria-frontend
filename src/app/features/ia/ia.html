@@ -28,7 +28,7 @@
   </div>
 
   <!-- Estado vacío -->
-  <div class="empty-ia" *ngIf="items.length === 0">
+  <div class="empty-ia" *ngIf="!servicioNoDisponible && items.length === 0">
     <label class="empty-ia__drop">
       <span class="empty-ia__icon">📷</span>
       <span class="empty-ia__text">Arrastra imágenes aquí o haz clic para seleccionar</span>

@@ -81,7 +81,7 @@ export class Ia implements OnInit {
       error: () => console.warn('No se pudieron cargar vehículos')
     })
 
-    this.http.get(`${this.iaApi}/ia/task/test`).subscribe({
+    this.http.get(`${this.iaApi}/`).subscribe({
       error: () => {
         this.servicioNoDisponible = true
         this.cdr.detectChanges()

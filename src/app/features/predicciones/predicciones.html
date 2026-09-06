@@ -11,6 +11,10 @@
     </div>
   </header>
 
+  <div class="pred-error" *ngIf="servicioNoDisponible">
+    <span>&#9888;</span> Servicio de predicción no disponible por el momento. Verifica que el backend de ML esté activo.
+  </div>
+
   <div class="form-card">
     <h2 class="form-card__title">&#128230; Configurar prediccion</h2>
     <div class="form-card__body">
@@ -26,7 +30,7 @@
         </label>
       </div>
       <div class="field field--btn">
-        <button class="btn btn--primary" (click)="calcularDemanda()" [disabled]="cargandoDemanda">
+        <button class="btn btn--primary" (click)="calcularDemanda()" [disabled]="cargandoDemanda || servicioNoDisponible">
           <span class="btn-spinner" *ngIf="cargandoDemanda"></span>
           {{ cargandoDemanda ? 'Calculando...' : 'Calcular demanda' }}
         </button>
