@@ -2,7 +2,7 @@
 
   <header class="page-header">
     <div class="page-header__left">
-      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard">⊞</a>
+      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard"><svg lucideIcon="layout-dashboard"></svg></a>
       <div>
         <h1 class="page-header__title">{{ esEdicion ? 'Editar' : 'Nuevo' }} servicio</h1>
         <p class="page-header__sub">{{ esEdicion ? 'Modifica los datos del servicio' : 'Registra un nuevo servicio funerario' }}</p>
@@ -11,17 +11,17 @@
   </header>
 
   <div class="ia-banner" *ngIf="iaMeta">
-    <span class="ia-banner__icon">📷</span>
+    <span class="ia-banner__icon"><svg lucideIcon="scan-line"></svg></span>
     <span>Datos pre-llenados desde extracción IA. Revisa y completa los campos faltantes.</span>
     <div class="ia-sugerencias" *ngIf="iaMeta.ataud_modelo || iaMeta.capilla_modelo || iaMeta.vehiculos?.length">
       <span class="ia-sugerencia" *ngIf="iaMeta.ataud_modelo">
-        ⚰ Ataúd sugerido: <strong>{{ iaMeta.ataud_modelo }}{{ iaMeta.ataud_color ? ' — ' + iaMeta.ataud_color : '' }}</strong>
+        <svg lucideIcon="box" style="width:14px;height:14px"></svg> Ataúd sugerido: <strong>{{ iaMeta.ataud_modelo }}{{ iaMeta.ataud_color ? ' — ' + iaMeta.ataud_color : '' }}</strong>
       </span>
       <span class="ia-sugerencia" *ngIf="iaMeta.capilla_modelo">
-        ⛪ Capilla sugerida: <strong>{{ iaMeta.capilla_modelo }}</strong>
+        <svg lucideIcon="church" style="width:14px;height:14px"></svg> Capilla sugerida: <strong>{{ iaMeta.capilla_modelo }}</strong>
       </span>
       <span class="ia-sugerencia" *ngIf="iaMeta.vehiculos?.length">
-        🚗 Vehículos sugeridos: <strong>{{ iaMeta.vehiculos.join(', ') }}</strong>
+        <svg lucideIcon="car" style="width:14px;height:14px"></svg> Vehículos sugeridos: <strong>{{ iaMeta.vehiculos.join(', ') }}</strong>
       </span>
     </div>
   </div>
@@ -29,7 +29,7 @@
   <div class="form-grid">
 
     <div class="form-card">
-      <h2 class="form-card__title">📋 Datos del servicio</h2>
+      <h2 class="form-card__title"><svg lucideIcon="file-text"></svg> Datos del servicio</h2>
       <div class="form-card__body">
         <div class="field field--full">
           <label class="field__label">Dirección de velación *</label>
@@ -70,7 +70,7 @@
     </div>
 
     <div class="form-card">
-      <h2 class="form-card__title">🕊 Fallecido</h2>
+      <h2 class="form-card__title"><svg lucideIcon="bird"></svg> Fallecido</h2>
       <div class="form-card__body">
         <div class="field field--full">
           <label class="field__label">DNI Fallecido *</label>
@@ -97,13 +97,13 @@
           <p class="form-hint" *ngIf="!fallecidoVerificado && !errorFallecido">
             Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
           </p>
-          <p class="form-hint form-hint--ok" *ngIf="fallecidoVerificado">✓ Verificado en RENIEC</p>
+          <p class="form-hint form-hint--ok" *ngIf="fallecidoVerificado"><svg lucideIcon="check" style="width:14px;height:14px"></svg> Verificado en RENIEC</p>
         </div>
       </div>
     </div>
 
     <div class="form-card">
-      <h2 class="form-card__title">👤 Contratante</h2>
+      <h2 class="form-card__title"><svg lucideIcon="user"></svg> Contratante</h2>
       <div class="form-card__body">
         <div class="field field--full">
           <label class="field__label">DNI *</label>
@@ -130,7 +130,7 @@
           <p class="form-hint" *ngIf="!contratanteVerificado && !errorContratante">
             Ingresa el DNI y presiona "Verificar" para autocompletar el nombre.
           </p>
-          <p class="form-hint form-hint--ok" *ngIf="contratanteVerificado">✓ Verificado en RENIEC</p>
+          <p class="form-hint form-hint--ok" *ngIf="contratanteVerificado"><svg lucideIcon="check" style="width:14px;height:14px"></svg> Verificado en RENIEC</p>
         </div>
         <div class="field">
           <label class="field__label">Teléfono</label>
@@ -144,7 +144,7 @@
     </div>
 
     <div class="form-card">
-      <h2 class="form-card__title">⛪ Capilla *</h2>
+      <h2 class="form-card__title"><svg lucideIcon="church"></svg> Capilla *</h2>
       <div class="form-card__body">
         <div class="field field--full">
           <label class="field__label">Seleccionar capilla</label>
@@ -159,7 +159,7 @@
     </div>
 
     <div class="form-card">
-      <h2 class="form-card__title">⚰ Ataúd</h2>
+      <h2 class="form-card__title"><svg lucideIcon="box"></svg> Ataúd</h2>
       <div class="form-card__body">
         <div class="field field--full">
           <label class="field__label">Seleccionar ataúd (opcional)</label>
@@ -174,7 +174,7 @@
     </div>
 
     <div class="form-card form-card--full">
-      <h2 class="form-card__title">🚗 Vehículos asignados</h2>
+      <h2 class="form-card__title"><svg lucideIcon="car"></svg> Vehículos asignados</h2>
       <div class="form-card__body">
         <p class="form-hint" *ngIf="vehiculos.length === 0">Cargando vehículos...</p>
         <div class="vehiculos-grid" *ngIf="vehiculos.length > 0">
