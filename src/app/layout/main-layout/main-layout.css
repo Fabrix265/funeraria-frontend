@@ -155,11 +155,17 @@
 }
 
 .sidebar__link-icon {
-  font-size: 1.1rem;
   flex-shrink: 0;
   width: 20px;
-  text-align: center;
-  line-height: 1;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__link-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .sidebar__link-label {
@@ -401,4 +407,8 @@
 }
 .toast.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .toast--error { background: #3a1515; color: #f0a0a0; border-color: rgba(176,48,48,.6); }
-.toast__icon { font-weight: 700; }
+.toast__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}

@@ -1,13 +1,14 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { tienePermiso, esAdminActual } from '../../core/utils/auth.utils';
 import { ToastService } from '../../core/services/toast';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LucideDynamicIcon],
   templateUrl: './main-layout.html',
   styleUrls: ['./main-layout.css'],
 })
@@ -23,6 +24,7 @@ export class MainLayout implements OnInit {
   puedeVerContratantes = false;
   puedeVerFallecidos = false;
   puedeVerIA = false;
+  puedeVerBitacora = false;
 
   constructor(private router: Router, public toast: ToastService) {}
 
@@ -40,6 +42,7 @@ export class MainLayout implements OnInit {
     this.puedeVerContratantes = tienePermiso('contratantes:leer');
     this.puedeVerFallecidos = tienePermiso('fallecidos:leer');
     this.puedeVerIA = !!localStorage.getItem('token');
+    this.puedeVerBitacora = tienePermiso('bitacora:listar');
   }
 
   @HostListener('window:resize')

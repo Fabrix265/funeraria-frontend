@@ -1,0 +1,105 @@
+<div class="page-wrapper">
+
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">⊞</a>
+      <svg lucideIcon="scroll-text" class="page-header__icon"></svg>
+      <div>
+        <h1 class="page-header__title">Bitacora</h1>
+        <p class="page-header__sub">Historial de acciones del sistema</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="filtros-panel">
+    <h3 class="filtros-panel__titulo">Filtros</h3>
+    <div class="filtros-grid">
+
+      <div class="filtro-group">
+        <label class="filtro-label">Fecha inicio</label>
+        <input class="filtro-input" type="date" [(ngModel)]="filtros.fecha_inicio" (keyup.enter)="aplicarFiltros()" />
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">Fecha fin</label>
+        <input class="filtro-input" type="date" [(ngModel)]="filtros.fecha_fin" (keyup.enter)="aplicarFiltros()" />
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">Accion</label>
+        <select class="filtro-select" [(ngModel)]="filtros.accion">
+          <option *ngFor="let a of accionesDisponibles" [value]="a.valor">{{ a.label }}</option>
+        </select>
+      </div>
+
+      <div class="filtro-group">
+        <label class="filtro-label">Modulo</label>
+        <select class="filtro-select" [(ngModel)]="filtros.modulo">
+          <option *ngFor="let m of modulosDisponibles" [value]="m.valor">{{ m.label }}</option>
+        </select>
+      </div>
+
+      <div class="filtro-group filtro-group--action">
+        <button class="btn btn--ghost" (click)="limpiarFiltros()"><svg lucideIcon="x" style="width:14px;height:14px"></svg> Limpiar</button>
+        <button class="btn btn--secondary" (click)="aplicarFiltros()">Buscar</button>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="table-loader" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="empty-state" *ngIf="!cargando && entradas.length === 0">
+    <svg lucideIcon="scroll-text" class="empty-state__icon"></svg>
+    <p>No se encontraron registros en la bitacora</p>
+  </div>
+
+  <section class="table-section" *ngIf="!cargando && entradas.length > 0">
+    <div class="table-wrapper">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Accion</th>
+            <th>Modulo</th>
+            <th>Detalle</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of entradas" class="tabla__fila">
+            <td class="tabla__fecha">{{ formatDate(e.created_at) }}</td>
+            <td class="tabla__nombre">{{ e.usuario_nombre }}</td>
+            <td>
+              <span class="badge-accion" [ngClass]="getModuloColor(e.modulo)">
+                {{ getAccionLabel(e.accion) }}
+              </span>
+            </td>
+            <td>
+              <span class="badge-modulo">
+                {{ getModuloLabel(e.modulo) }}
+              </span>
+            </td>
+            <td class="tabla__detalle" [title]="e.detalle">{{ e.detalle || '-' }}</td>
+            <td class="tabla__ip">{{ e.ip_address || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paginacion">
+      <button class="btn btn--ghost btn--sm" (click)="cambiarPagina(-1)"
+        [disabled]="!hayAnterior">← Anterior</button>
+      <span class="paginacion__info">
+        Pagina <strong>{{ paginaActual }}</strong> de <strong>{{ totalPaginas }}</strong>
+        <span class="paginacion__total">({{ total }} registros)</span>
+      </span>
+      <button class="btn btn--ghost btn--sm" (click)="cambiarPagina(1)"
+        [disabled]="!haySiguiente">Siguiente →</button>
+    </div>
+  </section>
+
+</div>

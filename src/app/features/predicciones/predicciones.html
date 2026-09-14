@@ -2,8 +2,8 @@
 
   <header class="page-header">
     <div class="page-header__left">
-      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard">&#8862;</a>
-      <span class="page-header__icon">&#128202;</span>
+      <a class="btn-dashboard" routerLink="/dashboard" title="Dashboard"><svg lucideIcon="layout-dashboard"></svg></a>
+      <svg lucideIcon="bar-chart-3" class="page-header__icon"></svg>
       <div>
         <h1 class="page-header__title">Prediccion de Demanda</h1>
         <p class="page-header__sub">Modelo Random Forest por categoria de ataud</p>
@@ -12,7 +12,7 @@
   </header>
 
   <div class="form-card">
-    <h2 class="form-card__title">&#128230; Configurar prediccion</h2>
+    <h2 class="form-card__title"><svg lucideIcon="package"></svg> Configurar prediccion</h2>
     <div class="form-card__body">
       <div class="field">
         <label class="field__label">Meses a predecir</label>
@@ -35,11 +35,11 @@
   </div>
 
   <div class="pred-error" *ngIf="error">
-    <span>&#10005;</span> {{ error }}
+    <span><svg lucideIcon="x" style="width:14px;height:14px"></svg></span> {{ error }}
   </div>
 
   <div class="form-card" *ngIf="resultadoDemanda">
-    <h2 class="form-card__title">&#128202; Demanda predicha por categoria</h2>
+    <h2 class="form-card__title"><svg lucideIcon="bar-chart-3"></svg> Demanda predicha por categoria</h2>
     <div class="form-card__body form-card__body--chart">
       <apx-chart
         [series]="chartDemanda.series!"
@@ -56,7 +56,7 @@
   </div>
 
   <div class="form-card" *ngIf="resultadoDemanda">
-    <h2 class="form-card__title">&#128176; Ingreso esperado por categoria</h2>
+    <h2 class="form-card__title"><svg lucideIcon="dollar-sign"></svg> Ingreso esperado por categoria</h2>
     <div class="form-card__body">
       <div class="pred-table-wrap">
         <table class="pred-table">
@@ -90,7 +90,7 @@
   </div>
 
   <div class="form-card" *ngIf="resultadoDemanda && resultadoDemanda.alertas_reorden.length > 0">
-    <h2 class="form-card__title">&#9888; Alertas de reorden</h2>
+    <h2 class="form-card__title"><svg lucideIcon="alert-triangle"></svg> Alertas de reorden</h2>
     <div class="form-card__body">
       <div class="pred-table-wrap">
         <table class="pred-table">
@@ -116,7 +116,7 @@
   </div>
 
   <div class="form-card" *ngIf="resultadoDemanda">
-    <h2 class="form-card__title">&#128203; Desglose por modelo especifico</h2>
+    <h2 class="form-card__title"><svg lucideIcon="file-text"></svg> Desglose por modelo especifico</h2>
     <div class="form-card__body">
       <div class="pred-table-wrap" *ngFor="let cat of resultadoDemanda.demanda_por_categoria">
         <h3 class="desglose-title" *ngIf="resultadoDemanda.desglose_por_modelo && resultadoDemanda.desglose_por_modelo[cat.categoria] && resultadoDemanda.desglose_por_modelo[cat.categoria].length > 0">

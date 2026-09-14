@@ -2,13 +2,14 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { UserService, UserLeer, RoleLeer } from '../../../core/services/user';
 import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-usuarios-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './usuarios-list.html',
   styleUrls: ['./usuarios-list.css'],
 })

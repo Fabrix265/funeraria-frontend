@@ -12,14 +12,14 @@
     <h2 class="dash-section__label">Servicios</h2>
     <div class="dash-grid">
       <a routerLink="/servicios" class="stat-card stat-card--primary" *ngIf="puedeVerServicios">
-        <span class="stat-card__icon">📋</span>
+        <svg lucideIcon="file-text" class="stat-card__icon"></svg>
         <span class="stat-card__name">Servicios</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
       <a routerLink="/ia" class="stat-card stat-card--ia" *ngIf="puedeVerIA">
-        <span class="stat-card__icon">📷</span>
+        <svg lucideIcon="scan-line" class="stat-card__icon"></svg>
         <span class="stat-card__name">Extracción</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
     </div>
   </section>
@@ -29,24 +29,24 @@
     <h2 class="dash-section__label">Inventario</h2>
     <div class="dash-grid">
       <a routerLink="/ataudes" class="stat-card" *ngIf="puedeVerAtaudes">
-        <span class="stat-card__icon">⚰</span>
+        <svg lucideIcon="box" class="stat-card__icon"></svg>
         <span class="stat-card__name">Ataúdes</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
       <a routerLink="/capillas" class="stat-card" *ngIf="puedeVerCapillas">
-        <span class="stat-card__icon">⛪</span>
+        <svg lucideIcon="church" class="stat-card__icon"></svg>
         <span class="stat-card__name">Capillas</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
       <a routerLink="/vehiculos" class="stat-card" *ngIf="puedeVerVehiculos">
-        <span class="stat-card__icon">🚗</span>
+        <svg lucideIcon="car" class="stat-card__icon"></svg>
         <span class="stat-card__name">Vehículos</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
       <a routerLink="/predicciones" class="stat-card stat-card--prono" *ngIf="puedeVerPronostico">
-        <span class="stat-card__icon">📊</span>
+        <svg lucideIcon="bar-chart-3" class="stat-card__icon"></svg>
         <span class="stat-card__name">Pronóstico</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
     </div>
   </section>
@@ -56,14 +56,14 @@
     <h2 class="dash-section__label">Personas</h2>
     <div class="dash-grid">
       <a routerLink="/contratantes" class="stat-card" *ngIf="puedeVerContratantes">
-        <span class="stat-card__icon">👤</span>
+        <svg lucideIcon="user" class="stat-card__icon"></svg>
         <span class="stat-card__name">Contratantes</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
       <a routerLink="/fallecidos" class="stat-card" *ngIf="puedeVerFallecidos">
-        <span class="stat-card__icon">🕊</span>
+        <svg lucideIcon="bird" class="stat-card__icon"></svg>
         <span class="stat-card__name">Fallecidos</span>
-        <span class="stat-card__arrow">→</span>
+        <svg lucideIcon="arrow-right" class="stat-card__arrow"></svg>
       </a>
     </div>
   </section>

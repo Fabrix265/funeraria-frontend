@@ -1,13 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
+import { LucideDynamicIcon } from '@lucide/angular'
 import { UserService } from '../../core/services/user'
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css']
 })

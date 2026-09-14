@@ -17,19 +17,19 @@
 
       <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active"
          (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">⊞</span>
+        <svg lucideIcon="layout-dashboard" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Panel de control</span>
       </a>
 
       <a class="sidebar__link" routerLink="/servicios" routerLinkActive="sidebar__link--active"
          *ngIf="puedeVerServicios" (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">📋</span>
+        <svg lucideIcon="file-text" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Servicios</span>
       </a>
 
       <a class="sidebar__link" routerLink="/ia" routerLinkActive="sidebar__link--active"
          *ngIf="puedeVerIA" (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">📷</span>
+        <svg lucideIcon="scan-line" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Extracción</span>
       </a>
 
@@ -38,25 +38,25 @@
 
         <a class="sidebar__link" routerLink="/ataudes" routerLinkActive="sidebar__link--active"
            *ngIf="puedeVerAtaudes" (click)="cerrarSidebarMobile()">
-          <span class="sidebar__link-icon">⚰</span>
+          <svg lucideIcon="box" class="sidebar__link-icon"></svg>
           <span class="sidebar__link-label">Ataúdes</span>
         </a>
 
         <a class="sidebar__link" routerLink="/capillas" routerLinkActive="sidebar__link--active"
            *ngIf="puedeVerCapillas" (click)="cerrarSidebarMobile()">
-          <span class="sidebar__link-icon">⛪</span>
+          <svg lucideIcon="church" class="sidebar__link-icon"></svg>
           <span class="sidebar__link-label">Capillas</span>
         </a>
 
         <a class="sidebar__link" routerLink="/vehiculos" routerLinkActive="sidebar__link--active"
            *ngIf="puedeVerVehiculos" (click)="cerrarSidebarMobile()">
-          <span class="sidebar__link-icon">🚗</span>
+          <svg lucideIcon="car" class="sidebar__link-icon"></svg>
           <span class="sidebar__link-label">Vehículos</span>
         </a>
 
         <a class="sidebar__link" routerLink="/predicciones" routerLinkActive="sidebar__link--active"
            (click)="cerrarSidebarMobile()">
-          <span class="sidebar__link-icon">📊</span>
+          <svg lucideIcon="bar-chart-3" class="sidebar__link-icon"></svg>
           <span class="sidebar__link-label">Pronóstico</span>
         </a>
       </ng-container>
@@ -66,13 +66,13 @@
 
         <a class="sidebar__link" routerLink="/contratantes" routerLinkActive="sidebar__link--active"
            *ngIf="puedeVerContratantes" (click)="cerrarSidebarMobile()">
-          <span class="sidebar__link-icon">👤</span>
+          <svg lucideIcon="user" class="sidebar__link-icon"></svg>
           <span class="sidebar__link-label">Contratantes</span>
         </a>
 
         <a class="sidebar__link" routerLink="/fallecidos" routerLinkActive="sidebar__link--active"
            *ngIf="puedeVerFallecidos" (click)="cerrarSidebarMobile()">
-          <span class="sidebar__link-icon">🕊</span>
+          <svg lucideIcon="bird" class="sidebar__link-icon"></svg>
           <span class="sidebar__link-label">Fallecidos</span>
         </a>
       </ng-container>
@@ -81,19 +81,25 @@
 
       <a class="sidebar__link" routerLink="/usuarios" routerLinkActive="sidebar__link--active"
          *ngIf="esAdmin" (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">👥</span>
+        <svg lucideIcon="users" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Usuarios</span>
       </a>
 
       <a class="sidebar__link" routerLink="/roles" routerLinkActive="sidebar__link--active"
          *ngIf="esAdmin" (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">🛡️</span>
+        <svg lucideIcon="shield" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Roles</span>
+      </a>
+
+      <a class="sidebar__link" routerLink="/bitacora" routerLinkActive="sidebar__link--active"
+         *ngIf="puedeVerBitacora" (click)="cerrarSidebarMobile()">
+        <svg lucideIcon="scroll-text" class="sidebar__link-icon"></svg>
+        <span class="sidebar__link-label">Bitacora</span>
       </a>
 
       <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active"
          (click)="cerrarSidebarMobile()">
-        <span class="sidebar__link-icon">⚙</span>
+        <svg lucideIcon="settings" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Perfil</span>
       </a>
 
@@ -101,7 +107,7 @@
 
     <div class="sidebar__footer">
       <button class="sidebar__logout" (click)="logout()">
-        <span class="sidebar__link-icon">↩</span>
+        <svg lucideIcon="log-out" class="sidebar__link-icon"></svg>
         <span class="sidebar__link-label">Cerrar sesión</span>
       </button>
     </div>
@@ -117,7 +123,8 @@
       <router-outlet></router-outlet>
 
       <div class="toast" [class.visible]="toast.mensaje()" [class.toast--error]="toast.tipoMensaje() === 'error'">
-        <span class="toast__icon">{{ toast.tipoMensaje() === 'exito' ? '✓' : '✕' }}</span>
+        <svg *ngIf="toast.tipoMensaje() === 'exito'" lucideIcon="circle-check" class="toast__icon"></svg>
+        <svg *ngIf="toast.tipoMensaje() !== 'exito'" lucideIcon="circle-x" class="toast__icon"></svg>
         {{ toast.mensaje() }}
       </div>
     </main>

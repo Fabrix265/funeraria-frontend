@@ -56,7 +56,8 @@
               (click)="togglePassword()"
               [title]="mostrarPassword ? 'Ocultar' : 'Mostrar'"
             >
-              {{ mostrarPassword ? '👁️‍🗨️' : '👁' }}
+              <svg *ngIf="mostrarPassword" lucideIcon="eye-off"></svg>
+              <svg *ngIf="!mostrarPassword" lucideIcon="eye"></svg>
             </button>
           </div>
           <span class="field__error" *ngIf="contra.invalid && contra.touched">
@@ -65,7 +66,7 @@
         </div>
 
         <div class="login-error" *ngIf="error">
-          <span class="login-error__icon">✕</span>
+          <span class="login-error__icon"><svg lucideIcon="circle-x"></svg></span>
           {{ error }}
         </div>
 

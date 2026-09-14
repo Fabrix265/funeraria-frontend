@@ -1,14 +1,15 @@
 <div class="page-wrapper">
 
   <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
-    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    <svg *ngIf="tipoMensaje === 'exito'" lucideIcon="circle-check" class="toast__icon"></svg>
+    <svg *ngIf="tipoMensaje !== 'exito'" lucideIcon="circle-x" class="toast__icon"></svg>
     {{ mensaje }}
   </div>
 
   <header class="page-header">
     <div class="page-header__left">
-      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">⊞</a>
-      <span class="page-header__icon">👥</span>
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard"><svg lucideIcon="layout-dashboard"></svg></a>
+      <svg lucideIcon="users" class="page-header__icon"></svg>
       <div>
         <h1 class="page-header__title">Usuarios</h1>
         <p class="page-header__sub">Gestión de accesos</p>
@@ -33,7 +34,7 @@
       </div>
 
       <div class="filtro-group filtro-group--action">
-        <button class="btn btn--ghost" (click)="limpiarFiltros()">✕ Limpiar</button>
+        <button class="btn btn--ghost" (click)="limpiarFiltros()"><svg lucideIcon="x" style="width:14px;height:14px"></svg> Limpiar</button>
       </div>
 
     </div>
@@ -46,7 +47,7 @@
     </div>
 
     <div class="empty-state" *ngIf="!cargando && usuarios.length === 0">
-      <span class="empty-state__icon">👥</span>
+      <svg lucideIcon="users" class="empty-state__icon"></svg>
       <p>No hay usuarios registrados</p>
     </div>
 
@@ -88,8 +89,8 @@
           </td>
 
           <td class="tabla__acciones">
-            <button class="icon-btn icon-btn--edit" title="Editar Rol" (click)="abrirModalEditar(u)">✏️</button>
-            <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(u)">✕</button>
+            <button class="icon-btn icon-btn--edit" title="Editar Rol" (click)="abrirModalEditar(u)"><svg lucideIcon="pencil"></svg></button>
+            <button class="icon-btn icon-btn--delete" title="Eliminar" (click)="abrirModalEliminar(u)"><svg lucideIcon="trash-2"></svg></button>
           </td>
         </tr>
         </tbody>
@@ -104,7 +105,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal__header">
       <h2 class="modal__title">Nuevo usuario</h2>
-      <button class="modal__close" (click)="cerrarModal()">✕</button>
+      <button class="modal__close" (click)="cerrarModal()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body">
       <div class="field">
@@ -126,7 +127,8 @@
             #passU="ngModel"
           />
           <button class="field__eye" type="button" (click)="mostrarPassword = !mostrarPassword">
-            {{ mostrarPassword ? '🙈' : '👁' }}
+            <svg *ngIf="mostrarPassword" lucideIcon="eye-off"></svg>
+            <svg *ngIf="!mostrarPassword" lucideIcon="eye"></svg>
           </button>
         </div>
         <span class="field__error" *ngIf="passU.invalid && passU.touched">
@@ -157,7 +159,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal__header">
       <h2 class="modal__title">Modificar permisos de asignación</h2>
-      <button class="modal__close" (click)="cerrarModalEditar()">✕</button>
+      <button class="modal__close" (click)="cerrarModalEditar()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body">
       <div class="field">
@@ -192,7 +194,7 @@
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header modal__header--danger">
       <h2 class="modal__title">Confirmar eliminación</h2>
-      <button class="modal__close" (click)="cerrarModalEliminar()">✕</button>
+      <button class="modal__close" (click)="cerrarModalEliminar()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body">
       <p class="modal__warn">
@@ -211,7 +213,7 @@
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header">
       <h2 class="modal__title">Confirmar cambio de estado</h2>
-      <button class="modal__close" (click)="cerrarModalToggle()">✕</button>
+      <button class="modal__close" (click)="cerrarModalToggle()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body">
       <p class="modal__warn">

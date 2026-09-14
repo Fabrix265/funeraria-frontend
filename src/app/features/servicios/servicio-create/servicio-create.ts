@@ -3,6 +3,7 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Servicio } from '../../../core/services/servicio';
 import { environment } from '../../../../environments/environment';
 import { ReniecService, ReniecResponse } from '../../../core/services/reniec';
@@ -11,7 +12,7 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-servicio-create',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterLink],
+  imports: [FormsModule, CommonModule, RouterLink, LucideDynamicIcon],
   templateUrl: './servicio-create.html',
   styleUrls: ['./servicio-create.css'],
 })

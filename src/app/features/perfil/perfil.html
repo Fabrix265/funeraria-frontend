@@ -1,14 +1,15 @@
 <div class="page-wrapper">
 
   <div class="toast" [class.visible]="mensaje" [class.toast--error]="tipoMensaje === 'error'">
-    <span class="toast__icon">{{ tipoMensaje === 'exito' ? '✓' : '✕' }}</span>
+    <svg *ngIf="tipoMensaje === 'exito'" lucideIcon="circle-check" class="toast__icon"></svg>
+    <svg *ngIf="tipoMensaje !== 'exito'" lucideIcon="circle-x" class="toast__icon"></svg>
     {{ mensaje }}
   </div>
 
   <header class="page-header">
     <div class="page-header__left">
-      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">⊞</a>
-      <span class="page-header__icon">⚙</span>
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard"><svg lucideIcon="layout-dashboard"></svg></a>
+      <svg lucideIcon="settings" class="page-header__icon"></svg>
       <div>
         <h1 class="page-header__title">Mi perfil</h1>
         <p class="page-header__sub">Gestión de cuenta</p>
@@ -19,7 +20,7 @@
   <div class="perfil-grid">
 
     <div class="card">
-      <h2 class="card__title">👤 Datos actuales</h2>
+      <h2 class="card__title"><svg lucideIcon="user"></svg> Datos actuales</h2>
       <div class="card__body">
         <div class="info-row">
           <span class="info-label">Usuario</span>
@@ -35,7 +36,7 @@
     </div>
 
     <div class="card">
-      <h2 class="card__title">✎ Actualizar perfil</h2>
+      <h2 class="card__title"><svg lucideIcon="pencil"></svg> Actualizar perfil</h2>
       <div class="card__body">
 
         <div class="field">
@@ -67,7 +68,8 @@
               #passP="ngModel"
             />
             <button class="field__eye" type="button" (click)="togglePassword()">
-              {{ mostrarPassword ? '👁️‍🗨️' : '👁' }}
+              <svg *ngIf="mostrarPassword" lucideIcon="eye-off"></svg>
+              <svg *ngIf="!mostrarPassword" lucideIcon="eye"></svg>
             </button>
           </div>
           <span class="field__error" *ngIf="passP.invalid && passP.touched">
@@ -88,7 +90,8 @@
               #confirmarP="ngModel"
             />
             <button class="field__eye" type="button" (click)="toggleConfirmar()">
-              {{ mostrarConfirmar ? '👁️‍🗨️' : '👁' }}
+              <svg *ngIf="mostrarConfirmar" lucideIcon="eye-off"></svg>
+              <svg *ngIf="!mostrarConfirmar" lucideIcon="eye"></svg>
             </button>
           </div>
           <span class="field__error" *ngIf="confirmarP.invalid && confirmarP.touched">

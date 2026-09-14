@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
+import { LucideDynamicIcon } from '@lucide/angular'
 import { NgApexchartsModule } from 'ng-apexcharts'
 import {
   ApexAxisChartSeries,
@@ -32,7 +33,7 @@ export type ChartOptions = {
 @Component({
   selector: 'app-predicciones',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgApexchartsModule],
+  imports: [CommonModule, FormsModule, RouterLink, NgApexchartsModule, LucideDynamicIcon],
   templateUrl: './predicciones.html',
   styleUrls: ['./predicciones.css']
 })

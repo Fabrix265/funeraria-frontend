@@ -3,11 +3,12 @@ import { Router } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
+import { LucideDynamicIcon } from '@lucide/angular'
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, LucideDynamicIcon],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
