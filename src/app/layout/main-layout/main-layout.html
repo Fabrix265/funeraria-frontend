@@ -91,6 +91,12 @@
         <span class="sidebar__link-label">Roles</span>
       </a>
 
+      <a class="sidebar__link" routerLink="/bitacora" routerLinkActive="sidebar__link--active"
+         *ngIf="puedeVerBitacora" (click)="cerrarSidebarMobile()">
+        <span class="sidebar__link-icon">📜</span>
+        <span class="sidebar__link-label">Bitacora</span>
+      </a>
+
       <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active"
          (click)="cerrarSidebarMobile()">
         <span class="sidebar__link-icon">⚙</span>

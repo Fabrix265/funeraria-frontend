@@ -25,6 +25,7 @@ import { MainLayout } from './layout/main-layout/main-layout'
 
 import { Ia } from './features/ia/ia'
 import { Predicciones } from './features/predicciones/predicciones'
+import { BitacoraList } from './features/bitacora/bitacora-list/bitacora-list'
 import { permisoGuard } from './core/guards/permisos-guard';
 
 export const routes: Routes = [
@@ -123,6 +124,12 @@ export const routes: Routes = [
           import('./features/roles/roles-list/roles-list').then((m) => m.RolesList),
         canActivate: [roleGuard],
         data: { roles: ['administrador'] },
+      },
+      {
+        path: 'bitacora',
+        component: BitacoraList,
+        canActivate: [permisoGuard],
+        data: { permiso: 'bitacora:listar' },
       },
     ],
   },
