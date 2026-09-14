@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
@@ -49,9 +49,10 @@ export class BitacoraList implements OnInit {
     { valor: 'fallecidos', label: 'Fallecidos' },
     { valor: 'usuarios', label: 'Usuarios' },
     { valor: 'roles', label: 'Roles' },
+    { valor: 'drive', label: 'Google Drive' },
   ]
 
-  constructor(private bitacoraService: BitacoraService) {}
+  constructor(private bitacoraService: BitacoraService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.cargarDatos()
@@ -66,9 +67,11 @@ export class BitacoraList implements OnInit {
         this.total = res.total
         this.totalPaginas = res.total_paginas
         this.cargando = false
+        this.cdr.detectChanges()
       },
       error: () => {
         this.cargando = false
+        this.cdr.detectChanges()
       },
     })
   }
@@ -111,6 +114,7 @@ export class BitacoraList implements OnInit {
       fallecidos: 'badge--fallecidos',
       usuarios: 'badge--usuarios',
       roles: 'badge--roles',
+      drive: 'badge--drive',
     }
     return colores[modulo] || 'badge--default'
   }
@@ -139,6 +143,7 @@ export class BitacoraList implements OnInit {
       fallecidos: 'Fallecidos',
       usuarios: 'Usuarios',
       roles: 'Roles',
+      drive: 'Drive',
     }
     return labels[modulo] || modulo
   }

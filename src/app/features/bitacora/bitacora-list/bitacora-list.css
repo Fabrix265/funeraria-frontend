@@ -115,7 +115,7 @@
 .tabla td { padding: 0.85rem 1rem; vertical-align: middle; }
 .tabla__nombre { font-weight: 500; }
 .tabla__fecha { white-space: nowrap; color: var(--text-light); font-size: 0.88rem; }
-.tabla__detalle { color: var(--text-light); font-size: 0.88rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tabla__detalle { color: var(--text-light); font-size: 0.88rem; max-width: 320px; word-break: break-word; }
 .tabla__ip { color: var(--text-muted); font-size: 0.82rem; font-family: monospace; }
 
 .badge-accion {
@@ -135,6 +135,7 @@
 .badge--fallecidos { background: rgba(184,202,216,.1); color: #b8cad8; border: 1px solid rgba(184,202,216,.25); }
 .badge--usuarios { background: rgba(184,202,216,.1); color: #b8cad8; border: 1px solid rgba(184,202,216,.25); }
 .badge--roles { background: rgba(232,213,160,.12); color: #e8d5a0; border: 1px solid rgba(232,213,160,.28); }
+.badge--drive { background: rgba(74,158,106,.12); color: #7ecfa0; border: 1px solid rgba(74,158,106,.3); }
 .badge--default { background: rgba(184,202,216,.1); color: #b8cad8; border: 1px solid rgba(184,202,216,.25); }
 
 .badge-modulo {

@@ -83,7 +83,7 @@
                 {{ getModuloLabel(e.modulo) }}
               </span>
             </td>
-            <td class="tabla__detalle">{{ e.detalle || '-' }}</td>
+            <td class="tabla__detalle" [title]="e.detalle">{{ e.detalle || '-' }}</td>
             <td class="tabla__ip">{{ e.ip_address || '-' }}</td>
           </tr>
         </tbody>
