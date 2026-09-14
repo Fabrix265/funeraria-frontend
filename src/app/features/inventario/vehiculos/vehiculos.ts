@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
 import { VehiculoService } from '../../../core/services/vehiculo';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Vehiculo, TipoVehiculo } from '../../../core/models/vehiculo.model';
 import { RouterLink } from '@angular/router';
 import { esAdminActual } from '../../../core/utils/auth.utils';
@@ -10,7 +11,7 @@ import { puedeCrear, puedeActualizar, puedeEliminar } from '../../../core/utils/
 @Component({
   selector: 'app-vehiculos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './vehiculos.html',
   styleUrls: ['./vehiculos.css'],
 })

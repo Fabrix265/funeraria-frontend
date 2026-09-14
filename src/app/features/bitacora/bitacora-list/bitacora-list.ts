@@ -2,13 +2,14 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
+import { LucideDynamicIcon } from '@lucide/angular'
 import { BitacoraService } from '../../../core/services/bitacora'
 import { BitacoraEntry } from '../../../core/models/bitacora.model'
 
 @Component({
   selector: 'app-bitacora-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './bitacora-list.html',
   styleUrls: ['./bitacora-list.css'],
 })

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Servicio } from '../../../core/services/servicio';
 import { ToastService } from '../../../core/services/toast';
 import { puedeActualizar, puedeEliminar as puedeEliminarFn } from '../../../core/utils/auth.utils';
@@ -9,7 +10,7 @@ import { puedeActualizar, puedeEliminar as puedeEliminarFn } from '../../../core
 @Component({
   selector: 'app-servicio-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, LucideDynamicIcon],
   templateUrl: './servicio-detail.html',
   styleUrls: ['./servicio-detail.css'],
 })

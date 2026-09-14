@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
 import { CapillaService } from '../../../core/services/capilla';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Capilla } from '../../../core/models/capilla.model'
 import { RouterLink } from '@angular/router';
 import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso} from '../../../core/utils/auth.utils';
@@ -9,7 +10,7 @@ import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso} from '../../.
 @Component({
   selector: 'app-capillas',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './capillas.html',
   styleUrls: ['./capillas.css'],
 })

@@ -184,12 +184,14 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
-  line-height: 1;
   color: var(--text-muted);
   padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color var(--transition);
 }
+.field__eye svg { width: 18px; height: 18px; }
 .field__eye:hover { color: var(--text); }
 
 .login-error {
@@ -205,10 +207,11 @@
 }
 
 .login-error__icon {
-  font-weight: 700;
-  font-size: 0.8rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
+.login-error__icon svg { width: 16px; height: 16px; }
 
 .login-btn {
   display: flex;

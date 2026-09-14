@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
+import { LucideDynamicIcon } from '@lucide/angular'
 import { PersonaService } from '../../../core/services/persona'
 import { Contratante } from '../../../core/models/contratante.model'
 import { RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { puedeActualizar as checkActualizar, puedeEliminar as checkEliminar } fr
 @Component({
   selector: 'app-contratantes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './contratantes.html',
   styleUrls: ['./contratantes.css'],
 })

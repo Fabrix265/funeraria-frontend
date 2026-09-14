@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AtaudService } from '../../../core/services/ataud';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Ataud } from '../../../core/models/ataud.model';
 import { RouterLink } from '@angular/router';
 import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso } from '../../../core/utils/auth.utils'
@@ -9,7 +10,7 @@ import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso } from '../../
 @Component({
   selector: 'app-ataudes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideDynamicIcon],
   templateUrl: './ataudes.html',
   styleUrls: ['./ataudes.css'],
 })
