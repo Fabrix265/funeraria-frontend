@@ -39,6 +39,7 @@ import {
   LucideIdCard,
   LucideHeart,
   LucideUpload,
+  LucideImage,
 } from '@lucide/angular'
 
 import { routes } from './app.routes'
@@ -92,6 +93,7 @@ export const appConfig: ApplicationConfig = {
       LucideIdCard,
       LucideHeart,
       LucideUpload,
+      LucideImage,
     ),
 
   ]

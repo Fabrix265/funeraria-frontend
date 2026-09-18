@@ -47,6 +47,10 @@ export class Capillas implements OnInit {
   modalEliminarAbierto = false;
   capillaEliminar: Capilla | null = null;
 
+  modalImagenesAbierto = false;
+  capillaImagenes: Capilla | null = null;
+  subiendoImagen = false;
+
   constructor(
     private capillaService: CapillaService,
     private cdr: ChangeDetectorRef,
@@ -231,5 +235,55 @@ export class Capillas implements OnInit {
       },
       error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
+  }
+
+  abrirModalImagenes(c: Capilla): void {
+    this.capillaImagenes = c;
+    this.modalImagenesAbierto = true;
+  }
+
+  cerrarModalImagenes(): void {
+    this.modalImagenesAbierto = false;
+    this.capillaImagenes = null;
+  }
+
+  onArchivoSeleccionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || !this.capillaImagenes) return;
+
+    const archivo = input.files[0];
+    this.subiendoImagen = true;
+    this.capillaService.agregarImagen(this.capillaImagenes.id, archivo).subscribe({
+      next: (capillaActualizada) => {
+        this.capillaImagenes = capillaActualizada;
+        this.actualizarEnLista(capillaActualizada);
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+      },
+    });
+  }
+
+  eliminarImagen(imagenId: number): void {
+    if (!this.capillaImagenes) return;
+    this.capillaService.eliminarImagen(this.capillaImagenes.id, imagenId).subscribe({
+      next: (capillaActualizada) => {
+        this.capillaImagenes = capillaActualizada;
+        this.actualizarEnLista(capillaActualizada);
+        this.mostrarMensaje('Imagen eliminada', 'exito');
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar imagen', 'error'),
+    });
+  }
+
+  private actualizarEnLista(capillaActualizada: Capilla): void {
+    const idx = this.capillas.findIndex((c) => c.id === capillaActualizada.id);
+    if (idx !== -1) this.capillas[idx] = capillaActualizada;
   }
 }

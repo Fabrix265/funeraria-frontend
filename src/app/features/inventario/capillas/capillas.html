@@ -81,6 +81,7 @@
             <th>ID</th>
             <th>Modelo</th>
             <th>Stock</th>
+            <th>Imágenes</th>
             <th *ngIf="puedeEditar">Estado</th>
             <th *ngIf="puedeCrear || puedeEditar || puedeEliminar || puedeActualizarStock">Acciones</th>
           </tr>
@@ -95,15 +96,25 @@
               </span>
             </td>
             <td>
+              <div class="miniaturas" *ngIf="c.imagenes?.length; else sinImagenes">
+                <img [src]="c.imagenes[0].url" class="miniatura" alt="{{ c.modelo }}" />
+                <span class="miniaturas__contador">{{ c.imagenes.length }}</span>
+              </div>
+              <ng-template #sinImagenes>
+                <span class="miniaturas__vacio" [class.miniaturas__vacio--alerta]="c.activo">Sin imágenes</span>
+              </ng-template>
+            </td>
+            <td>
               <label class="switch" [class.switch--active]="c.activo" (click)="toggleActivo(c); $event.stopPropagation()" *ngIf="puedeEditar">
                 <span class="switch__track"></span>
                 <span class="switch__thumb"></span>
               </label>
             </td>
             <td class="tabla__acciones">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(c)"><svg lucideIcon="pencil"></svg></button>
-              <button class="icon-btn icon-btn--stock"  title="Stock"    *ngIf="puedeActualizarStock" (click)="abrirModalStock(c)"><svg lucideIcon="package"></svg></button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(c)"><svg lucideIcon="trash-2"></svg></button>
+              <button class="icon-btn icon-btn--edit"      title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(c)"><svg lucideIcon="pencil"></svg></button>
+              <button class="icon-btn icon-btn--imagenes"  title="Imágenes" *ngIf="puedeEditar" (click)="abrirModalImagenes(c)"><svg lucideIcon="image"></svg></button>
+              <button class="icon-btn icon-btn--stock"     title="Stock"    *ngIf="puedeActualizarStock" (click)="abrirModalStock(c)"><svg lucideIcon="package"></svg></button>
+              <button class="icon-btn icon-btn--delete"    title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(c)"><svg lucideIcon="trash-2"></svg></button>
             </td>
           </tr>
         </tbody>
@@ -209,6 +220,38 @@
       <button class="btn btn--primary" (click)="confirmarToggle()">
         {{ itemToggle?.nuevoEstado ? 'Activar' : 'Desactivar' }}
       </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalImagenesAbierto" (click)="cerrarModalImagenes()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Imágenes — {{ capillaImagenes?.modelo }}</h2>
+      <button class="modal__close" (click)="cerrarModalImagenes()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__info" [class.modal__info--alerta]="(capillaImagenes?.imagenes?.length || 0) < 3">
+        {{ capillaImagenes?.imagenes?.length || 0 }} / 3 mínimo requeridas
+      </p>
+
+      <div class="galeria">
+        <div class="galeria__item" *ngFor="let img of capillaImagenes?.imagenes">
+          <img [src]="img.url" alt="{{ capillaImagenes?.modelo }}" />
+          <button class="galeria__eliminar" title="Eliminar" (click)="eliminarImagen(img.id)">
+            <svg lucideIcon="trash-2"></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">Agregar imagen</label>
+        <input class="field__input" type="file" accept="image/*" [disabled]="subiendoImagen" (change)="onArchivoSeleccionado($event)" />
+        <span class="field__hint" *ngIf="subiendoImagen">Subiendo...</span>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalImagenes()">Cerrar</button>
     </div>
   </div>
 </div>
