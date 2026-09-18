@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CapillaService } from '../../../core/services/capilla';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -50,6 +50,8 @@ export class Capillas implements OnInit {
   modalImagenesAbierto = false;
   capillaImagenes: Capilla | null = null;
   subiendoImagen = false;
+  lightboxAbierto = false;
+  lightboxIndex = 0;
 
   constructor(
     private capillaService: CapillaService,
@@ -266,9 +268,11 @@ export class Capillas implements OnInit {
         this.subiendoImagen = false;
         input.value = '';
         this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.cdr.detectChanges();
       },
     });
   }
+
 
   eliminarImagen(imagenId: number): void {
     if (!this.capillaImagenes) return;
@@ -277,13 +281,45 @@ export class Capillas implements OnInit {
         this.capillaImagenes = capillaActualizada;
         this.actualizarEnLista(capillaActualizada);
         this.mostrarMensaje('Imagen eliminada', 'exito');
+        this.cdr.detectChanges();
       },
-      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar imagen', 'error'),
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al eliminar imagen', 'error');
+        this.cdr.detectChanges();
+      },
     });
   }
 
   private actualizarEnLista(capillaActualizada: Capilla): void {
     const idx = this.capillas.findIndex((c) => c.id === capillaActualizada.id);
     if (idx !== -1) this.capillas[idx] = capillaActualizada;
+  }
+
+    abrirLightbox(index: number): void {
+    this.lightboxIndex = index;
+    this.lightboxAbierto = true;
+  }
+
+  cerrarLightbox(): void {
+    this.lightboxAbierto = false;
+  }
+
+  imagenAnterior(): void {
+    if (!this.capillaImagenes?.imagenes?.length) return;
+    const total = this.capillaImagenes.imagenes.length;
+    this.lightboxIndex = (this.lightboxIndex - 1 + total) % total;
+  }
+
+  imagenSiguiente(): void {
+    if (!this.capillaImagenes?.imagenes?.length) return;
+    const total = this.capillaImagenes.imagenes.length;
+    this.lightboxIndex = (this.lightboxIndex + 1) % total;
+  }
+
+  abrirLightboxDesdeTabla(c: Capilla): void {
+    if (!c.imagenes?.length) return;
+    this.capillaImagenes = c;
+    this.lightboxIndex = 0;
+    this.lightboxAbierto = true;
   }
 }

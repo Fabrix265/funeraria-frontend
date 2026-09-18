@@ -96,7 +96,7 @@
               </span>
             </td>
             <td>
-              <div class="miniaturas" *ngIf="c.imagenes?.length; else sinImagenes">
+              <div class="miniaturas" *ngIf="c.imagenes?.length; else sinImagenes" (click)="abrirLightboxDesdeTabla(c)">
                 <img [src]="c.imagenes[0].url" class="miniatura" alt="{{ c.modelo }}" />
                 <span class="miniaturas__contador">{{ c.imagenes.length }}</span>
               </div>
@@ -236,8 +236,8 @@
       </p>
 
       <div class="galeria">
-        <div class="galeria__item" *ngFor="let img of capillaImagenes?.imagenes">
-          <img [src]="img.url" alt="{{ capillaImagenes?.modelo }}" />
+        <div class="galeria__item" *ngFor="let img of capillaImagenes?.imagenes; let i = index">
+          <img [src]="img.url" alt="{{ capillaImagenes?.modelo }}" (click)="abrirLightbox(i)" />
           <button class="galeria__eliminar" title="Eliminar" (click)="eliminarImagen(img.id)">
             <svg lucideIcon="trash-2"></svg>
           </button>
@@ -246,12 +246,60 @@
 
       <div class="field">
         <label class="field__label">Agregar imagen</label>
-        <input class="field__input" type="file" accept="image/*" [disabled]="subiendoImagen" (change)="onArchivoSeleccionado($event)" />
-        <span class="field__hint" *ngIf="subiendoImagen">Subiendo...</span>
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          hidden
+          [disabled]="subiendoImagen"
+          (change)="onArchivoSeleccionado($event)"
+        />
+        <button
+          class="btn btn--secondary file-upload-btn"
+          type="button"
+          [disabled]="subiendoImagen"
+          (click)="fileInput.click()"
+        >
+          <svg lucideIcon="upload"></svg>
+          {{ subiendoImagen ? 'Subiendo...' : 'Seleccionar imagen' }}
+        </button>
       </div>
     </div>
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalImagenes()">Cerrar</button>
     </div>
   </div>
+</div>
+
+<div class="lightbox-overlay" *ngIf="lightboxAbierto" (click)="cerrarLightbox()">
+  <button class="lightbox-close" (click)="cerrarLightbox(); $event.stopPropagation()">
+    <svg lucideIcon="x"></svg>
+  </button>
+
+  <button
+    class="lightbox-nav lightbox-nav--prev"
+    *ngIf="(capillaImagenes?.imagenes?.length || 0) > 1"
+    (click)="imagenAnterior(); $event.stopPropagation()"
+  >
+    <svg lucideIcon="arrow-left"></svg>
+  </button>
+
+  <img
+    class="lightbox-img"
+    [src]="capillaImagenes?.imagenes?.[lightboxIndex]?.url"
+    alt="{{ capillaImagenes?.modelo }}"
+    (click)="$event.stopPropagation()"
+  />
+
+  <button
+    class="lightbox-nav lightbox-nav--next"
+    *ngIf="(capillaImagenes?.imagenes?.length || 0) > 1"
+    (click)="imagenSiguiente(); $event.stopPropagation()"
+  >
+    <svg lucideIcon="arrow-right"></svg>
+  </button>
+
+  <span class="lightbox-contador" *ngIf="capillaImagenes?.imagenes?.length">
+    {{ lightboxIndex + 1 }} / {{ capillaImagenes?.imagenes?.length }}
+  </span>
 </div>
