@@ -223,3 +223,131 @@
   cursor: not-allowed;
   opacity: 0.75;
 }
+
+.form-hint--docs {
+  grid-column: 1 / -1;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.9rem;
+  grid-column: 1 / -1;
+}
+
+.doc-slot {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 120px;
+}
+
+.doc-slot__etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.doc-slot__icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.doc-upload {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 0.5rem;
+  border: 1px dashed var(--border-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.doc-upload:hover {
+  border-color: var(--silver);
+  background: var(--bg-hover);
+}
+
+.doc-upload__icon {
+  width: 22px;
+  height: 22px;
+  color: var(--text-muted);
+}
+
+.doc-upload__text {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.doc-upload__hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.doc-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+
+.doc-chip__icon {
+  width: 16px;
+  height: 16px;
+  color: var(--silver);
+  flex-shrink: 0;
+}
+
+.doc-chip__nombre {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+.doc-chip__quitar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+  flex-shrink: 0;
+}
+
+.doc-chip__quitar:hover {
+  color: var(--danger);
+  background: rgba(176, 48, 48, 0.12);
+}
+
+.doc-chip__quitar svg {
+  width: 15px;
+  height: 15px;
+}
