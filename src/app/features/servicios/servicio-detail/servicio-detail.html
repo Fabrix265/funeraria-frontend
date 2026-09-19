@@ -157,7 +157,11 @@
               <ng-container *ngIf="obtenerArchivoPorTipo(t.tipo) as archivo; else sinArchivo">
                 <div class="doc-card">
                   <div class="doc-card__preview" (click)="abrirVistaPrevia(archivo)">
-                    <img *ngIf="esImagen(archivo.mime_type)" [src]="urlVistaPrevia" alt="" class="doc-card__thumb" />
+                    <img *ngIf="esImagen(archivo.mime_type) && urlsArchivo[archivo.id]" [src]="urlsArchivo[archivo.id]" alt="" class="doc-card__thumb" />
+                    <div *ngIf="esImagen(archivo.mime_type) && !urlsArchivo[archivo.id]" class="doc-card__thumb-loading">
+                      <div *ngIf="cargandoContenido[archivo.id]" class="spinner spinner--sm"></div>
+                      <svg *ngIf="!cargandoContenido[archivo.id]" lucideIcon="file-text"></svg>
+                    </div>
                     <div *ngIf="esPdf(archivo.mime_type)" class="doc-card__pdf">
                       <svg lucideIcon="file-text"></svg>
                       <span>PDF</span>
@@ -180,15 +184,21 @@
               <!-- Sin archivo: zona de upload -->
               <ng-template #sinArchivo>
                 <div class="doc-upload"
+                     [class.doc-upload--enviando]="subiendoTipo === t.tipo"
                      *ngIf="puedeSubirArchivos"
-                     (click)="fileInput.click()"
+                     (click)="subiendoTipo ? null : fileInput.click()"
                      (drop)="onFileDrop(t.tipo, $event)"
                      (dragover)="onFileDragOver($event)">
                   <input #fileInput type="file" accept=".png,.jpg,.jpeg,.pdf" hidden
                          (change)="subirArchivo(t.tipo, fileInput)" />
-                  <svg lucideIcon="upload-cloud" class="doc-upload__icon"></svg>
-                  <span class="doc-upload__text">Arrastrá un archivo o clickeá para subir</span>
-                  <span class="doc-upload__hint">PNG, JPG o PDF — máximo 10 MB</span>
+                  <div class="doc-upload__spinner" *ngIf="subiendoTipo === t.tipo">
+                    <div class="spinner spinner--sm"></div>
+                  </div>
+                  <svg lucideIcon="upload-cloud" class="doc-upload__icon" *ngIf="subiendoTipo !== t.tipo"></svg>
+                  <span class="doc-upload__text">
+                    {{ subiendoTipo === t.tipo ? 'Subiendo archivo...' : 'Arrastrá un archivo o clickeá para subir' }}
+                  </span>
+                  <span class="doc-upload__hint" *ngIf="subiendoTipo !== t.tipo">PNG, JPG o PDF — máximo 10 MB</span>
                 </div>
               </ng-template>
             </div>
@@ -234,10 +244,14 @@
       <button class="modal__close" (click)="cerrarVistaPrevia()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body modal__body--preview">
-      <img *ngIf="archivoVistaPrevia && esImagen(archivoVistaPrevia.mime_type)"
-           [src]="urlVistaPrevia" alt="Vista previa" class="preview-img" />
-      <iframe *ngIf="archivoVistaPrevia && esPdf(archivoVistaPrevia.mime_type)"
-              [src]="urlVistaPrevia" class="preview-pdf" frameborder="0"></iframe>
+      <div *ngIf="archivoVistaPrevia && !urlsArchivo[archivoVistaPrevia.id]" class="modal__loading">
+        <div class="spinner"></div>
+        <span>Cargando archivo...</span>
+      </div>
+      <img *ngIf="archivoVistaPrevia && esImagen(archivoVistaPrevia.mime_type) && urlsArchivo[archivoVistaPrevia.id]"
+           [src]="urlsArchivo[archivoVistaPrevia.id]" alt="Vista previa" class="preview-img" />
+      <iframe *ngIf="archivoVistaPrevia && esPdf(archivoVistaPrevia.mime_type) && urlsArchivo[archivoVistaPrevia.id]"
+              [src]="urlSeguro(archivoVistaPrevia.id)" class="preview-pdf" frameborder="0"></iframe>
     </div>
     <div class="modal__footer">
       <span class="doc-card__meta" *ngIf="archivoVistaPrevia">
@@ -265,8 +279,8 @@
       <div class="reemplazar-section">
         <span class="reemplazar-section__label">Archivo actual</span>
         <div class="reemplazar-preview" *ngIf="archivoReemplazar">
-          <img *ngIf="esImagen(archivoReemplazar.mime_type)"
-               [src]="archivoService.getUrlDescarga(servicio.id, archivoReemplazar.id)" alt="" class="reemplazar-thumb" />
+          <img *ngIf="esImagen(archivoReemplazar.mime_type) && urlsArchivo[archivoReemplazar.id]"
+               [src]="urlsArchivo[archivoReemplazar.id]" alt="" class="reemplazar-thumb" />
           <div *ngIf="esPdf(archivoReemplazar.mime_type)" class="reemplazar-pdf">
             <svg lucideIcon="file-text"></svg>
             <span>{{ archivoReemplazar.nombre_original }}</span>
@@ -306,11 +320,11 @@
       </p>
     </div>
     <div class="modal__footer">
-      <button class="btn btn--ghost" (click)="cerrarModalReemplazar()" [disabled]="subiendoArchivo">Cancelar</button>
+      <button class="btn btn--ghost" (click)="cerrarModalReemplazar()" [disabled]="reemplazando">Cancelar</button>
       <button class="btn btn--primary" (click)="confirmarReemplazar()"
-              [disabled]="!nuevoArchivoSeleccionado || subiendoArchivo">
-        <span *ngIf="!subiendoArchivo">Reemplazar</span>
-        <span *ngIf="subiendoArchivo">Reemplazando...</span>
+              [disabled]="!nuevoArchivoSeleccionado || reemplazando">
+        <span class="btn-spinner" *ngIf="reemplazando"></span>
+        {{ reemplazando ? 'Reemplazando...' : 'Reemplazar' }}
       </button>
     </div>
   </div>

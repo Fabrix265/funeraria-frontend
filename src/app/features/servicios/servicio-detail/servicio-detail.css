@@ -18,6 +18,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-height: 130px;
+}
+
+.doc-slot > .doc-card,
+.doc-slot > .doc-upload {
+  flex: 1;
 }
 
 .doc-slot__header {
@@ -73,6 +79,20 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.doc-card__thumb-loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.doc-card__thumb-loading svg {
+  width: 18px;
+  height: 18px;
 }
 
 .doc-card__pdf {
@@ -169,6 +189,23 @@
   padding: 1rem 0.75rem;
 }
 
+.doc-upload--enviando {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.doc-upload__spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-upload__spinner .spinner--sm {
+  width: 22px;
+  height: 22px;
+}
+
 .doc-upload__icon {
   width: 24px;
   height: 24px;
@@ -207,6 +244,17 @@
   min-height: 300px;
   max-height: 60vh;
   overflow: hidden;
+}
+
+.modal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .preview-img {
@@ -323,7 +371,7 @@
   font-size: 0.78rem;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 620px) {
   .doc-card {
     flex-wrap: wrap;
   }

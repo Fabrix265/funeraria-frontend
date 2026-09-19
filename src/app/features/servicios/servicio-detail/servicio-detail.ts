@@ -1,9 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { LucideDynamicIcon } from '@lucide/angular';
-import { Servicio } from '../../../core/services/servicio';
+import { Servicio as ServicioService } from '../../../core/services/servicio';
+import { Servicio as ServicioModel } from '../../../core/models/servicio.model';
 import { ArchivoService } from '../../../core/services/archivo';
 import { ServicioArchivo, TipoArchivo } from '../../../core/models/servicio-archivo.model';
 import { ToastService } from '../../../core/services/toast';
@@ -16,19 +18,24 @@ import { puedeActualizar, puedeEliminar as puedeEliminarFn, tienePermiso } from 
   templateUrl: './servicio-detail.html',
   styleUrls: ['./servicio-detail.css'],
 })
-export class ServicioDetail implements OnInit {
+export class ServicioDetail implements OnInit, OnDestroy {
   puedeEditar = puedeActualizar('servicios');
   puedeEliminar = puedeEliminarFn('servicios');
   puedeSubirArchivos = tienePermiso('archivos:subir');
   puedeEditarArchivos = tienePermiso('archivos:editar');
   puedeEliminarArchivos = tienePermiso('archivos:eliminar');
 
-  servicio: any = null;
+  servicio: ServicioModel | null = null;
   cargando = true;
   modalEliminarAbierto = false;
 
   archivos: ServicioArchivo[] = [];
   cargandoArchivos = false;
+
+  // Blob URLs de cada archivo (cargados vía HttpClient para incluir el token)
+  urlsArchivo: Record<number, string> = {};
+  cargandoContenido: Record<number, boolean> = {};
+  subiendoTipo: TipoArchivo | null = null;
 
   tiposArchivo: { tipo: TipoArchivo; label: string; icono: string }[] = [
     { tipo: 'certificado', label: 'Certificado de defunción', icono: 'file-check' },
@@ -39,13 +46,12 @@ export class ServicioDetail implements OnInit {
 
   modalVistaPreviaAbierto = false;
   archivoVistaPrevia: ServicioArchivo | null = null;
-  urlVistaPrevia = '';
 
   modalReemplazarAbierto = false;
   archivoReemplazar: ServicioArchivo | null = null;
   nuevoArchivoSeleccionado: File | null = null;
   nuevoArchivoPreview = '';
-  subiendoArchivo = false;
+  reemplazando = false;
 
   modalEliminarArchivoAbierto = false;
   archivoEliminar: ServicioArchivo | null = null;
@@ -53,11 +59,12 @@ export class ServicioDetail implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private servicioService: Servicio,
+    private servicioService: ServicioService,
     public archivoService: ArchivoService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private toast: ToastService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
@@ -78,13 +85,25 @@ export class ServicioDetail implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.liberarUrls();
+  }
+
+  liberarUrls(): void {
+    Object.values(this.urlsArchivo).forEach((u) => URL.revokeObjectURL(u));
+    this.urlsArchivo = {};
+  }
+
   cargarArchivos(): void {
     if (!this.servicio) return;
     this.cargandoArchivos = true;
     this.archivoService.listar(this.servicio.id).subscribe({
       next: (res) => {
+        this.liberarUrls();
         this.archivos = res.archivos;
         this.cargandoArchivos = false;
+        // Precarga thumbnails de imágenes
+        this.archivos.filter((a) => this.esImagen(a.mime_type)).forEach((a) => this.cargarContenidoArchivo(a));
         this.cdr.detectChanges();
       },
       error: () => {
@@ -95,28 +114,50 @@ export class ServicioDetail implements OnInit {
     });
   }
 
+  cargarContenidoArchivo(archivo: ServicioArchivo): void {
+    if (!this.servicio || this.urlsArchivo[archivo.id] || this.cargandoContenido[archivo.id]) return;
+    this.cargandoContenido[archivo.id] = true;
+    this.cdr.detectChanges();
+    this.archivoService.descargar(this.servicio.id, archivo.id).subscribe({
+      next: (blob) => {
+        this.urlsArchivo[archivo.id] = URL.createObjectURL(blob);
+        this.cargandoContenido[archivo.id] = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargandoContenido[archivo.id] = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  urlSeguro(archivoId: number): SafeResourceUrl | null {
+    const url = this.urlsArchivo[archivoId];
+    return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+  }
+
   obtenerArchivoPorTipo(tipo: TipoArchivo): ServicioArchivo | undefined {
     return this.archivos.find(a => a.tipo === tipo);
   }
 
   subirArchivo(tipo: TipoArchivo, input: HTMLInputElement): void {
     const file = input.files?.[0];
-    if (!file || !this.servicio) return;
+    if (!file || !this.servicio || this.subiendoTipo) return;
 
-    this.subiendoArchivo = true;
+    this.subiendoTipo = tipo;
     this.cdr.detectChanges();
 
     this.archivoService.subir(this.servicio.id, tipo, file).subscribe({
       next: () => {
         this.toast.mostrar('Archivo subido correctamente', 'exito');
-        this.cargarArchivos();
-        this.subiendoArchivo = false;
+        this.subiendoTipo = null;
         input.value = '';
+        this.cargarArchivos();
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.toast.mostrar(e.error?.detail || 'Error al subir archivo', 'error');
-        this.subiendoArchivo = false;
+        this.subiendoTipo = null;
         this.cdr.detectChanges();
       },
     });
@@ -126,21 +167,21 @@ export class ServicioDetail implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     const file = event.dataTransfer?.files[0];
-    if (!file || !this.servicio) return;
+    if (!file || !this.servicio || this.subiendoTipo) return;
 
-    this.subiendoArchivo = true;
+    this.subiendoTipo = tipo;
     this.cdr.detectChanges();
 
     this.archivoService.subir(this.servicio.id, tipo, file).subscribe({
       next: () => {
         this.toast.mostrar('Archivo subido correctamente', 'exito');
+        this.subiendoTipo = null;
         this.cargarArchivos();
-        this.subiendoArchivo = false;
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.toast.mostrar(e.error?.detail || 'Error al subir archivo', 'error');
-        this.subiendoArchivo = false;
+        this.subiendoTipo = null;
         this.cdr.detectChanges();
       },
     });
@@ -152,8 +193,9 @@ export class ServicioDetail implements OnInit {
   }
 
   abrirVistaPrevia(archivo: ServicioArchivo): void {
+    if (!this.servicio) return;
     this.archivoVistaPrevia = archivo;
-    this.urlVistaPrevia = this.archivoService.getUrlDescarga(this.servicio.id, archivo.id);
+    this.cargarContenidoArchivo(archivo);
     this.modalVistaPreviaAbierto = true;
     this.cdr.detectChanges();
   }
@@ -161,7 +203,6 @@ export class ServicioDetail implements OnInit {
   cerrarVistaPrevia(): void {
     this.modalVistaPreviaAbierto = false;
     this.archivoVistaPrevia = null;
-    this.urlVistaPrevia = '';
     this.cdr.detectChanges();
   }
 
@@ -169,6 +210,7 @@ export class ServicioDetail implements OnInit {
     this.archivoReemplazar = archivo;
     this.nuevoArchivoSeleccionado = null;
     this.nuevoArchivoPreview = '';
+    this.cargarContenidoArchivo(archivo);
     this.modalReemplazarAbierto = true;
     this.cdr.detectChanges();
   }
@@ -202,7 +244,7 @@ export class ServicioDetail implements OnInit {
   confirmarReemplazar(): void {
     if (!this.nuevoArchivoSeleccionado || !this.archivoReemplazar || !this.servicio) return;
 
-    this.subiendoArchivo = true;
+    this.reemplazando = true;
     this.cdr.detectChanges();
 
     this.archivoService.reemplazar(
@@ -212,14 +254,14 @@ export class ServicioDetail implements OnInit {
     ).subscribe({
       next: () => {
         this.toast.mostrar('Archivo reemplazado correctamente', 'exito');
+        this.reemplazando = false;
         this.cerrarModalReemplazar();
         this.cargarArchivos();
-        this.subiendoArchivo = false;
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.toast.mostrar(e.error?.detail || 'Error al reemplazar archivo', 'error');
-        this.subiendoArchivo = false;
+        this.reemplazando = false;
         this.cdr.detectChanges();
       },
     });
@@ -246,9 +288,9 @@ export class ServicioDetail implements OnInit {
     this.archivoService.eliminar(this.servicio.id, this.archivoEliminar.id).subscribe({
       next: () => {
         this.toast.mostrar('Archivo eliminado', 'exito');
+        this.eliminandoArchivo = false;
         this.cerrarModalEliminarArchivo();
         this.cargarArchivos();
-        this.eliminandoArchivo = false;
         this.cdr.detectChanges();
       },
       error: (e) => {
@@ -260,8 +302,22 @@ export class ServicioDetail implements OnInit {
   }
 
   descargarArchivo(archivo: ServicioArchivo): void {
-    const url = this.archivoService.getUrlDescarga(this.servicio.id, archivo.id);
-    window.open(url, '_blank');
+    if (!this.servicio) return;
+    this.archivoService.descargar(this.servicio.id, archivo.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = archivo.nombre_original;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      },
+      error: (e) => {
+        this.toast.mostrar(e.error?.detail || 'Error al descargar archivo', 'error');
+      },
+    });
   }
 
   esImagen(mime: string): boolean {

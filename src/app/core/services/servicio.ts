@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { HttpClient, HttpParams } from '@angular/common/http'
 import { ServicioPaginado } from '../models/servicio-paginado.model'
+import { Servicio as ServicioModel } from '../models/servicio.model'
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -24,7 +25,7 @@ export class Servicio {
   }
 
   obtener(id: number) {
-    return this.http.get(`${this.api}/${id}`);
+    return this.http.get<ServicioModel>(`${this.api}/${id}`);
   }
 
   crear(data: any) {

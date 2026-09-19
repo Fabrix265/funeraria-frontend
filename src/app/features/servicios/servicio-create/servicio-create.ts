@@ -274,7 +274,7 @@ export class ServicioCreate implements OnInit {
       });
     } else {
       this.servicioService.crear(payload).subscribe({
-        next: () => this.zone.run(() => this.router.navigate(['/servicios'])),
+        next: (res: any) => this.zone.run(() => this.router.navigate(['/servicios', res.id])),
         error: (err) =>
           this.zone.run(() => {
             this.guardando = false;

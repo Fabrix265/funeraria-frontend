@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
-import { ServicioArchivosResponse } from '../models/servicio-archivo.model'
+import { ServicioArchivosResponse, TipoArchivo } from '../models/servicio-archivo.model'
 import { environment } from '../../../environments/environment'
 
 @Injectable({
@@ -17,7 +17,7 @@ export class ArchivoService {
     )
   }
 
-  subir(servicioId: number, tipo: string, file: File) {
+  subir(servicioId: number, tipo: TipoArchivo, file: File) {
     const formData = new FormData()
     formData.append('tipo', tipo)
     formData.append('file', file)
@@ -32,10 +32,6 @@ export class ArchivoService {
       `${this.api}/services/${servicioId}/archivos/${archivoId}/descargar`,
       { responseType: 'blob' }
     )
-  }
-
-  getUrlDescarga(servicioId: number, archivoId: number): string {
-    return `${this.api}/services/${servicioId}/archivos/${archivoId}/descargar`
   }
 
   reemplazar(servicioId: number, archivoId: number, file: File) {
