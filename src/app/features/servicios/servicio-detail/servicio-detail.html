@@ -136,6 +136,67 @@
         </div>
       </div>
 
+      <!-- Documentos -->
+      <div class="card card--full">
+        <h2 class="card__title"><svg lucideIcon="folder-open"></svg> Documentos</h2>
+        <div class="card__body">
+
+          <div class="table-loader table-loader--sm" *ngIf="cargandoArchivos">
+            <div class="spinner spinner--sm"></div>
+          </div>
+
+          <div class="doc-grid" *ngIf="!cargandoArchivos">
+
+            <div class="doc-slot" *ngFor="let t of tiposArchivo">
+              <div class="doc-slot__header">
+                <svg class="doc-slot__icon" [lucideIcon]="t.icono"></svg>
+                <span class="doc-slot__label">{{ t.label }}</span>
+              </div>
+
+              <!-- Ya tiene archivo -->
+              <ng-container *ngIf="obtenerArchivoPorTipo(t.tipo) as archivo; else sinArchivo">
+                <div class="doc-card">
+                  <div class="doc-card__preview" (click)="abrirVistaPrevia(archivo)">
+                    <img *ngIf="esImagen(archivo.mime_type)" [src]="urlVistaPrevia" alt="" class="doc-card__thumb" />
+                    <div *ngIf="esPdf(archivo.mime_type)" class="doc-card__pdf">
+                      <svg lucideIcon="file-text"></svg>
+                      <span>PDF</span>
+                    </div>
+                  </div>
+                  <div class="doc-card__info">
+                    <span class="doc-card__name" [title]="archivo.nombre_original">{{ archivo.nombre_original }}</span>
+                    <span class="doc-card__meta" *ngIf="archivo.usuario_nombre">Subido por {{ archivo.usuario_nombre }}</span>
+                    <span class="doc-card__meta">{{ archivo.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                  <div class="doc-card__actions">
+                    <button class="doc-action" title="Ver" (click)="abrirVistaPrevia(archivo)"><svg lucideIcon="eye"></svg></button>
+                    <button class="doc-action" title="Descargar" (click)="descargarArchivo(archivo)"><svg lucideIcon="download"></svg></button>
+                    <button class="doc-action" title="Reemplazar" *ngIf="puedeEditarArchivos" (click)="abrirModalReemplazar(archivo)"><svg lucideIcon="replace"></svg></button>
+                    <button class="doc-action doc-action--danger" title="Eliminar" *ngIf="puedeEliminarArchivos" (click)="abrirModalEliminarArchivo(archivo)"><svg lucideIcon="trash-2"></svg></button>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Sin archivo: zona de upload -->
+              <ng-template #sinArchivo>
+                <div class="doc-upload"
+                     *ngIf="puedeSubirArchivos"
+                     (click)="fileInput.click()"
+                     (drop)="onFileDrop(t.tipo, $event)"
+                     (dragover)="onFileDragOver($event)">
+                  <input #fileInput type="file" accept=".png,.jpg,.jpeg,.pdf" hidden
+                         (change)="subirArchivo(t.tipo, fileInput)" />
+                  <svg lucideIcon="upload-cloud" class="doc-upload__icon"></svg>
+                  <span class="doc-upload__text">Arrastrá un archivo o clickeá para subir</span>
+                  <span class="doc-upload__hint">PNG, JPG o PDF — máximo 10 MB</span>
+                </div>
+              </ng-template>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </ng-container>
@@ -160,6 +221,121 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Modal: Vista previa de archivo ─────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="modalVistaPreviaAbierto" (click)="cerrarVistaPrevia()">
+  <div class="modal modal--lg" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">{{ getNombreTipo(archivoVistaPrevia?.tipo!) }}</h2>
+      <button class="modal__close" (click)="cerrarVistaPrevia()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body modal__body--preview">
+      <img *ngIf="archivoVistaPrevia && esImagen(archivoVistaPrevia.mime_type)"
+           [src]="urlVistaPrevia" alt="Vista previa" class="preview-img" />
+      <iframe *ngIf="archivoVistaPrevia && esPdf(archivoVistaPrevia.mime_type)"
+              [src]="urlVistaPrevia" class="preview-pdf" frameborder="0"></iframe>
+    </div>
+    <div class="modal__footer">
+      <span class="doc-card__meta" *ngIf="archivoVistaPrevia">
+        {{ archivoVistaPrevia.nombre_original }} — Subido por {{ archivoVistaPrevia.usuario_nombre }}
+      </span>
+      <button class="btn btn--primary" (click)="descargarArchivo(archivoVistaPrevia!)">
+        <svg lucideIcon="download"></svg> Descargar
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Modal: Reemplazar archivo ─────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="modalReemplazarAbierto" (click)="cerrarModalReemplazar()">
+  <div class="modal modal--md" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Reemplazar archivo</h2>
+      <button class="modal__close" (click)="cerrarModalReemplazar()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__subtitle">{{ getNombreTipo(archivoReemplazar?.tipo!) }}</p>
+
+      <!-- Archivo actual -->
+      <div class="reemplazar-section">
+        <span class="reemplazar-section__label">Archivo actual</span>
+        <div class="reemplazar-preview" *ngIf="archivoReemplazar">
+          <img *ngIf="esImagen(archivoReemplazar.mime_type)"
+               [src]="archivoService.getUrlDescarga(servicio.id, archivoReemplazar.id)" alt="" class="reemplazar-thumb" />
+          <div *ngIf="esPdf(archivoReemplazar.mime_type)" class="reemplazar-pdf">
+            <svg lucideIcon="file-text"></svg>
+            <span>{{ archivoReemplazar.nombre_original }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reemplazar-divider"></div>
+
+      <!-- Nuevo archivo -->
+      <div class="reemplazar-section">
+        <span class="reemplazar-section__label">Nuevo archivo</span>
+        <div class="doc-upload doc-upload--sm"
+             *ngIf="!nuevoArchivoSeleccionado"
+             (click)="nuevoFileInput.click()"
+             (drop)="onNuevoArchivoDrop($event)"
+             (dragover)="onFileDragOver($event)">
+          <input #nuevoFileInput type="file" accept=".png,.jpg,.jpeg,.pdf" hidden
+                 (change)="seleccionarNuevoArchivo(nuevoFileInput)" />
+          <svg lucideIcon="upload-cloud" class="doc-upload__icon"></svg>
+          <span class="doc-upload__text">Arrastrá o clickeá para elegir</span>
+        </div>
+        <div class="reemplazar-preview reemplazar-preview--nuevo" *ngIf="nuevoArchivoSeleccionado">
+          <img *ngIf="nuevoArchivoPreview" [src]="nuevoArchivoPreview" alt="" class="reemplazar-thumb" />
+          <div class="reemplazar-info">
+            <span class="doc-card__name">{{ nuevoArchivoSeleccionado.name }}</span>
+            <button class="btn btn--ghost btn--sm" (click)="nuevoArchivoSeleccionado = null; nuevoArchivoPreview = ''">
+              <svg lucideIcon="x"></svg> Cambiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p class="modal__warn modal__warn--sm" *ngIf="nuevoArchivoSeleccionado">
+        <svg lucideIcon="alert-triangle"></svg>
+        Se eliminará el archivo actual y se reemplazará con el nuevo.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalReemplazar()" [disabled]="subiendoArchivo">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarReemplazar()"
+              [disabled]="!nuevoArchivoSeleccionado || subiendoArchivo">
+        <span *ngIf="!subiendoArchivo">Reemplazar</span>
+        <span *ngIf="subiendoArchivo">Reemplazando...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Modal: Eliminar archivo ────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="modalEliminarArchivoAbierto" (click)="cerrarModalEliminarArchivo()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">Eliminar archivo</h2>
+      <button class="modal__close" (click)="cerrarModalEliminarArchivo()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        ¿Eliminar <strong>{{ archivoEliminar?.nombre_original }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalEliminarArchivo()" [disabled]="eliminandoArchivo">Cancelar</button>
+      <button class="btn btn--danger" (click)="confirmarEliminarArchivo()" [disabled]="eliminandoArchivo">
+        <span *ngIf="!eliminandoArchivo">Eliminar</span>
+        <span *ngIf="eliminandoArchivo">Eliminando...</span>
+      </button>
     </div>
   </div>
 </div>

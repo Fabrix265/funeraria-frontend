@@ -1,1 +1,335 @@
-/* Estilos de detalle del servicio - pagos y pasajeros eliminados */
+/* ===== Document grid ===== */
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 700px) {
+  .doc-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== Document slot ===== */
+.doc-slot {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.doc-slot__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.doc-slot__icon {
+  width: 16px;
+  height: 16px;
+  color: var(--silver);
+  flex-shrink: 0;
+}
+
+.doc-slot__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+/* ===== Document card (has file) ===== */
+.doc-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem;
+}
+
+.doc-card__preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  transition: border-color var(--transition);
+}
+
+.doc-card__preview:hover {
+  border-color: var(--border-2);
+}
+
+.doc-card__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doc-card__pdf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+}
+
+.doc-card__pdf svg {
+  width: 20px;
+  height: 20px;
+  color: var(--danger);
+}
+
+.doc-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doc-card__name {
+  font-size: 0.82rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-card__meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.doc-card__actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.doc-action {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+
+.doc-action svg {
+  width: 14px;
+  height: 14px;
+}
+
+.doc-action:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.doc-action--danger:hover {
+  background: rgba(176, 48, 48, 0.15);
+  color: #d08080;
+  border-color: rgba(176, 48, 48, 0.3);
+}
+
+/* ===== Upload zone ===== */
+.doc-upload {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.doc-upload:hover {
+  border-color: var(--border-2);
+  background: var(--bg-hover);
+}
+
+.doc-upload--sm {
+  padding: 1rem 0.75rem;
+}
+
+.doc-upload__icon {
+  width: 24px;
+  height: 24px;
+  color: var(--text-muted);
+}
+
+.doc-upload__text {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.doc-upload__hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* ===== Modal sizes ===== */
+.modal--md { max-width: 540px; }
+.modal--lg { max-width: 720px; }
+
+.modal__subtitle {
+  font-size: 0.85rem;
+  color: var(--silver);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* ===== Modal preview ===== */
+.modal__body--preview {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  max-height: 60vh;
+  overflow: hidden;
+}
+
+.preview-img {
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.preview-pdf {
+  width: 100%;
+  height: 60vh;
+  border-radius: 4px;
+}
+
+/* ===== Replace modal ===== */
+.reemplazar-section {
+  margin-bottom: 0.75rem;
+}
+
+.reemplazar-section__label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reemplazar-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+}
+
+.reemplazar-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.reemplazar-pdf {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.reemplazar-pdf svg {
+  width: 20px;
+  height: 20px;
+  color: var(--danger);
+}
+
+.reemplazar-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+}
+
+.reemplazar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.75rem 0;
+}
+
+.reemplazar-preview--nuevo {
+  border-color: var(--success);
+}
+
+.modal__warn svg {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 0.3rem;
+}
+
+.modal__warn--sm {
+  font-size: 0.82rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(176, 48, 48, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(176, 48, 48, 0.2);
+}
+
+/* ===== Modal footer inline text ===== */
+.modal__footer .doc-card__meta {
+  margin-right: auto;
+}
+
+/* ===== Spinner small ===== */
+.table-loader--sm {
+  padding: 1rem;
+  text-align: center;
+}
+
+.spinner--sm {
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+}
+
+.btn--sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 500px) {
+  .doc-card {
+    flex-wrap: wrap;
+  }
+  .doc-card__actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+  }
+}
