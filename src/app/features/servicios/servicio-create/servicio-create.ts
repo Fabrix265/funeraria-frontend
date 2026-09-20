@@ -5,9 +5,13 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { LucideDynamicIcon } from '@lucide/angular';
 import { Servicio } from '../../../core/services/servicio';
+import { ArchivoService } from '../../../core/services/archivo';
+import { ToastService } from '../../../core/services/toast';
+import { TipoArchivo } from '../../../core/models/servicio-archivo.model';
+import { tienePermiso } from '../../../core/utils/auth.utils';
 import { environment } from '../../../../environments/environment';
 import { ReniecService, ReniecResponse } from '../../../core/services/reniec';
-import { forkJoin } from 'rxjs';
+import { forkJoin, concat } from 'rxjs';
 
 @Component({
   selector: 'app-servicio-create',
@@ -26,8 +30,6 @@ export class ServicioCreate implements OnInit {
   esEdicion = false;
   idEditar: number | null = null;
   guardando = false;
-  mensaje = '';
-  tipoMensaje: 'exito' | 'error' = 'exito';
 
   iaMeta: any = null;
 
@@ -47,6 +49,18 @@ export class ServicioCreate implements OnInit {
   readonly tiposPago = ['directo', 'seguro', 'mixto'];
 
   readonly fechaMinima: string = new Date().toISOString().split('T')[0];
+
+  puedeSubirArchivos = tienePermiso('archivos:subir');
+
+  readonly tiposDocumento: { tipo: TipoArchivo; etiqueta: string; icono: string }[] = [
+    { tipo: 'certificado', etiqueta: 'Certificado de defunción', icono: 'file-check' },
+    { tipo: 'acta', etiqueta: 'Acta de defunción', icono: 'scroll' },
+    { tipo: 'dni_contratante', etiqueta: 'DNI del contratante', icono: 'id-card' },
+    { tipo: 'dni_fallecido', etiqueta: 'DNI del fallecido', icono: 'id-card' },
+  ];
+
+  archivosSeleccionados: Partial<Record<TipoArchivo, File>> = {};
+  subiendoArchivos = false;
 
   private readonly NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
   private readonly DIRECCION_REGEX = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*(?:\s+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-,#]*)*$/;
@@ -78,12 +92,14 @@ export class ServicioCreate implements OnInit {
 
   constructor(
     private servicioService: Servicio,
+    private archivoService: ArchivoService,
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
     private reniecService: ReniecService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -131,6 +147,8 @@ export class ServicioCreate implements OnInit {
           if (this.esEdicion && this.idEditar) {
             this.cargarDatos(this.idEditar);
           }
+
+          this.cdr.detectChanges();
         });
       },
     });
@@ -204,38 +222,53 @@ export class ServicioCreate implements OnInit {
     }
   }
 
-  guardar(): void {
-    if (!this.fallecidoVerificado) {
-      this.mostrarMensaje('Verifica el DNI del Fallecido con RENIEC antes de continuar', 'error');
-      return;
-    }
-    if (!this.contratanteVerificado) {
-      this.mostrarMensaje('Verifica el DNI del Contratante con RENIEC antes de continuar', 'error');
-      return;
-    }
+  private camposFaltantes(): string[] {
+    const faltantes: string[] = [];
 
-    if (!this.form.direccion_velacion || !this.form.fecha || !this.form.id_capilla) {
-      this.mostrarMensaje('Completa los campos requeridos: dirección, fecha y capilla', 'error');
-      return;
+    if (!this.form.direccion_velacion || !this.validarDireccion(this.form.direccion_velacion)) {
+      faltantes.push('Dirección de velación');
     }
-
-    if (!this.validarDireccion(this.form.direccion_velacion)) {
-      this.mostrarMensaje('La dirección contiene caracteres no permitidos', 'error');
-      return;
-    }
-
     if (!this.form.fecha || !this.validarFecha(this.form.fecha)) {
-      this.errorFecha = 'La fecha no puede ser anterior al día de hoy';
-      this.mostrarMensaje('La fecha del servicio no puede ser anterior al día de hoy', 'error');
+      faltantes.push('Fecha');
+    }
+    if (!this.form.costo || Number(this.form.costo) < 100 || (Number(this.form.costo) - 100) % 10 !== 0) {
+      faltantes.push('Costo');
+    }
+    if (!this.form.id_capilla) {
+      faltantes.push('Capilla');
+    }
+    if (!this.form.fallecido.dni_fallecido) {
+      faltantes.push('DNI del fallecido');
+    } else if (!this.fallecidoVerificado) {
+      faltantes.push('Verificación del DNI del fallecido');
+    }
+    if (!this.form.contratante.dni) {
+      faltantes.push('DNI del contratante');
+    } else if (!this.contratanteVerificado) {
+      faltantes.push('Verificación del DNI del contratante');
+    }
+    if (!this.form.contratante.telefono || !/^[0-9]{9}$/.test(this.form.contratante.telefono)) {
+      faltantes.push('Teléfono del contratante');
+    }
+
+    return faltantes;
+  }
+
+  guardar(): void {
+    if (this.guardando) return;
+
+    const faltantes = this.camposFaltantes();
+    if (faltantes.length > 0) {
+      this.toast.mostrar(`Faltan los siguientes datos: ${faltantes.join(', ')}.`, 'error');
       return;
     }
 
     if (!this.validarNombre(this.form.fallecido.nombre)) {
-      this.mostrarMensaje('El nombre del fallecido contiene caracteres no permitidos', 'error');
+      this.toast.mostrar('El nombre del fallecido contiene caracteres no permitidos', 'error');
       return;
     }
     if (!this.validarNombre(this.form.contratante.nombre)) {
-      this.mostrarMensaje('El nombre del contratante contiene caracteres no permitidos', 'error');
+      this.toast.mostrar('El nombre del contratante contiene caracteres no permitidos', 'error');
       return;
     }
 
@@ -269,33 +302,83 @@ export class ServicioCreate implements OnInit {
         error: (err) =>
           this.zone.run(() => {
             this.guardando = false;
-            this.mostrarMensaje(err.error?.detail || 'Error al actualizar el servicio', 'error');
+            this.toast.mostrar(err.error?.detail || 'Error al actualizar el servicio', 'error');
           }),
       });
     } else {
       this.servicioService.crear(payload).subscribe({
-        next: () => this.zone.run(() => this.router.navigate(['/servicios'])),
+        next: (res: any) => this.zone.run(() => this.subirDocumentosDelServicio(res)),
         error: (err) =>
           this.zone.run(() => {
             this.guardando = false;
-            this.mostrarMensaje(err.error?.detail || 'Error al crear el servicio', 'error');
+            this.toast.mostrar(err.error?.detail || 'Error al crear el servicio', 'error');
           }),
       });
     }
   }
 
-  mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
-    this.mensaje = texto;
-    this.tipoMensaje = tipo;
-    setTimeout(() => {
-      this.mensaje = '';
-    }, 3500);
+  private subirDocumentosDelServicio(res: any): void {
+    const id = Number(res.id);
+    const tipos = Object.keys(this.archivosSeleccionados) as TipoArchivo[];
+
+    if (!id || tipos.length === 0) {
+      this.router.navigate(['/servicios', id]);
+      return;
+    }
+
+    this.subiendoArchivos = true;
+    this.cdr.detectChanges();
+
+    concat(
+      ...tipos.map((tipo) => {
+        const file = this.archivosSeleccionados[tipo]!;
+        return this.archivoService.subir(id, tipo, file);
+      })
+    ).subscribe({
+      complete: () => {
+        this.subiendoArchivos = false;
+        this.router.navigate(['/servicios', id]);
+      },
+      error: () => {
+        this.subiendoArchivos = false;
+        this.toast.mostrar('Servicio creado, pero hubo un error al subir algún archivo', 'error');
+        this.router.navigate(['/servicios', id]);
+      },
+    });
+  }
+
+  onArchivoSeleccionado(tipo: TipoArchivo, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      this.toast.mostrar('El archivo supera el máximo de 10 MB', 'error');
+      return;
+    }
+    const permitidos = ['image/png', 'image/jpeg', 'application/pdf'];
+    if (!permitidos.includes(file.type)) {
+      this.toast.mostrar('Solo se permiten archivos PNG, JPG o PDF', 'error');
+      return;
+    }
+
+    this.archivosSeleccionados[tipo] = file;
+  }
+
+  quitarArchivoSeleccionado(tipo: TipoArchivo): void {
+    delete this.archivosSeleccionados[tipo];
+  }
+
+  docSeleccionado(tipo: TipoArchivo): boolean {
+    return !!this.archivosSeleccionados[tipo];
   }
 
   verificarFallecido(): void {
     const dni = this.form.fallecido.dni_fallecido;
     if (!dni || dni.length !== 8) {
-      this.mostrarMensaje('Ingresa un DNI válido de 8 dígitos para el fallecido', 'error');
+      this.toast.mostrar('Ingresa un DNI válido de 8 dígitos para el fallecido', 'error');
       return;
     }
 
@@ -311,7 +394,7 @@ export class ServicioCreate implements OnInit {
         this.verificandoFallecido = false;
         this._dniFallecidoVerificado = this.form.fallecido.dni_fallecido;
         this.cdr.detectChanges();
-        this.mostrarMensaje(`✓ Fallecido verificado: ${data.nombre_completo}`, 'exito');
+        this.toast.mostrar(`✓ Fallecido verificado: ${data.nombre_completo}`, 'exito');
       },
       error: (err) => {
         this.form.fallecido.nombre = '';
@@ -326,7 +409,7 @@ export class ServicioCreate implements OnInit {
   verificarContratante(): void {
     const dni = this.form.contratante.dni;
     if (!dni || dni.length !== 8) {
-      this.mostrarMensaje('Ingresa un DNI válido de 8 dígitos para el contratante', 'error');
+      this.toast.mostrar('Ingresa un DNI válido de 8 dígitos para el contratante', 'error');
       return;
     }
 
@@ -342,7 +425,7 @@ export class ServicioCreate implements OnInit {
         this.verificandoContratante = false;
         this._dniContratanteVerificado = this.form.contratante.dni;
         this.cdr.detectChanges();
-        this.mostrarMensaje(`✓ Contratante verificado: ${data.nombre_completo}`, 'exito');
+        this.toast.mostrar(`✓ Contratante verificado: ${data.nombre_completo}`, 'exito');
       },
       error: (err) => {
         this.form.contratante.nombre = '';
@@ -411,21 +494,6 @@ export class ServicioCreate implements OnInit {
   }
 
   get formValido(): boolean {
-    return !!(
-      this.form.direccion_velacion &&
-      this.validarDireccion(this.form.direccion_velacion) &&
-      this.form.fecha &&
-      this.validarFecha(this.form.fecha) &&
-      this.form.costo &&
-      Number(this.form.costo) >= 100 &&
-      (Number(this.form.costo) - 100) % 10 === 0 &&
-      this.form.id_capilla &&
-      this.form.fallecido.dni_fallecido &&
-      this.fallecidoVerificado &&
-      this.form.contratante.dni &&
-      this.contratanteVerificado &&
-      this.form.contratante.telefono &&
-      /^[0-9]{9}$/.test(this.form.contratante.telefono)
-    );
+    return this.camposFaltantes().length === 0;
   }
 }
