@@ -1,9 +1,13 @@
+/* ===== Detail layout: fallecido/contratante/capilla/ataud en 2x2 ===== */
+.detail-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 /* ===== Document grid ===== */
 .doc-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
-  max-width: 720px;
 }
 
 /* ===== Document slot ===== */

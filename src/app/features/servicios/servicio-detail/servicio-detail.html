@@ -23,7 +23,7 @@
     <div class="detail-grid">
 
       <!-- Datos del servicio -->
-      <div class="card">
+      <div class="card card--full">
         <h2 class="card__title"><svg lucideIcon="file-text"></svg> Datos del servicio</h2>
         <div class="card__body">
           <div class="info-row">
@@ -53,11 +53,11 @@
         <div class="card__body">
           <div class="info-row">
             <span class="info-label">Nombre</span>
-            <span class="info-value">{{ servicio.fallecido?.nombre }}</span>
+            <span class="info-value">{{ servicio.fallecido.nombre }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">DNI</span>
-            <span class="info-value info-value--mono">{{ servicio.fallecido?.dni_fallecido }}</span>
+            <span class="info-value info-value--mono">{{ servicio.fallecido.dni_fallecido }}</span>
           </div>
         </div>
       </div>
@@ -68,15 +68,15 @@
         <div class="card__body">
           <div class="info-row">
             <span class="info-label">Nombre</span>
-            <span class="info-value">{{ servicio.contratante?.nombre }}</span>
+            <span class="info-value">{{ servicio.contratante.nombre }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">DNI</span>
-            <span class="info-value info-value--mono">{{ servicio.contratante?.dni }}</span>
+            <span class="info-value info-value--mono">{{ servicio.contratante.dni }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Teléfono</span>
-            <span class="info-value">{{ servicio.contratante?.telefono }}</span>
+            <span class="info-value">{{ servicio.contratante.telefono }}</span>
           </div>
         </div>
       </div>
@@ -87,7 +87,7 @@
         <div class="card__body">
           <div class="info-row">
             <span class="info-label">Modelo</span>
-            <span class="info-value">{{ servicio.capilla?.modelo }}</span>
+            <span class="info-value">{{ servicio.capilla.modelo }}</span>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@
       <div class="card card--full">
         <h2 class="card__title"><svg lucideIcon="car"></svg> Vehículos asignados</h2>
         <div class="card__body">
-          <div class="vehiculos-list" *ngIf="servicio.vehiculos_asignados?.length; else sinVehiculos">
+          <div class="vehiculos-list" *ngIf="servicio.vehiculos_asignados.length; else sinVehiculos">
             <div class="vehiculo-item" *ngFor="let v of servicio.vehiculos_asignados">
               <span class="v-badge" [ngClass]="'v-badge--' + v.tipo">
                 <span class="v-badge__dot"></span>
