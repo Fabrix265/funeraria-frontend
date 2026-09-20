@@ -335,7 +335,7 @@ export class ServicioCreate implements OnInit {
         return this.archivoService.subir(id, tipo, file);
       })
     ).subscribe({
-      next: () => {
+      complete: () => {
         this.subiendoArchivos = false;
         this.router.navigate(['/servicios', id]);
       },
