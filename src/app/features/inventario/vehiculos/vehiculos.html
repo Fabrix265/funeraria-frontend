@@ -51,7 +51,7 @@
     </div>
 
     <div class="vehiculos-grid" *ngIf="!cargando && vehiculos.length > 0">
-      <div class="vehiculo-card" *ngFor="let v of vehiculos" [class.vehiculo-card--inactivo]="!v.activo">
+      <div class="vehiculo-card" *ngFor="let v of vehiculosPaginados" [class.vehiculo-card--inactivo]="!v.activo">
 
         <div class="vehiculo-card__media" (click)="puedeEditar ? abrirModalImagenes(v) : null">
           <img *ngIf="v.imagenes?.length" [src]="v.imagenes[0].url" alt="{{ etiqueta(v.tipo) }}" />
@@ -85,6 +85,19 @@
         </div>
 
       </div>
+    </div>
+        <div class="paginacion" *ngIf="!cargando && vehiculos.length > 0">
+      <button class="btn btn--ghost" [disabled]="paginaActual === 1" (click)="paginaAnterior()">
+        <svg lucideIcon="arrow-left" style="width:14px;height:14px"></svg> Anterior
+      </button>
+
+      <span class="paginacion__info">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+
+      <span class="paginacion__total">{{ vehiculos.length }} vehículo(s) en total</span>
+
+      <button class="btn btn--ghost" [disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()">
+        Siguiente <svg lucideIcon="arrow-right" style="width:14px;height:14px"></svg>
+      </button>
     </div>
   </section>
 

@@ -54,12 +54,14 @@ export class Vehiculos implements OnInit {
   modalEliminarAbierto = false;
   vehiculoEliminar: Vehiculo | null = null;
 
-  // --- Imágenes ---
   modalImagenesAbierto = false;
   vehiculoImagenes: Vehiculo | null = null;
   previewIndex = 0;
   subiendoImagen = false;
   zoomAbierto = false;
+
+  paginaActual = 1;
+  readonly porPagina = 10;
 
   constructor(
     private vehiculoService: VehiculoService,
@@ -75,6 +77,7 @@ export class Vehiculos implements OnInit {
     this.vehiculoService.listar(undefined, this.filtroActivo).subscribe({
       next: (data) => {
         this.vehiculos = data;
+        this.paginaActual = 1;
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -271,5 +274,27 @@ export class Vehiculos implements OnInit {
 
   cerrarZoom(): void {
     this.zoomAbierto = false;
+  }
+
+  get vehiculosPaginados(): Vehiculo[] {
+    const inicio = (this.paginaActual - 1) * this.porPagina;
+    return this.vehiculos.slice(inicio, inicio + this.porPagina);
+  }
+
+  get totalPaginas(): number {
+    return Math.max(1, Math.ceil(this.vehiculos.length / this.porPagina));
+  }
+
+  irAPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+  }
+
+  paginaAnterior(): void {
+    this.irAPagina(this.paginaActual - 1);
+  }
+
+  paginaSiguiente(): void {
+    this.irAPagina(this.paginaActual + 1);
   }
 }
