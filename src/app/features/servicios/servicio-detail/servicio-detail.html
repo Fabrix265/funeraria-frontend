@@ -221,8 +221,11 @@
       </p>
     </div>
     <div class="modal__footer">
-      <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
-      <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+      <button class="btn btn--ghost" (click)="cerrarModalEliminar()" [disabled]="eliminando">Cancelar</button>
+      <button class="btn btn--danger" (click)="confirmarEliminar()" [disabled]="eliminando">
+        <span *ngIf="!eliminando">Eliminar</span>
+        <span *ngIf="eliminando">Eliminando...</span>
+      </button>
     </div>
   </div>
 </div>

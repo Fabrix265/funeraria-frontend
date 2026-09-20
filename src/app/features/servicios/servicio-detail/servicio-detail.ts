@@ -28,6 +28,7 @@ export class ServicioDetail implements OnInit, OnDestroy {
   servicio: ServicioModel | null = null;
   cargando = true;
   modalEliminarAbierto = false;
+  eliminando = false;
 
   archivos: ServicioArchivo[] = [];
   cargandoArchivos = false;
@@ -337,12 +338,14 @@ export class ServicioDetail implements OnInit, OnDestroy {
 
   confirmarEliminar(): void {
     if (!this.servicio) return;
+    this.eliminando = true;
     this.servicioService.eliminar(this.servicio.id).subscribe({
       next: () => {
         this.toast.mostrar('Servicio eliminado', 'exito');
         setTimeout(() => this.router.navigate(['/servicios']), 1200);
       },
       error: (e) => {
+        this.eliminando = false;
         this.toast.mostrar(e.error?.detail || 'Error al eliminar servicio', 'error');
         this.cerrarModalEliminar();
       },
