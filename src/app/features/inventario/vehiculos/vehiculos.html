@@ -104,7 +104,7 @@
     </div>
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn btn--primary" (click)="guardar()">{{ modoEdicion ? 'Guardar cambios' : 'Crear' }}</button>
+      <button class="btn btn--primary" (click)="guardar()" [disabled]="!form.tipo">{{ modoEdicion ? 'Guardar cambios' : 'Crear' }}</button>
     </div>
   </div>
 </div>
