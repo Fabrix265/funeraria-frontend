@@ -54,6 +54,13 @@ export class Vehiculos implements OnInit {
   modalEliminarAbierto = false;
   vehiculoEliminar: Vehiculo | null = null;
 
+  // --- Imágenes ---
+  modalImagenesAbierto = false;
+  vehiculoImagenes: Vehiculo | null = null;
+  previewIndex = 0;
+  subiendoImagen = false;
+  zoomAbierto = false;
+
   constructor(
     private vehiculoService: VehiculoService,
     private cdr: ChangeDetectorRef,
@@ -186,5 +193,83 @@ export class Vehiculos implements OnInit {
   limpiarFiltros(): void {
     this.filtroActivo = 'true';
     this.cargar();
+  }
+
+  // --- Imágenes ---
+
+  abrirModalImagenes(v: Vehiculo): void {
+    this.vehiculoImagenes = v;
+    this.previewIndex = 0;
+    this.modalImagenesAbierto = true;
+  }
+
+  cerrarModalImagenes(): void {
+    this.modalImagenesAbierto = false;
+    this.vehiculoImagenes = null;
+  }
+
+  seleccionarPreview(index: number): void {
+    this.previewIndex = index;
+  }
+
+  onArchivoSeleccionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || !this.vehiculoImagenes) return;
+
+    const archivo = input.files[0];
+    this.subiendoImagen = true;
+    this.vehiculoService.agregarImagen(this.vehiculoImagenes.id, archivo).subscribe({
+      next: (vehiculoActualizado) => {
+        this.vehiculoImagenes = vehiculoActualizado;
+        this.actualizarEnLista(vehiculoActualizado);
+        this.previewIndex = vehiculoActualizado.imagenes.length - 1;
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  eliminarImagenActual(): void {
+    if (!this.vehiculoImagenes) return;
+    const imagen = this.vehiculoImagenes.imagenes[this.previewIndex];
+    if (!imagen) return;
+
+    this.vehiculoService.eliminarImagen(this.vehiculoImagenes.id, imagen.id).subscribe({
+      next: (vehiculoActualizado) => {
+        this.vehiculoImagenes = vehiculoActualizado;
+        this.actualizarEnLista(vehiculoActualizado);
+        if (this.previewIndex >= vehiculoActualizado.imagenes.length) {
+          this.previewIndex = Math.max(0, vehiculoActualizado.imagenes.length - 1);
+        }
+        this.mostrarMensaje('Imagen eliminada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al eliminar imagen', 'error');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private actualizarEnLista(vehiculoActualizado: Vehiculo): void {
+    const idx = this.vehiculos.findIndex((v) => v.id === vehiculoActualizado.id);
+    if (idx !== -1) this.vehiculos[idx] = vehiculoActualizado;
+  }
+
+  abrirZoom(): void {
+    if (!this.vehiculoImagenes?.imagenes?.length) return;
+    this.zoomAbierto = true;
+  }
+
+  cerrarZoom(): void {
+    this.zoomAbierto = false;
   }
 }
