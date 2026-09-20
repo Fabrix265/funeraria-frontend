@@ -38,11 +38,7 @@
           />
           <svg lucideIcon="chevron-down" class="filtro-combo__arrow"></svg>
           <ul class="filtro-dropdown" *ngIf="mostrarDropModelo && modelosFiltrados.length">
-            <li
-              *ngFor="let m of modelosFiltrados"
-              class="filtro-dropdown__item"
-              (mousedown)="seleccionarModelo(m)"
-            >{{ m }}</li>
+            <li *ngFor="let m of modelosFiltrados" class="filtro-dropdown__item" (mousedown)="seleccionarModelo(m)">{{ m }}</li>
           </ul>
         </div>
       </div>
@@ -61,11 +57,7 @@
           />
           <svg lucideIcon="chevron-down" class="filtro-combo__arrow"></svg>
           <ul class="filtro-dropdown" *ngIf="mostrarDropColor && coloresFiltrados.length">
-            <li
-              *ngFor="let c of coloresFiltrados"
-              class="filtro-dropdown__item"
-              (mousedown)="seleccionarColor(c)"
-            >{{ c }}</li>
+            <li *ngFor="let c of coloresFiltrados" class="filtro-dropdown__item" (mousedown)="seleccionarColor(c)">{{ c }}</li>
           </ul>
         </div>
       </div>
@@ -87,76 +79,144 @@
     </div>
   </section>
 
-  <section class="table-section">
-    <div class="table-loader" *ngIf="cargando">
-      <div class="spinner"></div>
+  <div class="table-loader" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="empty-state" *ngIf="!cargando && ataudes.length === 0">
+    <svg lucideIcon="box" class="empty-state__icon"></svg>
+    <p>No se encontraron ataúdes</p>
+  </div>
+
+  <section class="maestro-detalle" *ngIf="!cargando && ataudes.length > 0">
+
+    <div class="lista-panel">
+      <div
+        class="ataud-row"
+        *ngFor="let a of ataudes"
+        [class.ataud-row--activo]="ataudSeleccionado?.id === a.id"
+        [class.ataud-row--inactivo]="!a.activo"
+        (click)="seleccionarAtaud(a)"
+      >
+        <div class="ataud-row__main">
+          <span class="ataud-row__modelo">{{ a.modelo }}</span>
+          <span class="color-chip">
+            <span class="color-chip__dot" [style.background]="a.color.toLowerCase()"></span>
+            {{ a.color }}
+          </span>
+        </div>
+        <div class="ataud-row__side">
+          <span class="stock-num" [class.stock-num--low]="a.stock < 3">{{ a.stock }}</span>
+          <span class="ataud-row__alerta" *ngIf="a.activo && (a.imagenes?.length || 0) < MINIMO_IMAGENES" title="Faltan imágenes">!</span>
+        </div>
+      </div>
     </div>
 
-    <div class="empty-state" *ngIf="!cargando && ataudes.length === 0">
-      <svg lucideIcon="box" class="empty-state__icon"></svg>
-      <p>No se encontraron ataúdes</p>
+    <div class="detalle-panel" *ngIf="ataudSeleccionado; else sinSeleccion">
+
+      <div class="detalle-panel__header">
+        <div>
+          <h2 class="detalle-panel__titulo">{{ ataudSeleccionado.modelo }}</h2>
+          <span class="detalle-panel__id">#{{ ataudSeleccionado.id }}</span>
+        </div>
+        <div class="detalle-panel__acciones" *ngIf="puedeEditar || puedeEliminar">
+          <label class="switch" [class.switch--active]="ataudSeleccionado.activo" (click)="toggleActivo()" *ngIf="puedeEditar">
+            <span class="switch__track"></span>
+            <span class="switch__thumb"></span>
+          </label>
+          <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar()">
+            <svg lucideIcon="trash-2"></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="detalle-panel__body">
+
+        <div class="detalle-media">
+          <div class="detalle-preview" *ngIf="ataudSeleccionado.imagenes?.length; else previewVacio" (click)="abrirZoom()">
+            <img [src]="ataudSeleccionado.imagenes[previewIndex]?.url" alt="{{ ataudSeleccionado.modelo }}" />
+            <button class="detalle-preview__eliminar" title="Eliminar esta imagen" *ngIf="puedeEditar" (click)="eliminarImagenActual(); $event.stopPropagation()">
+              <svg lucideIcon="trash-2"></svg>
+            </button>
+          </div>
+          <ng-template #previewVacio>
+            <div class="detalle-preview detalle-preview--vacio">
+              <svg lucideIcon="box"></svg>
+              <span>Aún no hay imágenes</span>
+            </div>
+          </ng-template>
+
+          <p class="detalle-media__contador" [class.detalle-media__contador--alerta]="(ataudSeleccionado.imagenes?.length || 0) < MINIMO_IMAGENES">
+            {{ ataudSeleccionado.imagenes?.length || 0 }} / {{ MINIMO_IMAGENES }} mínimo requeridas
+          </p>
+
+          <div class="detalle-tira" *ngIf="puedeEditar">
+            <div
+              class="detalle-tira__item"
+              *ngFor="let img of ataudSeleccionado.imagenes; let i = index"
+              [class.detalle-tira__item--activo]="i === previewIndex"
+              (click)="seleccionarPreview(i)"
+            >
+              <img [src]="img.url" alt="Miniatura {{ i + 1 }}" />
+            </div>
+
+            <input #fileInput type="file" accept="image/*" hidden [disabled]="subiendoImagen" (change)="onArchivoSeleccionado($event)" />
+            <button class="detalle-tira__agregar" type="button" [disabled]="subiendoImagen" (click)="fileInput.click()">
+              <svg *ngIf="!subiendoImagen" lucideIcon="plus"></svg>
+              <div class="mini-spinner" *ngIf="subiendoImagen"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="detalle-form">
+          <div class="field">
+            <label class="field__label">Modelo *</label>
+            <input class="field__input" type="text" [(ngModel)]="detalleForm.modelo" [disabled]="!puedeEditar" />
+          </div>
+          <div class="field">
+            <label class="field__label">Color *</label>
+            <input class="field__input" type="text" [(ngModel)]="detalleForm.color" [disabled]="!puedeEditar" />
+          </div>
+          <div class="field">
+            <label class="field__label">Stock</label>
+            <div class="detalle-stock">
+              <span class="stock-num" [class.stock-num--low]="ataudSeleccionado.stock < 3">{{ ataudSeleccionado.stock }}</span>
+              <button class="btn btn--ghost" *ngIf="puedeActualizarStock" (click)="abrirModalStock()">
+                <svg lucideIcon="package" style="width:14px;height:14px"></svg> Ajustar
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn--primary detalle-form__guardar" *ngIf="puedeEditar" (click)="guardarDetalle()">
+            Guardar cambios
+          </button>
+        </div>
+
+      </div>
     </div>
 
-    <div class="table-wrapper" *ngIf="!cargando && ataudes.length > 0">
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Modelo</th>
-            <th>Color</th>
-            <th>Stock</th>
-            <th *ngIf="puedeEditar">Estado</th>
-            <th *ngIf="puedeEditar || puedeEliminar || puedeActualizarStock">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let a of ataudes" class="tabla__fila" [class.tabla__fila--inactivo]="!a.activo">
-            <td class="tabla__id">#{{ a.id }}</td>
-            <td class="tabla__modelo">{{ a.modelo }}</td>
-            <td>
-              <span class="color-chip">
-                <span class="color-chip__dot" [style.background]="a.color.toLowerCase()"></span>
-                {{ a.color }}
-              </span>
-            </td>
-            <td>
-              <span class="stock-num" [class.stock-num--low]="a.stock < 3">
-                {{ a.stock }}
-              </span>
-            </td>
-            <td>
-              <label class="switch" [class.switch--active]="a.activo" (click)="toggleActivo(a); $event.stopPropagation()" *ngIf="puedeEditar">
-                <span class="switch__track"></span>
-                <span class="switch__thumb"></span>
-              </label>
-            </td>
-            <td class="tabla__acciones" *ngIf="puedeCrear || puedeEditar || puedeEliminar">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(a)"><svg lucideIcon="pencil"></svg></button>
-              <button class="icon-btn icon-btn--stock"  title="Stock"    *ngIf="puedeActualizarStock" (click)="abrirModalStock(a)"><svg lucideIcon="package"></svg></button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(a)"><svg lucideIcon="trash-2"></svg></button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ng-template #sinSeleccion>
+      <div class="detalle-panel detalle-panel--vacio">
+        <svg lucideIcon="box"></svg>
+        <p>Selecciona un ataúd de la lista para ver sus detalles</p>
+      </div>
+    </ng-template>
+
   </section>
 
 </div>
 
-<div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
+<div class="modal-overlay" *ngIf="modalCrearAbierto" (click)="cerrarModalCrear()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal__header">
-      <h2 class="modal__title">{{ modoEdicion ? 'Editar ataúd' : 'Nuevo ataúd' }}</h2>
-      <button class="modal__close" (click)="cerrarModal()"><svg lucideIcon="x"></svg></button>
+      <h2 class="modal__title">Nuevo ataúd</h2>
+      <button class="modal__close" (click)="cerrarModalCrear()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body">
-      <div class="field" *ngIf="!modoEdicion">
+      <div class="field">
         <label class="field__label">Stock inicial</label>
-        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="form.stock"
-               pattern="^[0-9]+$" #stockA="ngModel" />
-        <span class="field__error" *ngIf="stockA.invalid && stockA.touched">
-          Solo números enteros positivos
-        </span>
+        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="form.stock" pattern="^[0-9]+$" #stockA="ngModel" />
+        <span class="field__error" *ngIf="stockA.invalid && stockA.touched">Solo números enteros positivos</span>
       </div>
       <div class="field">
         <label class="field__label">Modelo *</label>
@@ -164,9 +224,7 @@
                minlength="1" maxlength="100"
                pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\-.,]+)*$"
                #modeloA="ngModel" />
-        <span class="field__error" *ngIf="modeloA.invalid && modeloA.touched">
-          Letras, números, espacios, guiones, puntos o comas
-        </span>
+        <span class="field__error" *ngIf="modeloA.invalid && modeloA.touched">Letras, números, espacios, guiones, puntos o comas</span>
       </div>
       <div class="field">
         <label class="field__label">Color *</label>
@@ -174,14 +232,12 @@
                minlength="1" maxlength="50"
                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\-]+)*$"
                #colorA="ngModel" />
-        <span class="field__error" *ngIf="colorA.invalid && colorA.touched">
-          Solo letras, espacios y guiones
-        </span>
+        <span class="field__error" *ngIf="colorA.invalid && colorA.touched">Solo letras, espacios y guiones</span>
       </div>
     </div>
     <div class="modal__footer">
-      <button class="btn btn--ghost" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn btn--primary" (click)="guardar()">{{ modoEdicion ? 'Guardar cambios' : 'Crear' }}</button>
+      <button class="btn btn--ghost" (click)="cerrarModalCrear()">Cancelar</button>
+      <button class="btn btn--primary" (click)="guardarNuevo()">Crear</button>
     </div>
   </div>
 </div>
@@ -194,16 +250,14 @@
     </div>
     <div class="modal__body">
       <p class="modal__info">
-        <strong>{{ ataudStock?.modelo }}</strong><br>
-        Stock actual: <strong>{{ ataudStock?.stock }}</strong>
+        <strong>{{ ataudSeleccionado?.modelo }}</strong><br>
+        Stock actual: <strong>{{ ataudSeleccionado?.stock }}</strong>
       </p>
       <div class="field">
         <label class="field__label">Cantidad (+ para sumar, − para restar)</label>
         <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="cantidadStock"
                placeholder="Ej: 5 o -2" pattern="^-?[0-9]+$" #cantidadStockA="ngModel" />
-        <span class="field__error" *ngIf="cantidadStockA.invalid && cantidadStockA.touched">
-          Solo números enteros
-        </span>
+        <span class="field__error" *ngIf="cantidadStockA.invalid && cantidadStockA.touched">Solo números enteros</span>
       </div>
     </div>
     <div class="modal__footer">
@@ -221,7 +275,7 @@
     </div>
     <div class="modal__body">
       <p class="modal__warn">
-        ¿Eliminar el ataúd <strong>{{ ataudEliminar?.modelo }}</strong>?
+        ¿Eliminar el ataúd <strong>{{ ataudSeleccionado?.modelo }}</strong>?
         Esta acción no se puede deshacer.
       </p>
     </div>
@@ -251,4 +305,32 @@
       </button>
     </div>
   </div>
+</div>
+
+<div class="lightbox-overlay" *ngIf="zoomAbierto" (click)="cerrarZoom()">
+  <button class="lightbox-close" (click)="cerrarZoom(); $event.stopPropagation()">
+    <svg lucideIcon="x"></svg>
+  </button>
+
+  <button
+    class="lightbox-nav lightbox-nav--prev"
+    *ngIf="(ataudSeleccionado?.imagenes?.length || 0) > 1"
+    (click)="imagenAnterior(); $event.stopPropagation()"
+  >
+    <svg lucideIcon="arrow-left"></svg>
+  </button>
+
+  <img class="lightbox-img" [src]="ataudSeleccionado?.imagenes?.[previewIndex]?.url" alt="Vista ampliada" (click)="$event.stopPropagation()" />
+
+  <button
+    class="lightbox-nav lightbox-nav--next"
+    *ngIf="(ataudSeleccionado?.imagenes?.length || 0) > 1"
+    (click)="imagenSiguiente(); $event.stopPropagation()"
+  >
+    <svg lucideIcon="arrow-right"></svg>
+  </button>
+
+  <span class="lightbox-contador" *ngIf="ataudSeleccionado?.imagenes?.length">
+    {{ previewIndex + 1 }} / {{ ataudSeleccionado?.imagenes?.length }}
+  </span>
 </div>

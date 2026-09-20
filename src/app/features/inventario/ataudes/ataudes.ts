@@ -7,6 +7,8 @@ import { Ataud } from '../../../core/models/ataud.model';
 import { RouterLink } from '@angular/router';
 import { puedeCrear, puedeActualizar, puedeEliminar, tienePermiso } from '../../../core/utils/auth.utils'
 
+const MINIMO_IMAGENES = 3;
+
 @Component({
   selector: 'app-ataudes',
   standalone: true,
@@ -37,20 +39,25 @@ export class Ataudes implements OnInit {
   mostrarDropModelo = false;
   mostrarDropColor = false;
 
-  modalAbierto = false;
-  modoEdicion = false;
   ataudSeleccionado: Ataud | null = null;
+  detalleForm = { modelo: '', color: '', stock: 0 };
+
+  modalCrearAbierto = false;
   form = { modelo: '', color: '', stock: 0 };
 
   modalStockAbierto = false;
-  ataudStock: Ataud | null = null;
   cantidadStock = 0;
 
   modalToggleAbierto = false;
   itemToggle: any = null;
 
   modalEliminarAbierto = false;
-  ataudEliminar: Ataud | null = null;
+
+  previewIndex = 0;
+  subiendoImagen = false;
+  zoomAbierto = false;
+
+  readonly MINIMO_IMAGENES = MINIMO_IMAGENES;
 
   constructor(
     private ataudService: AtaudService,
@@ -73,6 +80,11 @@ export class Ataudes implements OnInit {
         this.ataudes = data;
         this.actualizarUnicos(data);
         this.cargando = false;
+        if (this.ataudSeleccionado) {
+          const actualizado = data.find((a) => a.id === this.ataudSeleccionado!.id);
+          this.ataudSeleccionado = actualizado || null;
+          if (actualizado) this.sincronizarDetalleForm(actualizado);
+        }
         this.cdr.detectChanges();
       },
       error: (e) => {
@@ -107,11 +119,6 @@ export class Ataudes implements OnInit {
     this.cargar();
   }
 
-  limpiarModelo(): void {
-    this.modeloQuery = '';
-    this.filtroModelo = '';
-  }
-
   cerrarDropModelo(): void {
     setTimeout(() => {
       this.mostrarDropModelo = false;
@@ -137,11 +144,6 @@ export class Ataudes implements OnInit {
     this.cargar();
   }
 
-  limpiarColor(): void {
-    this.colorQuery = '';
-    this.filtroColor = '';
-  }
-
   cerrarDropColor(): void {
     setTimeout(() => {
       this.mostrarDropColor = false;
@@ -163,93 +165,213 @@ export class Ataudes implements OnInit {
     this.cargar();
   }
 
-  abrirModalCrear(): void {
-    this.modoEdicion = false;
+  seleccionarAtaud(a: Ataud): void {
+    this.ataudSeleccionado = a;
+    this.sincronizarDetalleForm(a);
+    this.previewIndex = 0;
+  }
+
+  cerrarDetalle(): void {
     this.ataudSeleccionado = null;
+  }
+
+  private sincronizarDetalleForm(a: Ataud): void {
+    this.detalleForm = { modelo: a.modelo, color: a.color, stock: a.stock };
+  }
+
+  guardarDetalle(): void {
+    if (!this.ataudSeleccionado) return;
+    if (!this.detalleForm.modelo || !this.detalleForm.color) {
+      this.mostrarMensaje('Completa todos los campos requeridos', 'error');
+      return;
+    }
+    this.ataudService.actualizar(this.ataudSeleccionado.id, this.detalleForm).subscribe({
+      next: (actualizado) => {
+        this.ataudSeleccionado = actualizado;
+        this.actualizarEnLista(actualizado);
+        this.mostrarMensaje('Ataúd actualizado', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
+    });
+  }
+
+  abrirModalCrear(): void {
     this.form = { modelo: '', color: '', stock: 0 };
-    this.modalAbierto = true;
+    this.modalCrearAbierto = true;
   }
 
-  abrirModalEditar(ataud: Ataud): void {
-    this.modoEdicion = true;
-    this.ataudSeleccionado = ataud;
-    this.form = { modelo: ataud.modelo, color: ataud.color, stock: ataud.stock };
-    this.modalAbierto = true;
+  cerrarModalCrear(): void {
+    this.modalCrearAbierto = false;
   }
 
-  cerrarModal(): void {
-    this.modalAbierto = false;
-  }
-
-  guardar(): void {
+  guardarNuevo(): void {
     if (!this.form.modelo || !this.form.color) {
       this.mostrarMensaje('Completa todos los campos requeridos', 'error');
       return;
     }
-    if (this.modoEdicion && this.ataudSeleccionado) {
-      this.ataudService.actualizar(this.ataudSeleccionado.id, this.form).subscribe({
-        next: () => {
-          this.mostrarMensaje('Ataúd actualizado', 'exito');
-          this.cerrarModal();
-          this.cargar();
-        },
-        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar', 'error'),
-      });
-    } else {
-      this.ataudService.crear(this.form).subscribe({
-        next: () => {
-          this.mostrarMensaje('Ataúd creado correctamente', 'exito');
-          this.cerrarModal();
-          this.cargar();
-        },
-        error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
-      });
-    }
+    this.ataudService.crear(this.form).subscribe({
+      next: () => {
+        this.mostrarMensaje('Ataúd creado correctamente', 'exito');
+        this.cerrarModalCrear();
+        this.cargar();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al crear', 'error'),
+    });
   }
 
-  abrirModalEliminar(ataud: Ataud): void {
-    this.ataudEliminar = ataud;
+  abrirModalEliminar(): void {
+    if (!this.ataudSeleccionado) return;
     this.modalEliminarAbierto = true;
   }
 
   cerrarModalEliminar(): void {
     this.modalEliminarAbierto = false;
-    this.ataudEliminar = null;
   }
 
   confirmarEliminar(): void {
-    if (!this.ataudEliminar) return;
-    this.ataudService.eliminar(this.ataudEliminar.id).subscribe({
+    if (!this.ataudSeleccionado) return;
+    const id = this.ataudSeleccionado.id;
+    this.ataudService.eliminar(id).subscribe({
       next: () => {
         this.mostrarMensaje('Ataúd eliminado', 'exito');
         this.cerrarModalEliminar();
+        this.ataudSeleccionado = null;
         this.cargar();
       },
       error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
     });
   }
 
-  abrirModalStock(ataud: Ataud): void {
-    this.ataudStock = ataud;
+  // --- Stock ---
+
+  abrirModalStock(): void {
+    if (!this.ataudSeleccionado) return;
     this.cantidadStock = 0;
     this.modalStockAbierto = true;
   }
 
   cerrarModalStock(): void {
     this.modalStockAbierto = false;
-    this.ataudStock = null;
   }
 
   actualizarStock(): void {
-    if (!this.ataudStock) return;
-    this.ataudService.actualizarStock(this.ataudStock.id, this.cantidadStock).subscribe({
-      next: () => {
+    if (!this.ataudSeleccionado) return;
+    this.ataudService.actualizarStock(this.ataudSeleccionado.id, this.cantidadStock).subscribe({
+      next: (actualizado) => {
+        this.ataudSeleccionado = actualizado;
+        this.sincronizarDetalleForm(actualizado);
+        this.actualizarEnLista(actualizado);
         this.mostrarMensaje('Stock actualizado', 'exito');
         this.cerrarModalStock();
-        this.cargar();
+        this.cdr.detectChanges();
       },
       error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al actualizar stock', 'error'),
     });
+  }
+
+  // --- Estado ---
+
+  toggleActivo(): void {
+    if (!this.ataudSeleccionado) return;
+    const a = this.ataudSeleccionado;
+    const nuevoEstado = !a.activo;
+    this.itemToggle = { id: a.id, nuevoEstado, nombre: a.modelo };
+    this.modalToggleAbierto = true;
+  }
+
+  cerrarModalToggle(): void {
+    this.modalToggleAbierto = false;
+    this.itemToggle = null;
+  }
+
+  confirmarToggle(): void {
+    if (!this.itemToggle) return;
+    const { id, nuevoEstado } = this.itemToggle;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    this.ataudService.cambiarEstado(id, nuevoEstado).subscribe({
+      next: (actualizado) => {
+        this.mostrarMensaje(
+          `${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`,
+          'exito',
+        );
+        if (this.ataudSeleccionado?.id === id) {
+          this.ataudSeleccionado = actualizado;
+          this.sincronizarDetalleForm(actualizado);
+        }
+        this.actualizarEnLista(actualizado);
+        this.cerrarModalToggle();
+        this.cdr.detectChanges();
+      },
+      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+    });
+  }
+
+  // --- Imágenes ---
+
+  onArchivoSeleccionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || !this.ataudSeleccionado) return;
+
+    const archivo = input.files[0];
+    this.subiendoImagen = true;
+    this.ataudService.agregarImagen(this.ataudSeleccionado.id, archivo).subscribe({
+      next: (actualizado) => {
+        this.ataudSeleccionado = actualizado;
+        this.actualizarEnLista(actualizado);
+        this.previewIndex = (actualizado.imagenes?.length || 1) - 1;
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  eliminarImagenActual(): void {
+    if (!this.ataudSeleccionado) return;
+    const imagen = this.ataudSeleccionado.imagenes[this.previewIndex];
+    if (!imagen) return;
+
+    this.ataudService.eliminarImagen(this.ataudSeleccionado.id, imagen.id).subscribe({
+      next: (actualizado) => {
+        this.ataudSeleccionado = actualizado;
+        this.actualizarEnLista(actualizado);
+        if (this.previewIndex >= actualizado.imagenes.length) {
+          this.previewIndex = Math.max(0, actualizado.imagenes.length - 1);
+        }
+        this.mostrarMensaje('Imagen eliminada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al eliminar imagen', 'error');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  seleccionarPreview(index: number): void {
+    this.previewIndex = index;
+  }
+
+  abrirZoom(): void {
+    if (!this.ataudSeleccionado?.imagenes?.length) return;
+    this.zoomAbierto = true;
+  }
+
+  cerrarZoom(): void {
+    this.zoomAbierto = false;
+  }
+
+  private actualizarEnLista(actualizado: Ataud): void {
+    const idx = this.ataudes.findIndex((a) => a.id === actualizado.id);
+    if (idx !== -1) this.ataudes[idx] = actualizado;
   }
 
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
@@ -261,31 +383,15 @@ export class Ataudes implements OnInit {
     }, 3500);
   }
 
-  toggleActivo(a: Ataud): void {
-    const nuevoEstado = !a.activo;
-    this.itemToggle = { ...a, nuevoEstado, nombre: a.modelo };
-    this.modalToggleAbierto = true;
+    imagenAnterior(): void {
+    if (!this.ataudSeleccionado?.imagenes?.length) return;
+    const total = this.ataudSeleccionado.imagenes.length;
+    this.previewIndex = (this.previewIndex - 1 + total) % total;
   }
 
-  cerrarModalToggle(): void {
-    this.modalToggleAbierto = false;
-    this.itemToggle = null;
-  }
-
-  confirmarToggle(): void {
-    if (!this.itemToggle) return;
-    const { id, nuevoEstado, nombre } = this.itemToggle;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
-    this.ataudService.cambiarEstado(id, nuevoEstado).subscribe({
-      next: () => {
-        this.mostrarMensaje(
-          `${accion === 'activar' ? 'Activado' : 'Desactivado'} correctamente`,
-          'exito',
-        );
-        this.cerrarModalToggle();
-        this.cargar();
-      },
-      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
-    });
+  imagenSiguiente(): void {
+    if (!this.ataudSeleccionado?.imagenes?.length) return;
+    const total = this.ataudSeleccionado.imagenes.length;
+    this.previewIndex = (this.previewIndex + 1) % total;
   }
 }

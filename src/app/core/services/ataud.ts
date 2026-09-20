@@ -42,4 +42,14 @@ export class AtaudService {
   cambiarEstado(id: number, activo: boolean) {
     return this.http.patch<Ataud>(`${this.api}/${id}/status`, { activo });
   }
+
+  agregarImagen(ataudId: number, archivo: File) {
+    const formData = new FormData();
+    formData.append('imagen', archivo);
+    return this.http.post<Ataud>(`${this.api}/${ataudId}/imagenes`, formData);
+  }
+
+  eliminarImagen(ataudId: number, imagenId: number) {
+    return this.http.delete<Ataud>(`${this.api}/${ataudId}/imagenes/${imagenId}`);
+  }
 }
