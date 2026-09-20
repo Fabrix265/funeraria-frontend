@@ -40,6 +40,12 @@ import {
   LucideHeart,
   LucideUpload,
   LucideImage,
+  LucideFolderOpen,
+  LucideDownload,
+  LucideReplace,
+  LucideUploadCloud,
+  LucideFileCheck,
+  LucideScroll,
 } from '@lucide/angular'
 
 import { routes } from './app.routes'
@@ -94,6 +100,12 @@ export const appConfig: ApplicationConfig = {
       LucideHeart,
       LucideUpload,
       LucideImage,
+      LucideFolderOpen,
+      LucideDownload,
+      LucideReplace,
+      LucideUploadCloud,
+      LucideFileCheck,
+      LucideScroll,
     ),
 
   ]

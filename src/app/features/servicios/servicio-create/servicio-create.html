@@ -192,13 +192,48 @@
       </div>
     </div>
 
+  <div class="form-card form-card--full" *ngIf="!esEdicion && puedeSubirArchivos">
+      <h2 class="form-card__title"><svg lucideIcon="folder-open"></svg> Documentos</h2>
+      <div class="form-card__body">
+        <p class="form-hint form-hint--docs">
+          Opcional — Puedes adjuntar los documentos ahora y se subirán automáticamente al crear el
+          servicio, o subirlos después desde el detalle.
+        </p>
+        <div class="doc-grid">
+          <div class="doc-slot" *ngFor="let d of tiposDocumento">
+            <span class="doc-slot__etiqueta">
+              <svg class="doc-slot__icon" [lucideIcon]="d.icono"></svg>
+              {{ d.etiqueta }}
+            </span>
+            <ng-container *ngIf="docSeleccionado(d.tipo); else sinDoc">
+              <div class="doc-chip">
+                <svg lucideIcon="file-text" class="doc-chip__icon"></svg>
+                <span class="doc-chip__nombre">{{ archivosSeleccionados[d.tipo]?.name }}</span>
+                <button type="button" class="doc-chip__quitar" (click)="quitarArchivoSeleccionado(d.tipo)" title="Quitar archivo">
+                  <svg lucideIcon="x"></svg>
+                </button>
+              </div>
+            </ng-container>
+            <ng-template #sinDoc>
+              <label class="doc-upload doc-upload--create">
+                <input type="file" accept=".png,.jpg,.jpeg,.pdf" hidden (change)="onArchivoSeleccionado(d.tipo, $event)" />
+                <svg lucideIcon="upload-cloud" class="doc-upload__icon"></svg>
+                <span class="doc-upload__text">Seleccioná un archivo</span>
+                <span class="doc-upload__hint">PNG, JPG o PDF — máximo 10 MB</span>
+              </label>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="form-footer">
-    <button class="btn btn--ghost" (click)="cancelar()">Cancelar</button>
-    <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando || !formValido">
+    <button class="btn btn--ghost" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
+    <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
       <span class="btn-spinner" *ngIf="guardando"></span>
-      {{ guardando ? 'Guardando...' : (esEdicion ? 'Guardar cambios' : 'Crear servicio') }}
+      {{ guardando ? (subiendoArchivos ? 'Subiendo archivos...' : 'Guardando...') : (esEdicion ? 'Guardar cambios' : 'Crear servicio') }}
     </button>
   </div>
 
