@@ -102,8 +102,6 @@ export class ServicioDetail implements OnInit, OnDestroy {
         this.liberarUrls();
         this.archivos = res.archivos;
         this.cargandoArchivos = false;
-        // Precarga thumbnails de imágenes
-        this.archivos.filter((a) => this.esImagen(a.mime_type)).forEach((a) => this.cargarContenidoArchivo(a));
         this.cdr.detectChanges();
       },
       error: () => {

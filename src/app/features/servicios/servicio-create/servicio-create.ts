@@ -11,7 +11,7 @@ import { TipoArchivo } from '../../../core/models/servicio-archivo.model';
 import { tienePermiso } from '../../../core/utils/auth.utils';
 import { environment } from '../../../../environments/environment';
 import { ReniecService, ReniecResponse } from '../../../core/services/reniec';
-import { forkJoin } from 'rxjs';
+import { forkJoin, concat } from 'rxjs';
 
 @Component({
   selector: 'app-servicio-create',
@@ -327,8 +327,8 @@ export class ServicioCreate implements OnInit {
     this.subiendoArchivos = true;
     this.cdr.detectChanges();
 
-    forkJoin(
-      tipos.map((tipo) => {
+    concat(
+      ...tipos.map((tipo) => {
         const file = this.archivosSeleccionados[tipo]!;
         return this.archivoService.subir(id, tipo, file);
       })

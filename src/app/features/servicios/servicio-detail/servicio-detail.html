@@ -156,16 +156,8 @@
               <!-- Ya tiene archivo -->
               <ng-container *ngIf="obtenerArchivoPorTipo(t.tipo) as archivo; else sinArchivo">
                 <div class="doc-card">
-                  <div class="doc-card__preview" (click)="abrirVistaPrevia(archivo)">
-                    <img *ngIf="esImagen(archivo.mime_type) && urlsArchivo[archivo.id]" [src]="urlsArchivo[archivo.id]" alt="" class="doc-card__thumb" />
-                    <div *ngIf="esImagen(archivo.mime_type) && !urlsArchivo[archivo.id]" class="doc-card__thumb-loading">
-                      <div *ngIf="cargandoContenido[archivo.id]" class="spinner spinner--sm"></div>
-                      <svg *ngIf="!cargandoContenido[archivo.id]" lucideIcon="file-text"></svg>
-                    </div>
-                    <div *ngIf="esPdf(archivo.mime_type)" class="doc-card__pdf">
-                      <svg lucideIcon="file-text"></svg>
-                      <span>PDF</span>
-                    </div>
+                  <div class="doc-card__tipo" [class.doc-card__tipo--pdf]="esPdf(archivo.mime_type)">
+                    <svg lucideIcon="file-text"></svg>
                   </div>
                   <div class="doc-card__info">
                     <span class="doc-card__name" [title]="archivo.nombre_original">{{ archivo.nombre_original }}</span>
