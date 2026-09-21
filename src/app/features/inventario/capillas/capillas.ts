@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CapillaService } from '../../../core/services/capilla';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -46,6 +46,12 @@ export class Capillas implements OnInit {
 
   modalEliminarAbierto = false;
   capillaEliminar: Capilla | null = null;
+
+  modalImagenesAbierto = false;
+  capillaImagenes: Capilla | null = null;
+  subiendoImagen = false;
+  lightboxAbierto = false;
+  lightboxIndex = 0;
 
   constructor(
     private capillaService: CapillaService,
@@ -231,5 +237,89 @@ export class Capillas implements OnInit {
       },
       error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
     });
+  }
+
+  abrirModalImagenes(c: Capilla): void {
+    this.capillaImagenes = c;
+    this.modalImagenesAbierto = true;
+  }
+
+  cerrarModalImagenes(): void {
+    this.modalImagenesAbierto = false;
+    this.capillaImagenes = null;
+  }
+
+  onArchivoSeleccionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || !this.capillaImagenes) return;
+
+    const archivo = input.files[0];
+    this.subiendoImagen = true;
+    this.capillaService.agregarImagen(this.capillaImagenes.id, archivo).subscribe({
+      next: (capillaActualizada) => {
+        this.capillaImagenes = capillaActualizada;
+        this.actualizarEnLista(capillaActualizada);
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.subiendoImagen = false;
+        input.value = '';
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+
+  eliminarImagen(imagenId: number): void {
+    if (!this.capillaImagenes) return;
+    this.capillaService.eliminarImagen(this.capillaImagenes.id, imagenId).subscribe({
+      next: (capillaActualizada) => {
+        this.capillaImagenes = capillaActualizada;
+        this.actualizarEnLista(capillaActualizada);
+        this.mostrarMensaje('Imagen eliminada', 'exito');
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.mostrarMensaje(e.error?.detail || 'Error al eliminar imagen', 'error');
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private actualizarEnLista(capillaActualizada: Capilla): void {
+    const idx = this.capillas.findIndex((c) => c.id === capillaActualizada.id);
+    if (idx !== -1) this.capillas[idx] = capillaActualizada;
+  }
+
+    abrirLightbox(index: number): void {
+    this.lightboxIndex = index;
+    this.lightboxAbierto = true;
+  }
+
+  cerrarLightbox(): void {
+    this.lightboxAbierto = false;
+  }
+
+  imagenAnterior(): void {
+    if (!this.capillaImagenes?.imagenes?.length) return;
+    const total = this.capillaImagenes.imagenes.length;
+    this.lightboxIndex = (this.lightboxIndex - 1 + total) % total;
+  }
+
+  imagenSiguiente(): void {
+    if (!this.capillaImagenes?.imagenes?.length) return;
+    const total = this.capillaImagenes.imagenes.length;
+    this.lightboxIndex = (this.lightboxIndex + 1) % total;
+  }
+
+  abrirLightboxDesdeTabla(c: Capilla): void {
+    if (!c.imagenes?.length) return;
+    this.capillaImagenes = c;
+    this.lightboxIndex = 0;
+    this.lightboxAbierto = true;
   }
 }

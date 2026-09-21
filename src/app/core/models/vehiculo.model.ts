@@ -5,10 +5,14 @@ export type TipoVehiculo =
   | 'auto'
   | 'microbus'
 
-export interface Vehiculo {
+export interface VehiculoImagen {
+  id: number;
+  url: string;
+}
 
+export interface Vehiculo {
   id: number
   tipo: TipoVehiculo
   activo: boolean
-
+  imagenes: VehiculoImagen[]
 }

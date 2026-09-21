@@ -40,7 +40,7 @@
     </div>
   </section>
 
-  <section class="table-section">
+  <section class="catalogo-section">
     <div class="table-loader" *ngIf="cargando">
       <div class="spinner"></div>
     </div>
@@ -50,38 +50,54 @@
       <p>No se encontraron vehículos</p>
     </div>
 
-    <div class="table-wrapper" *ngIf="!cargando && vehiculos.length > 0">
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tipo</th>
-            <th *ngIf="puedeEditar">Estado</th>
-            <th *ngIf="puedeEditar || puedeEliminar">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let v of vehiculos" class="tabla__fila" [class.tabla__fila--inactivo]="!v.activo">
-            <td class="tabla__id">#{{ v.id }}</td>
-            <td>
-              <span class="v-badge" [ngClass]="'v-badge--' + v.tipo">
-                <span class="v-badge__dot"></span>
-                {{ etiqueta(v.tipo) }}
-              </span>
-            </td>
-            <td>
-              <label class="switch" [class.switch--active]="v.activo" (click)="toggleActivo(v); $event.stopPropagation()" *ngIf="puedeEditar">
-                <span class="switch__track"></span>
-                <span class="switch__thumb"></span>
-              </label>
-            </td>
-            <td class="tabla__acciones" *ngIf="puedeEditar || puedeEliminar">
-              <button class="icon-btn icon-btn--edit"   title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(v)"><svg lucideIcon="pencil"></svg></button>
-              <button class="icon-btn icon-btn--delete" title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(v)"><svg lucideIcon="trash-2"></svg></button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="vehiculos-grid" *ngIf="!cargando && vehiculos.length > 0">
+      <div class="vehiculo-card" *ngFor="let v of vehiculosPaginados" [class.vehiculo-card--inactivo]="!v.activo">
+
+        <div class="vehiculo-card__media" (click)="puedeEditar ? abrirModalImagenes(v) : null">
+          <img *ngIf="v.imagenes?.length" [src]="v.imagenes[0].url" alt="{{ etiqueta(v.tipo) }}" />
+          <div class="vehiculo-card__placeholder" *ngIf="!v.imagenes?.length">
+            <svg lucideIcon="car"></svg>
+            <span [class.vehiculo-card__placeholder-alerta]="v.activo">Sin imágenes</span>
+          </div>
+
+          <span class="v-badge v-badge--overlay" [ngClass]="'v-badge--' + v.tipo">
+            <span class="v-badge__dot"></span>
+            {{ etiqueta(v.tipo) }}
+          </span>
+
+          <label class="switch vehiculo-card__switch" [class.switch--active]="v.activo" (click)="toggleActivo(v); $event.stopPropagation()" *ngIf="puedeEditar">
+            <span class="switch__track"></span>
+            <span class="switch__thumb"></span>
+          </label>
+
+          <span class="vehiculo-card__contador" *ngIf="v.imagenes?.length">
+            <svg lucideIcon="image"></svg> {{ v.imagenes.length }}
+          </span>
+        </div>
+
+        <div class="vehiculo-card__body">
+          <span class="vehiculo-card__id">#{{ v.id }}</span>
+          <div class="tabla__acciones" *ngIf="puedeEditar || puedeEliminar">
+            <button class="icon-btn icon-btn--edit"      title="Editar"   *ngIf="puedeEditar" (click)="abrirModalEditar(v)"><svg lucideIcon="pencil"></svg></button>
+            <button class="icon-btn icon-btn--imagenes"  title="Imágenes" *ngIf="puedeEditar" (click)="abrirModalImagenes(v)"><svg lucideIcon="image"></svg></button>
+            <button class="icon-btn icon-btn--delete"    title="Eliminar" *ngIf="puedeEliminar" (click)="abrirModalEliminar(v)"><svg lucideIcon="trash-2"></svg></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+        <div class="paginacion" *ngIf="!cargando && vehiculos.length > 0">
+      <button class="btn btn--ghost" [disabled]="paginaActual === 1" (click)="paginaAnterior()">
+        <svg lucideIcon="arrow-left" style="width:14px;height:14px"></svg> Anterior
+      </button>
+
+      <span class="paginacion__info">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+
+      <span class="paginacion__total">{{ vehiculos.length }} vehículo(s) en total</span>
+
+      <button class="btn btn--ghost" [disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()">
+        Siguiente <svg lucideIcon="arrow-right" style="width:14px;height:14px"></svg>
+      </button>
     </div>
   </section>
 
@@ -148,4 +164,63 @@
       </button>
     </div>
   </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalImagenesAbierto" (click)="cerrarModalImagenes()">
+  <div class="modal modal--carrete" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Imágenes — {{ etiqueta(vehiculoImagenes!.tipo) }} #{{ vehiculoImagenes?.id }}</h2>
+      <button class="modal__close" (click)="cerrarModalImagenes()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__info" [class.modal__info--alerta]="(vehiculoImagenes?.imagenes?.length || 0) < 3">
+        {{ vehiculoImagenes?.imagenes?.length || 0 }} / 3 mínimo requeridas
+      </p>
+
+      <div class="carrete-preview" *ngIf="vehiculoImagenes?.imagenes?.length; else previewVacio" (click)="abrirZoom()">
+        <img [src]="vehiculoImagenes?.imagenes?.[previewIndex]?.url" alt="Vista previa" />
+        <button class="carrete-eliminar" title="Eliminar esta imagen" (click)="eliminarImagenActual(); $event.stopPropagation()">
+          <svg lucideIcon="trash-2"></svg>
+        </button>
+      </div>
+      <ng-template #previewVacio>
+        <div class="carrete-preview carrete-preview--vacio">
+          <svg lucideIcon="car"></svg>
+          <span>Aún no hay imágenes</span>
+        </div>
+      </ng-template>
+
+      <div class="carrete-tira">
+        <div
+          class="carrete-tira__item"
+          *ngFor="let img of vehiculoImagenes?.imagenes; let i = index"
+          [class.carrete-tira__item--activo]="i === previewIndex"
+          (click)="seleccionarPreview(i)"
+        >
+          <img [src]="img.url" alt="Miniatura {{ i + 1 }}" />
+        </div>
+
+        <input #fileInput type="file" accept="image/*" hidden [disabled]="subiendoImagen" (change)="onArchivoSeleccionado($event)" />
+        <button class="carrete-tira__agregar" type="button" [disabled]="subiendoImagen" (click)="fileInput.click()">
+          <svg *ngIf="!subiendoImagen" lucideIcon="plus"></svg>
+          <div class="mini-spinner" *ngIf="subiendoImagen"></div>
+        </button>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalImagenes()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox-overlay" *ngIf="zoomAbierto" (click)="cerrarZoom()">
+  <button class="lightbox-close" (click)="cerrarZoom(); $event.stopPropagation()">
+    <svg lucideIcon="x"></svg>
+  </button>
+  <img
+    class="lightbox-img"
+    [src]="vehiculoImagenes?.imagenes?.[previewIndex]?.url"
+    alt="Vista ampliada"
+    (click)="$event.stopPropagation()"
+  />
 </div>
