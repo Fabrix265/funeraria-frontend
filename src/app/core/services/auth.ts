@@ -37,6 +37,14 @@ export class Auth {
       );
   }
 
+  recuperar(email: string) {
+    return this.http.post<any>(`${this.api}/password-recovery`, { email });
+  }
+
+  restablecer(token: string, password: string) {
+    return this.http.post<any>(`${this.api}/reset-password`, { token, password });
+  }
+
   esAdmin(): boolean {
     try {
       const roles: string[] = JSON.parse(localStorage.getItem('roles') ?? '[]');

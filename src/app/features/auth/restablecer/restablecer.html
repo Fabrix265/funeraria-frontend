@@ -1,0 +1,88 @@
+<div class="login-wrapper">
+
+  <div class="login-deco">
+    <div class="login-deco__content">
+      <span class="login-deco__initials">MA</span>
+      <p class="login-deco__name">Funeraria<br>Maximo Aranzabal</p>
+      <p class="login-deco__tagline">Servicio de pompas fúnebres</p>
+    </div>
+  </div>
+
+  <div class="login-panel">
+    <div class="login-card">
+
+      <div class="login-card__header">
+        <h1 class="login-card__title">Nueva contraseña</h1>
+        <p class="login-card__sub">Define una nueva contraseña para tu cuenta</p>
+      </div>
+
+      <div class="login-card__body">
+
+        <div class="login-success" *ngIf="exito">
+          <svg lucideIcon="check-circle"></svg>
+          <span>Contraseña actualizada correctamente. Ya puedes iniciar sesión.</span>
+        </div>
+
+        <div class="field" *ngIf="!exito && token">
+          <label class="field__label">Nueva contraseña</label>
+          <div class="field__password-wrap">
+            <input
+              class="field__input"
+              [type]="mostrarPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              [(ngModel)]="password"
+              autocomplete="new-password"
+              minlength="6"
+              #nueva="ngModel"
+            />
+            <button class="field__eye" type="button" (click)="togglePassword()">
+              <svg *ngIf="mostrarPassword" lucideIcon="eye-off"></svg>
+              <svg *ngIf="!mostrarPassword" lucideIcon="eye"></svg>
+            </button>
+          </div>
+          <span class="field__error" *ngIf="nueva.invalid && nueva.touched">
+            Mínimo 6 caracteres
+          </span>
+        </div>
+
+        <div class="field" *ngIf="!exito && token">
+          <label class="field__label">Confirmar contraseña</label>
+          <div class="field__password-wrap">
+            <input
+              class="field__input"
+              [type]="mostrarConfirmar ? 'text' : 'password'"
+              placeholder="••••••••"
+              [(ngModel)]="confirmar"
+              (keyup.enter)="guardar()"
+              autocomplete="new-password"
+              minlength="6"
+              #confirma="ngModel"
+            />
+            <button class="field__eye" type="button" (click)="toggleConfirmar()">
+              <svg *ngIf="mostrarConfirmar" lucideIcon="eye-off"></svg>
+              <svg *ngIf="!mostrarConfirmar" lucideIcon="eye"></svg>
+            </button>
+          </div>
+          <span class="field__error" *ngIf="confirma.invalid && confirma.touched">
+            Mínimo 6 caracteres
+          </span>
+        </div>
+
+        <div class="login-error" *ngIf="error">
+          <span class="login-error__icon"><svg lucideIcon="circle-x"></svg></span>
+          {{ error }}
+        </div>
+
+        <button class="login-btn" (click)="guardar()" [disabled]="cargando" *ngIf="!exito && token">
+          <span class="login-btn__spinner" *ngIf="cargando"></span>
+          <span>{{ cargando ? 'Guardando...' : 'Guardar contraseña' }}</span>
+        </button>
+
+        <a routerLink="/login" class="login-back">← Volver al inicio de sesión</a>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

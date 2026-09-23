@@ -1,0 +1,60 @@
+<div class="login-wrapper">
+
+  <div class="login-deco">
+    <div class="login-deco__content">
+      <span class="login-deco__initials">MA</span>
+      <p class="login-deco__name">Funeraria<br>Maximo Aranzabal</p>
+      <p class="login-deco__tagline">Servicio de pompas fúnebres</p>
+    </div>
+  </div>
+
+  <div class="login-panel">
+    <div class="login-card">
+
+      <div class="login-card__header">
+        <h1 class="login-card__title">Recuperar contraseña</h1>
+        <p class="login-card__sub">Ingresa el correo de tu cuenta y te enviaremos un enlace</p>
+      </div>
+
+      <div class="login-card__body">
+
+        <div class="field" *ngIf="!enviado">
+          <label class="field__label">Correo</label>
+          <input
+            class="field__input"
+            type="email"
+            placeholder="correo@ejemplo.com"
+            [(ngModel)]="email"
+            (keyup.enter)="enviar()"
+            autocomplete="email"
+            #correo="ngModel"
+            email
+          />
+          <span class="field__error" *ngIf="correo.invalid && correo.touched">
+            Ingresa un correo válido
+          </span>
+        </div>
+
+        <div class="login-success" *ngIf="enviado">
+          <svg lucideIcon="check-circle"></svg>
+          <span>{{ mensaje }}</span>
+        </div>
+
+        <div class="login-error" *ngIf="error">
+          <span class="login-error__icon"><svg lucideIcon="circle-x"></svg></span>
+          {{ error }}
+        </div>
+
+        <button class="login-btn" (click)="enviar()" [disabled]="cargando" *ngIf="!enviado">
+          <span class="login-btn__spinner" *ngIf="cargando"></span>
+          <span>{{ cargando ? 'Enviando...' : 'Enviar enlace' }}</span>
+        </button>
+
+        <a routerLink="/login" class="login-back">← Volver al inicio de sesión</a>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
