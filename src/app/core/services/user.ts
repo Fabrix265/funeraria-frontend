@@ -60,8 +60,12 @@ export class UserService {
     return this.http.delete(`${this.api}/${id}`);
   }
 
-  actualizarPerfil(data: { username: string; password: string }): Observable<UserLeer> {
+  actualizarPerfil(data: { username?: string; email?: string; password?: string }): Observable<UserLeer> {
     return this.http.put<UserLeer>(`${this.api}/me`, data);
+  }
+
+  obtenerPerfil(): Observable<UserLeer> {
+    return this.http.get<UserLeer>(`${this.api}/me`);
   }
 
   actualizarUsuario(id: number, data: UserActualizarAdmin): Observable<UserLeer> {

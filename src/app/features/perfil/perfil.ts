@@ -16,8 +16,10 @@ export class Perfil implements OnInit {
 
   cargoActual    = ''
   usernameActual = ''
+  emailActual    = ''
 
   username  = ''
+  email     = ''
   password  = ''
   confirmar = ''
   mostrarPassword  = false
@@ -33,30 +35,47 @@ export class Perfil implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  try {
-    const roles: string[] = JSON.parse(localStorage.getItem('roles') ?? '[]')
-    this.cargoActual = roles.length ? roles.join(', ') : '—'
-  } catch {
-    this.cargoActual = '—'
-  }
-
-  const token = localStorage.getItem('token')
-  if (token) {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      this.usernameActual = payload.username || payload.sub || payload.name || '—'
+      const roles: string[] = JSON.parse(localStorage.getItem('roles') ?? '[]')
+      this.cargoActual = roles.length ? roles.join(', ') : '—'
     } catch {
-      this.usernameActual = '—'
+      this.cargoActual = '—'
     }
+
+    this.userService.obtenerPerfil().subscribe({
+      next: (u) => {
+        this.usernameActual = u.username
+        this.emailActual = u.email
+        if (u.roles && u.roles.length) {
+          this.cargoActual = u.roles.map((r) => r.nombre).join(', ')
+        }
+        this.cdr.detectChanges()
+      },
+      error: () => {
+        const token = localStorage.getItem('token')
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            this.usernameActual = payload.username || payload.sub || payload.name || '—'
+          } catch {
+            this.usernameActual = '—'
+          }
+        }
+        this.cdr.detectChanges()
+      }
+    })
   }
-}
 
   togglePassword(): void  { this.mostrarPassword  = !this.mostrarPassword }
   toggleConfirmar(): void { this.mostrarConfirmar = !this.mostrarConfirmar }
 
   guardar(): void {
-    if (!this.username && !this.password) {
+    if (!this.username && !this.email && !this.password) {
       this.mostrarMensaje('Completa al menos un campo para actualizar', 'error')
+      return
+    }
+    if (this.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+      this.mostrarMensaje('Ingresa un correo válido', 'error')
       return
     }
     if (this.password && this.password !== this.confirmar) {
@@ -67,6 +86,7 @@ export class Perfil implements OnInit {
     this.guardando = true
     const payload: any = {}
     if (this.username) payload['username'] = this.username
+    if (this.email)    payload['email']    = this.email
     if (this.password) payload['password'] = this.password
 
     this.userService.actualizarPerfil(payload).subscribe({
@@ -74,7 +94,11 @@ export class Perfil implements OnInit {
         if (this.username) {
           this.usernameActual = this.username
         }
+        if (this.email) {
+          this.emailActual = this.email
+        }
         this.username  = ''
+        this.email     = ''
         this.password  = ''
         this.confirmar = ''
         this.guardando = false
