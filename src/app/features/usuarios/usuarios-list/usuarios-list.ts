@@ -26,12 +26,12 @@ export class UsuariosList implements OnInit {
   modalAbierto = false;
   mostrarPassword = false;
   guardando = false;
-  form = { username: '', password: '', role_id: 0 };
+  form = { username: '', email: '', password: '', role_id: 0 };
 
   modalEditarAbierto = false;
   usuarioEditandoId: number | null = null;
   editando = false;
-  formEditar = { username: '', role_id: 0, password: '' };
+  formEditar = { username: '', email: '', role_id: 0, password: '' };
 
   modalToggleAbierto = false;
   itemToggle: any = null;
@@ -79,7 +79,7 @@ export class UsuariosList implements OnInit {
   }
 
   abrirModalCrear(): void {
-    this.form = { username: '', password: '', role_id: 0 };
+    this.form = { username: '', email: '', password: '', role_id: 0 };
     this.mostrarPassword = false;
     this.modalAbierto = true;
   }
@@ -89,7 +89,7 @@ export class UsuariosList implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.username || !this.form.password || !this.form.role_id) {
+    if (!this.form.username || !this.form.email || !this.form.password || !this.form.role_id) {
       this.mostrarMensaje('Todos los campos son requeridos', 'error');
       return;
     }
@@ -97,6 +97,7 @@ export class UsuariosList implements OnInit {
     this.userService
       .crear({
         username: this.form.username,
+        email: this.form.email,
         password: this.form.password,
         role_id: Number(this.form.role_id),
       })
@@ -118,6 +119,7 @@ export class UsuariosList implements OnInit {
     this.usuarioEditandoId = u.id;
     this.formEditar = {
       username: u.username,
+      email: u.email,
       role_id: u.roles.length > 0 ? u.roles[0].id : 0,
       password: '', // opcional — solo se envía si el admin escribe algo
     };
@@ -138,6 +140,7 @@ export class UsuariosList implements OnInit {
 
     const payload: any = {
       username: this.formEditar.username,
+      email: this.formEditar.email,
       role_id: Number(this.formEditar.role_id),
     };
     if (this.formEditar.password) {

@@ -11,18 +11,21 @@ export interface RoleLeer {
 export interface UserLeer {
   id: number;
   username: string;
+  email: string;
   roles: RoleLeer[];
   activo: boolean;
 }
 
 export interface UserCrear {
   username: string;
+  email: string;
   password: string;
   role_id: number;
 }
 
 export interface UserActualizarAdmin {
   username: string;
+  email: string;
   role_id: number;
   password?: string;
 }
