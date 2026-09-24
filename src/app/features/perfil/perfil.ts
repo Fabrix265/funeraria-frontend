@@ -103,10 +103,12 @@ export class Perfil implements OnInit {
         this.confirmar = ''
         this.guardando = false
         this.mostrarMensaje('Perfil actualizado correctamente', 'exito')
+        this.cdr.detectChanges()
       },
       error: (e) => {
         this.guardando = false
         this.mostrarMensaje(e.error?.detail || 'Error al actualizar el perfil', 'error')
+        this.cdr.detectChanges()
       }
     })
   }
@@ -114,6 +116,7 @@ export class Perfil implements OnInit {
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
     this.mensaje     = texto
     this.tipoMensaje = tipo
+    this.cdr.detectChanges()
     setTimeout(() => { this.mensaje = ''; this.cdr.detectChanges() }, 3500)
   }
 

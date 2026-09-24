@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, ChangeDetectorRef } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
@@ -20,7 +20,10 @@ export class Recuperar {
   cargando = false
   enviado = false
 
-  constructor(private auth: Auth) {}
+  constructor(
+    private auth: Auth,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   enviar(): void {
     if (!this.email) return
@@ -31,10 +34,12 @@ export class Recuperar {
         this.cargando = false
         this.enviado = true
         this.mensaje = 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.'
+        this.cdr.detectChanges()
       },
       error: (err) => {
         this.cargando = false
         this.error = err.error?.detail || 'Ocurrió un error al procesar la solicitud'
+        this.cdr.detectChanges()
       }
     })
   }

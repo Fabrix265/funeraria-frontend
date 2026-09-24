@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
@@ -26,6 +26,7 @@ export class Restablecer implements OnInit {
   constructor(
     private auth: Auth,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -51,10 +52,12 @@ export class Restablecer implements OnInit {
       next: () => {
         this.cargando = false
         this.exito = true
+        this.cdr.detectChanges()
       },
       error: (err) => {
         this.cargando = false
         this.error = err.error?.detail || 'El enlace no es válido o ha expirado'
+        this.cdr.detectChanges()
       }
     })
   }

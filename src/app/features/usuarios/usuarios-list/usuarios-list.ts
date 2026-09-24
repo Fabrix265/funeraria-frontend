@@ -186,6 +186,7 @@ export class UsuariosList implements OnInit {
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
     this.mensaje = texto;
     this.tipoMensaje = tipo;
+    this.cdr.detectChanges();
     setTimeout(() => {
       this.mensaje = '';
       this.cdr.detectChanges();
