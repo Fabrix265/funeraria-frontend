@@ -27,6 +27,10 @@
           <span class="info-value">{{ usernameActual }}</span>
         </div>
         <div class="info-row">
+          <span class="info-label">Correo</span>
+          <span class="info-value">{{ emailActual || '—' }}</span>
+        </div>
+        <div class="info-row">
           <span class="info-label">Cargo</span>
           <span class="cargo-badge" [class.cargo-badge--admin]="cargoActual === 'administrador'">
             {{ cargoActual | titlecase }}
@@ -52,6 +56,21 @@
           />
           <span class="field__error" *ngIf="usernameP.invalid && usernameP.touched">
             Mínimo 3 caracteres
+          </span>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Nuevo correo</label>
+          <input
+            class="field__input"
+            type="email"
+            [(ngModel)]="email"
+            placeholder="Dejar vacío para no cambiar"
+            #emailP="ngModel"
+            email
+          />
+          <span class="field__error" *ngIf="emailP.invalid && emailP.touched">
+            Ingresa un correo válido
           </span>
         </div>
 
@@ -110,6 +129,43 @@
           </button>
         </div>
 
+      </div>
+    </div>
+
+  <div class="card">
+      <h2 class="card__title"><svg lucideIcon="cloud"></svg> Google Drive</h2>
+      <div class="card__body">
+        <div class="drive-row" *ngIf="!driveCargando && driveAutorizado === null">
+          <span class="drive-badge drive-badge--neutral"><span class="btn-spinner"></span> Consultando conexión...</span>
+        </div>
+
+        <div class="drive-row" *ngIf="driveAutorizado === true">
+          <span class="drive-badge drive-badge--ok"><svg lucideIcon="plug"></svg> Conectado</span>
+          <span class="info-value" *ngIf="driveExpiracion">Válido hasta: {{ driveExpiracion }}</span>
+          <span class="info-value drive-hint">Los archivos de los servicios se subirán a tu Google Drive.</span>
+        </div>
+
+        <div class="drive-row" *ngIf="driveAutorizado === false">
+          <span class="drive-badge drive-badge--warn"><svg lucideIcon="plug-zap"></svg> No conectado</span>
+          <span class="info-value">
+            {{
+              driveMotivo === 'refresh_invalido'
+                ? 'La conexión con Google Drive expiró o fue revocada. Reconecta para seguir subiendo archivos.'
+                : 'Aún no has conectado tu cuenta de Google Drive. Los archivos de los servicios no se podrán subir hasta que lo hagas.'
+            }}
+          </span>
+        </div>
+
+        <div class="card__footer">
+          <button
+            class="btn btn--primary btn--drive"
+            (click)="conectarDrive()"
+            [disabled]="driveAutorizado === null"
+          >
+            <svg lucideIcon="cloud"></svg>
+            {{ driveAutorizado === true ? 'Reconectar Google Drive' : 'Conectar Google Drive' }}
+          </button>
+        </div>
       </div>
     </div>
 

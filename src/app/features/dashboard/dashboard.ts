@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideDynamicIcon } from '@lucide/angular';
+import { DriveAviso } from '../../shared/components/drive-aviso/drive-aviso';
 import { tienePermiso } from '../../core/utils/auth.utils';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, CommonModule, LucideDynamicIcon],
+  imports: [RouterLink, CommonModule, LucideDynamicIcon, DriveAviso],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })

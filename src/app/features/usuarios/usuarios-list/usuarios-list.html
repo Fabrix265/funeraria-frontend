@@ -57,6 +57,7 @@
         <tr>
           <th>ID</th>
           <th>Usuario</th>
+          <th>Correo</th>
           <th>Cargo</th>
           <th>Estado</th>
           <th>Acciones</th>
@@ -66,6 +67,7 @@
         <tr *ngFor="let u of usuarios" class="tabla__fila" [class.tabla__fila--inactivo]="!u.activo">
           <td class="tabla__id">#{{ u.id }}</td>
           <td class="tabla__nombre">{{ u.username }}</td>
+          <td class="tabla__correo">{{ u.email }}</td>
 
           <td>
             <ng-container *ngIf="u.roles && u.roles.length > 0">
@@ -113,6 +115,13 @@
         <input class="field__input" type="text" [(ngModel)]="form.username" placeholder="Nombre de usuario" minlength="3" maxlength="30" pattern="^[a-zA-Z0-9]+(?:[._\-][a-zA-Z0-9]+)*$" #usernameU="ngModel" />
         <span class="field__error" *ngIf="usernameU.invalid && usernameU.touched">
           Letras, números, puntos, guiones. Sin espacios ni signos especiales
+        </span>
+      </div>
+      <div class="field">
+        <label class="field__label">Correo *</label>
+        <input class="field__input" type="email" [(ngModel)]="form.email" placeholder="correo@ejemplo.com" #emailU="ngModel" email />
+        <span class="field__error" *ngIf="emailU.invalid && emailU.touched">
+          Ingresa un correo válido
         </span>
       </div>
       <div class="field">
@@ -165,6 +174,13 @@
       <div class="field">
         <label class="field__label">Usuario (Lectura)</label>
         <input class="field__input" type="text" [value]="formEditar.username" disabled />
+      </div>
+      <div class="field">
+        <label class="field__label">Correo *</label>
+        <input class="field__input" type="email" [(ngModel)]="formEditar.email" placeholder="correo@ejemplo.com" #emailE="ngModel" email />
+        <span class="field__error" *ngIf="emailE.invalid && emailE.touched">
+          Ingresa un correo válido
+        </span>
       </div>
       <div class="field">
         <label class="field__label">Nuevo Cargo / Rol *</label>

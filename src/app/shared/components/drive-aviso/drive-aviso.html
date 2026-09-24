@@ -1,0 +1,27 @@
+<ng-container *ngIf="puedeSubir">
+
+  <div class="drive-toast" *ngIf="toast" [class.drive-toast--error]="toastTipo === 'error'">
+    <svg *ngIf="toastTipo === 'exito'" lucideIcon="circle-check" class="drive-toast__icon"></svg>
+    <svg *ngIf="toastTipo === 'error'" lucideIcon="circle-x" class="drive-toast__icon"></svg>
+    {{ toast }}
+  </div>
+
+  <div class="drive-aviso" *ngIf="autorizado === false">
+    <svg lucideIcon="plug-zap" class="drive-aviso__icon"></svg>
+    <div class="drive-aviso__texto">
+      <strong>Google Drive no conectado</strong>
+      <span>
+        {{
+          motivo === 'refresh_invalido'
+            ? 'La conexión expiró o fue revocada y los archivos de los servicios no se podrán subir.'
+            : 'Los archivos de los servicios no se subirán hasta que conectes tu cuenta de Google.'
+        }}
+      </span>
+    </div>
+    <button class="drive-aviso__btn" (click)="conectar()">
+      <svg lucideIcon="cloud"></svg>
+      Conectar ahora
+    </button>
+  </div>
+
+</ng-container>

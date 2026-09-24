@@ -4,6 +4,8 @@ import { authGuard } from './core/guards/auth-guard'
 import { roleGuard } from './core/guards/role-guard'
 
 import { Login } from './features/auth/login/login'
+import { Recuperar } from './features/auth/recuperar/recuperar'
+import { Restablecer } from './features/auth/restablecer/restablecer'
 import { Dashboard } from './features/dashboard/dashboard'
 
 import { ServicioList } from './features/servicios/servicio-list/servicio-list'
@@ -32,6 +34,16 @@ export const routes: Routes = [
   {
     path: 'login',
     component: Login,
+  },
+
+  {
+    path: 'recuperar',
+    component: Recuperar,
+  },
+
+  {
+    path: 'restablecer',
+    component: Restablecer,
   },
 
   {

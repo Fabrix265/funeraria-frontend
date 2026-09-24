@@ -88,6 +88,25 @@
 .btn-spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.drive-row { display: flex; flex-direction: column; gap: 0.45rem; }
+.drive-badge {
+  display: inline-flex; align-items: center; gap: 0.45rem; width: fit-content;
+  padding: 0.25rem 0.8rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.drive-badge--ok {
+  background: rgba(110,220,150,.12); color: #6edc96; border: 1px solid rgba(110,220,150,.3);
+}
+.drive-badge--warn {
+  background: rgba(232,180,100,.12); color: #e8b464; border: 1px solid rgba(232,180,100,.3);
+}
+.drive-badge--neutral {
+  background: rgba(160,204,232,.1); color: #a0cce8; border: 1px solid rgba(160,204,232,.25);
+}
+.drive-badge .btn-spinner { width: 11px; height: 11px; }
+.drive-hint { color: var(--text-muted); font-size: 0.82rem; }
+.btn--drive svg { width: 15px; height: 15px; }
+
 
 
 

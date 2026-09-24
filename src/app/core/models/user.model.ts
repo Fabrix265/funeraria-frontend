@@ -8,6 +8,7 @@ export interface Role {
 export interface User {
   id: number;
   username: string;
+  email: string;
   cargo?: Cargo;
   roles: Role[];
   activo: boolean;

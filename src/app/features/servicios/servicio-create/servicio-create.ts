@@ -11,12 +11,13 @@ import { TipoArchivo } from '../../../core/models/servicio-archivo.model';
 import { tienePermiso } from '../../../core/utils/auth.utils';
 import { environment } from '../../../../environments/environment';
 import { ReniecService, ReniecResponse } from '../../../core/services/reniec';
+import { DriveAviso } from '../../../shared/components/drive-aviso/drive-aviso';
 import { forkJoin, concat } from 'rxjs';
 
 @Component({
   selector: 'app-servicio-create',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterLink, LucideDynamicIcon],
+  imports: [FormsModule, CommonModule, RouterLink, LucideDynamicIcon, DriveAviso],
   templateUrl: './servicio-create.html',
   styleUrls: ['./servicio-create.css'],
 })

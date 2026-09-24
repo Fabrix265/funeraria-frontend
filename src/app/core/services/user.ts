@@ -11,18 +11,21 @@ export interface RoleLeer {
 export interface UserLeer {
   id: number;
   username: string;
+  email: string;
   roles: RoleLeer[];
   activo: boolean;
 }
 
 export interface UserCrear {
   username: string;
+  email: string;
   password: string;
   role_id: number;
 }
 
 export interface UserActualizarAdmin {
   username: string;
+  email: string;
   role_id: number;
   password?: string;
 }
@@ -57,8 +60,12 @@ export class UserService {
     return this.http.delete(`${this.api}/${id}`);
   }
 
-  actualizarPerfil(data: { username: string; password: string }): Observable<UserLeer> {
+  actualizarPerfil(data: { username?: string; email?: string; password?: string }): Observable<UserLeer> {
     return this.http.put<UserLeer>(`${this.api}/me`, data);
+  }
+
+  obtenerPerfil(): Observable<UserLeer> {
+    return this.http.get<UserLeer>(`${this.api}/me`);
   }
 
   actualizarUsuario(id: number, data: UserActualizarAdmin): Observable<UserLeer> {

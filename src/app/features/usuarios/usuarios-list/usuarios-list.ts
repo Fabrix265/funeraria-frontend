@@ -26,12 +26,12 @@ export class UsuariosList implements OnInit {
   modalAbierto = false;
   mostrarPassword = false;
   guardando = false;
-  form = { username: '', password: '', role_id: 0 };
+  form = { username: '', email: '', password: '', role_id: 0 };
 
   modalEditarAbierto = false;
   usuarioEditandoId: number | null = null;
   editando = false;
-  formEditar = { username: '', role_id: 0, password: '' };
+  formEditar = { username: '', email: '', role_id: 0, password: '' };
 
   modalToggleAbierto = false;
   itemToggle: any = null;
@@ -79,7 +79,7 @@ export class UsuariosList implements OnInit {
   }
 
   abrirModalCrear(): void {
-    this.form = { username: '', password: '', role_id: 0 };
+    this.form = { username: '', email: '', password: '', role_id: 0 };
     this.mostrarPassword = false;
     this.modalAbierto = true;
   }
@@ -89,14 +89,19 @@ export class UsuariosList implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.username || !this.form.password || !this.form.role_id) {
+    if (!this.form.username || !this.form.email || !this.form.password || !this.form.role_id) {
       this.mostrarMensaje('Todos los campos son requeridos', 'error');
+      return;
+    }
+    if (!this.validarEmail(this.form.email)) {
+      this.mostrarMensaje('Ingresa un correo electrónico válido', 'error');
       return;
     }
     this.guardando = true;
     this.userService
       .crear({
         username: this.form.username,
+        email: this.form.email,
         password: this.form.password,
         role_id: Number(this.form.role_id),
       })
@@ -108,7 +113,7 @@ export class UsuariosList implements OnInit {
           this.guardando = false;
         },
         error: (err) => {
-          this.mostrarMensaje(err.error?.detail || 'Error al crear', 'error');
+          this.mostrarMensaje(this.mensajeError(err), 'error');
           this.guardando = false;
         },
       });
@@ -118,6 +123,7 @@ export class UsuariosList implements OnInit {
     this.usuarioEditandoId = u.id;
     this.formEditar = {
       username: u.username,
+      email: u.email,
       role_id: u.roles.length > 0 ? u.roles[0].id : 0,
       password: '', // opcional — solo se envía si el admin escribe algo
     };
@@ -134,10 +140,15 @@ export class UsuariosList implements OnInit {
       this.mostrarMensaje('Debes seleccionar un rol', 'error');
       return;
     }
+    if (!this.validarEmail(this.formEditar.email)) {
+      this.mostrarMensaje('Ingresa un correo electrónico válido', 'error');
+      return;
+    }
     this.editando = true;
 
     const payload: any = {
       username: this.formEditar.username,
+      email: this.formEditar.email,
       role_id: Number(this.formEditar.role_id),
     };
     if (this.formEditar.password) {
@@ -152,7 +163,7 @@ export class UsuariosList implements OnInit {
         this.editando = false;
       },
       error: (err) => {
-        this.mostrarMensaje(err.error?.detail || 'Error al actualizar', 'error');
+        this.mostrarMensaje(this.mensajeError(err), 'error');
         this.editando = false;
       },
     });
@@ -176,13 +187,28 @@ export class UsuariosList implements OnInit {
         this.cerrarModalEliminar();
         this.cargar();
       },
-      error: (e) => this.mostrarMensaje(e.error?.detail || 'Error al eliminar', 'error'),
+      error: (e) => this.mostrarMensaje(this.mensajeError(e), 'error'),
     });
+  }
+
+  validarEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  mensajeError(err: any): string {
+    const detalle = err?.error?.detail;
+    if (!detalle) return 'Error del servidor';
+    if (typeof detalle === 'string') return detalle;
+    if (Array.isArray(detalle)) {
+      return detalle.map((d: any) => d.msg || String(d)).join(' • ');
+    }
+    return String(detalle);
   }
 
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
     this.mensaje = texto;
     this.tipoMensaje = tipo;
+    this.cdr.detectChanges();
     setTimeout(() => {
       this.mensaje = '';
       this.cdr.detectChanges();
@@ -211,7 +237,7 @@ export class UsuariosList implements OnInit {
         this.cerrarModalToggle();
         this.cargar();
       },
-      error: (e) => this.mostrarMensaje(e.error?.detail || `Error al ${accion}`, 'error'),
+      error: (e) => this.mostrarMensaje(this.mensajeError(e), 'error'),
     });
   }
 

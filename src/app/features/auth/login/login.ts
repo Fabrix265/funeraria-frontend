@@ -1,5 +1,5 @@
-import { Component } from '@angular/core'
-import { Router } from '@angular/router'
+import { Component, ChangeDetectorRef } from '@angular/core'
+import { Router, RouterLink } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
@@ -8,7 +8,7 @@ import { LucideDynamicIcon } from '@lucide/angular'
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, LucideDynamicIcon],
+  imports: [FormsModule, CommonModule, RouterLink, LucideDynamicIcon],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -22,7 +22,8 @@ export class Login {
 
   constructor(
     private auth: Auth,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   login(): void {
@@ -40,6 +41,7 @@ export class Login {
           this.error = err.error?.detail || 'Usuario o contraseña incorrectos'
         }
         this.cargando = false
+        this.cdr.detectChanges()
       }
     })
   }

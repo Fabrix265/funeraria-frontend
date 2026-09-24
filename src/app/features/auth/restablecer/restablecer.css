@@ -1,0 +1,37 @@
+.field__error {
+  color: #d08080;
+  font-size: 0.78rem;
+}
+
+.login-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.3);
+  border-radius: 6px;
+  color: #86efac;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.login-success svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.login-back {
+  margin-top: 0.75rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.login-back:hover {
+  color: var(--text);
+}
