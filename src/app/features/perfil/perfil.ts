@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { LucideDynamicIcon } from '@lucide/angular'
 import { UserService } from '../../core/services/user'
+import { Drive } from '../../core/services/drive'
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -12,7 +13,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css']
 })
-export class Perfil implements OnInit {
+export class Perfil implements OnInit, OnDestroy {
 
   cargoActual    = ''
   usernameActual = ''
@@ -29,8 +30,14 @@ export class Perfil implements OnInit {
   mensaje   = ''
   tipoMensaje: 'exito' | 'error' = 'exito'
 
+  driveCargando     = false
+  driveAutorizado: boolean | null = null
+  driveExpiracion   = ''
+  driveMotivo: string | null = null
+
   constructor(
     private userService: UserService,
+    private drive: Drive,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -63,6 +70,42 @@ export class Perfil implements OnInit {
         }
         this.cdr.detectChanges()
       }
+    })
+
+    this.cargarEstadoDrive()
+    window.addEventListener('focus', this.revisarAlVolver)
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('focus', this.revisarAlVolver)
+  }
+
+  private revisarAlVolver = (): void => this.cargarEstadoDrive()
+
+  cargarEstadoDrive(): void {
+    this.drive.estado().subscribe({
+      next: (s) => {
+        this.driveAutorizado = s.autorizado
+        this.driveMotivo     = s.motivo
+        this.driveExpiracion = s.expira_en ? new Date(s.expira_en).toLocaleString() : ''
+        this.driveCargando   = false
+        this.cdr.detectChanges()
+      },
+      error: () => {
+        this.driveAutorizado = null
+        this.driveMotivo     = null
+        this.driveCargando   = false
+        this.cdr.detectChanges()
+      }
+    })
+  }
+
+  conectarDrive(): void {
+    this.drive.obtenerUrlAuth().subscribe({
+      next: (r) => {
+        window.open(r.url, '_blank', 'noopener')
+      },
+      error: () => this.mostrarMensaje('No se pudo iniciar la conexión con Google Drive', 'error')
     })
   }
 
