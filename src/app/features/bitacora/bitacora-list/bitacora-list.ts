@@ -20,6 +20,7 @@ export class BitacoraList implements OnInit {
   limite = 20
   cargando = false
   totalPaginas = 1
+  exportando = false
 
   filtros = {
     fecha_inicio: '',
@@ -157,6 +158,26 @@ export class BitacoraList implements OnInit {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+    })
+  }
+
+  exportarExcel(): void {
+    this.exportando = true
+    this.bitacoraService.exportar(this.filtros).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `bitacora_${new Date().toISOString().slice(0, 10)}.xlsx`
+        a.click()
+        window.URL.revokeObjectURL(url)
+        this.exportando = false
+        this.cdr.detectChanges()
+      },
+      error: () => {
+        this.exportando = false
+        this.cdr.detectChanges()
+      },
     })
   }
 }

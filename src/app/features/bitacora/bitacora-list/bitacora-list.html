@@ -42,6 +42,10 @@
       <div class="filtro-group filtro-group--action">
         <button class="btn btn--ghost" (click)="limpiarFiltros()"><svg lucideIcon="x" style="width:14px;height:14px"></svg> Limpiar</button>
         <button class="btn btn--secondary" (click)="aplicarFiltros()">Buscar</button>
+        <button class="btn btn--secondary" [disabled]="exportando" (click)="exportarExcel()">
+           <svg lucideIcon="download" style="width:14px;height:14px"></svg>
+            {{ exportando ? 'Exportando...' : 'Exportar Excel' }}
+        </button>
       </div>
 
     </div>
