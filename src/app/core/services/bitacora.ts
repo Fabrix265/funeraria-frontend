@@ -26,4 +26,16 @@ export class BitacoraService {
   obtenerPorId(id: number) {
     return this.http.get(`${this.api}/${id}`)
   }
+
+  exportar(filtros: any) {
+    let params = new HttpParams()
+
+    Object.keys(filtros).forEach((key) => {
+      if (filtros[key] !== undefined && filtros[key] !== null && filtros[key] !== '') {
+        params = params.set(key, filtros[key])
+      }
+    })
+
+    return this.http.get(`${this.api}/exportar`, { params, responseType: 'blob' })
+  }
 }
