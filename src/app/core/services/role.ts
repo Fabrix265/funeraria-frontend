@@ -41,4 +41,8 @@ export class Role {
   listar(): Observable<RoleDetalle[]> {
     return this.http.get<RoleDetalle[]>(`${this.api}/`);
   }
+
+  actualizar(id: number, data: RoleCrear): Observable<RoleDetalle> {
+    return this.http.put<RoleDetalle>(`${this.api}/${id}`, data);
+  }
 }
