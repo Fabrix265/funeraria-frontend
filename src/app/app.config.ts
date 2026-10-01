@@ -42,7 +42,6 @@ import {
   LucideUpload,
   LucideImage,
   LucideFolderOpen,
-  LucideDownload,
   LucideReplace,
   LucideUploadCloud,
   LucideFileCheck,

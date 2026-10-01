@@ -26,6 +26,9 @@ export class RolesList implements OnInit {
   modalEliminarAbierto = false;
   rolEliminar: RoleDetalle | null = null;
 
+  modoEdicion = false;
+  rolSeleccionado: RoleDetalle | null = null;
+
   constructor(
     private roleService: Role,
     private cdr: ChangeDetectorRef,
@@ -82,6 +85,8 @@ export class RolesList implements OnInit {
   }
 
   abrirModalCrear(): void {
+    this.modoEdicion = false;
+    this.rolSeleccionado = null;
     this.form = { nombre: '', permisos_ids: [] };
     this.modalAbierto = true;
   }
@@ -96,20 +101,23 @@ export class RolesList implements OnInit {
       return;
     }
     this.guardando = true;
-    this.roleService
-      .crear({ nombre: this.form.nombre, permisos_ids: this.form.permisos_ids })
-      .subscribe({
-        next: () => {
-          this.mostrarMensaje('Rol creado correctamente', 'exito');
-          this.cerrarModal();
-          this.cargar();
-          this.guardando = false;
-        },
-        error: (err) => {
-          this.mostrarMensaje(err.error?.detail || 'Error al crear el rol', 'error');
-          this.guardando = false;
-        },
-      });
+
+    const peticion = this.modoEdicion && this.rolSeleccionado
+      ? this.roleService.actualizar(this.rolSeleccionado.id, { nombre: this.form.nombre, permisos_ids: this.form.permisos_ids })
+      : this.roleService.crear({ nombre: this.form.nombre, permisos_ids: this.form.permisos_ids });
+
+    peticion.subscribe({
+      next: () => {
+        this.mostrarMensaje(this.modoEdicion ? 'Rol actualizado correctamente' : 'Rol creado correctamente', 'exito');
+        this.cerrarModal();
+        this.cargar();
+        this.guardando = false;
+      },
+      error: (err) => {
+        this.mostrarMensaje(err.error?.detail || `Error al ${this.modoEdicion ? 'actualizar' : 'crear'} el rol`, 'error');
+        this.guardando = false;
+      },
+    });
   }
 
   abrirModalEliminar(r: RoleDetalle): void {
@@ -141,5 +149,12 @@ export class RolesList implements OnInit {
       this.mensaje = '';
       this.cdr.detectChanges();
     }, 3500);
+  }
+
+  abrirModalEditar(rol: RoleDetalle): void {
+    this.modoEdicion = true;
+    this.rolSeleccionado = rol;
+    this.form = { nombre: rol.nombre, permisos_ids: rol.permisos.map((p) => p.id) };
+    this.modalAbierto = true;
   }
 }

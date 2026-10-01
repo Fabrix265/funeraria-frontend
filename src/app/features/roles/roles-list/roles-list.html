@@ -57,10 +57,17 @@
           </td>
           <td class="tabla__acciones">
             <button
+              class="icon-btn icon-btn--edit"
+              title="Editar"
+              [disabled]="rol.nombre.toLowerCase() === 'administrador'"
+              (click)="abrirModalEditar(rol)"><svg lucideIcon="pencil"></svg>
+            </button>
+            <button
               class="icon-btn icon-btn--delete"
               title="Eliminar"
               [disabled]="rol.nombre.toLowerCase() === 'administrador'"
-              (click)="abrirModalEliminar(rol)"><svg lucideIcon="trash-2"></svg></button>
+              (click)="abrirModalEliminar(rol)"><svg lucideIcon="trash-2"></svg>
+            </button>
           </td>
         </tr>
         </tbody>
@@ -73,7 +80,7 @@
 <div class="modal-overlay" *ngIf="modalAbierto" (click)="cerrarModal()">
   <div class="modal modal--lg" (click)="$event.stopPropagation()">
     <div class="modal__header">
-      <h2 class="modal__title">Nuevo rol</h2>
+      <h2 class="modal__title">{{ modoEdicion ? 'Editar rol' : 'Nuevo rol' }}</h2>
       <button class="modal__close" (click)="cerrarModal()"><svg lucideIcon="x"></svg></button>
     </div>
     <div class="modal__body">
@@ -105,7 +112,7 @@
       <button class="btn btn--ghost" (click)="cerrarModal()">Cancelar</button>
       <button class="btn btn--primary" (click)="guardar()" [disabled]="guardando">
         <span class="btn-spinner" *ngIf="guardando"></span>
-        {{ guardando ? 'Creando...' : 'Crear rol' }}
+        {{ guardando ? (modoEdicion ? 'Guardando...' : 'Creando...') : (modoEdicion ? 'Guardar cambios' : 'Crear rol') }}
       </button>
     </div>
   </div>
