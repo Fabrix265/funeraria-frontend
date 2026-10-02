@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { LucideDynamicIcon } from '@lucide/angular'
+import { Router } from '@angular/router'
 import { UserService } from '../../core/services/user'
 import { Drive } from '../../core/services/drive'
 import { RouterLink } from '@angular/router';
@@ -20,7 +21,6 @@ export class Perfil implements OnInit, OnDestroy {
   emailActual    = ''
 
   username  = ''
-  email     = ''
   password  = ''
   confirmar = ''
   mostrarPassword  = false
@@ -30,6 +30,16 @@ export class Perfil implements OnInit, OnDestroy {
   mensaje   = ''
   tipoMensaje: 'exito' | 'error' = 'exito'
 
+  modalEmailAbierto = false
+  pasoEmail: 'nuevo' | 'codigo' = 'nuevo'
+  emailNuevo     = ''
+  passwordActual = ''
+  mostrarPasswordActual = false
+  codigo         = ''
+  errorEmail     = ''
+  enviandoCodigo = false
+  confirmando    = false
+
   driveCargando     = false
   driveAutorizado: boolean | null = null
   driveExpiracion   = ''
@@ -38,6 +48,7 @@ export class Perfil implements OnInit, OnDestroy {
   constructor(
     private userService: UserService,
     private drive: Drive,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -113,12 +124,8 @@ export class Perfil implements OnInit, OnDestroy {
   toggleConfirmar(): void { this.mostrarConfirmar = !this.mostrarConfirmar }
 
   guardar(): void {
-    if (!this.username && !this.email && !this.password) {
+    if (!this.username && !this.password) {
       this.mostrarMensaje('Completa al menos un campo para actualizar', 'error')
-      return
-    }
-    if (this.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
-      this.mostrarMensaje('Ingresa un correo válido', 'error')
       return
     }
     if (this.password && this.password !== this.confirmar) {
@@ -126,10 +133,10 @@ export class Perfil implements OnInit, OnDestroy {
       return
     }
 
+    const cambioPassword = !!this.password
     this.guardando = true
     const payload: any = {}
     if (this.username) payload['username'] = this.username
-    if (this.email)    payload['email']    = this.email
     if (this.password) payload['password'] = this.password
 
     this.userService.actualizarPerfil(payload).subscribe({
@@ -137,23 +144,113 @@ export class Perfil implements OnInit, OnDestroy {
         if (this.username) {
           this.usernameActual = this.username
         }
-        if (this.email) {
-          this.emailActual = this.email
-        }
         this.username  = ''
-        this.email     = ''
         this.password  = ''
         this.confirmar = ''
         this.guardando = false
-        this.mostrarMensaje('Perfil actualizado correctamente', 'exito')
         this.cdr.detectChanges()
+        if (cambioPassword) {
+          this.cerrarSesion('Tu contraseña cambió. Por seguridad, inicia sesión nuevamente.')
+          return
+        }
+        this.mostrarMensaje('Perfil actualizado correctamente', 'exito')
       },
       error: (e) => {
         this.guardando = false
         this.mostrarMensaje(e.error?.detail || 'Error al actualizar el perfil', 'error')
+      }
+    })
+  }
+
+  abrirCambioEmail(): void {
+    this.pasoEmail      = 'nuevo'
+    this.emailNuevo     = ''
+    this.passwordActual = ''
+    this.codigo         = ''
+    this.errorEmail     = ''
+    this.modalEmailAbierto = true
+    this.cdr.detectChanges()
+  }
+
+  cerrarCambioEmail(): void {
+    if (this.enviandoCodigo || this.confirmando) return
+    this.modalEmailAbierto = false
+    this.cdr.detectChanges()
+  }
+
+  togglePasswordActual(): void { this.mostrarPasswordActual = !this.mostrarPasswordActual }
+
+  solicitarCodigo(): void {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.emailNuevo.trim())) {
+      this.errorEmail = 'Ingresa un correo válido'
+      return
+    }
+    if (!this.passwordActual) {
+      this.errorEmail = 'Ingresa tu contraseña actual para confirmar la identidad'
+      return
+    }
+    if (this.emailNuevo.trim().toLowerCase() === this.emailActual.toLowerCase()) {
+      this.errorEmail = 'El nuevo correo es igual al actual'
+      return
+    }
+
+    this.errorEmail     = ''
+    this.enviandoCodigo = true
+    this.userService.solicitarCambioEmail({
+      email_nuevo: this.emailNuevo.trim(),
+      password_actual: this.passwordActual
+    }).subscribe({
+      next: () => {
+        this.enviandoCodigo   = false
+        this.pasoEmail        = 'codigo'
+        this.codigo           = ''
+        this.cdr.detectChanges()
+      },
+      error: (e) => {
+        this.enviandoCodigo = false
+        this.errorEmail = e.error?.detail || 'No se pudo enviar el código'
         this.cdr.detectChanges()
       }
     })
+  }
+
+  confirmarCodigo(): void {
+    if (!/^\d{6}$/.test(this.codigo.trim())) {
+      this.errorEmail = 'Ingresa el código de 6 dígitos'
+      return
+    }
+
+    this.errorEmail    = ''
+    this.confirmando   = true
+    this.userService.confirmarCambioEmail({
+      email_nuevo: this.emailNuevo.trim(),
+      codigo: this.codigo.trim()
+    }).subscribe({
+      next: (u) => {
+        this.confirmando      = false
+        this.emailActual      = u.email
+        this.modalEmailAbierto = false
+        this.cdr.detectChanges()
+        this.cerrarSesion('Tu correo cambió a ' + u.email + '. Inicia sesión nuevamente.')
+      },
+      error: (e) => {
+        this.confirmando = false
+        this.errorEmail = e.error?.detail || 'No se pudo confirmar el código'
+        this.cdr.detectChanges()
+      }
+    })
+  }
+
+  reenviarCodigo(): void {
+    this.pasoEmail = 'nuevo'
+    this.codigo    = ''
+    this.errorEmail = ''
+    this.cdr.detectChanges()
+  }
+
+  private cerrarSesion(aviso: string): void {
+    localStorage.clear()
+    this.router.navigate(['/login'], { state: { mensaje: aviso } })
   }
 
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {

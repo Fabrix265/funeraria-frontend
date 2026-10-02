@@ -29,6 +29,14 @@
         <div class="info-row">
           <span class="info-label">Correo</span>
           <span class="info-value">{{ emailActual || '—' }}</span>
+          <button
+            class="btn btn--ghost btn--sm"
+            type="button"
+            (click)="abrirCambioEmail()"
+          >
+            <svg lucideIcon="mail"></svg> Cambiar correo
+          </button>
+          <span class="field__hint">Te enviaremos un código de verificación al nuevo correo.</span>
         </div>
         <div class="info-row">
           <span class="info-label">Cargo</span>
@@ -56,21 +64,6 @@
           />
           <span class="field__error" *ngIf="usernameP.invalid && usernameP.touched">
             Mínimo 3 caracteres
-          </span>
-        </div>
-
-        <div class="field">
-          <label class="field__label">Nuevo correo</label>
-          <input
-            class="field__input"
-            type="email"
-            [(ngModel)]="email"
-            placeholder="Dejar vacío para no cambiar"
-            #emailP="ngModel"
-            email
-          />
-          <span class="field__error" *ngIf="emailP.invalid && emailP.touched">
-            Ingresa un correo válido
           </span>
         </div>
 
@@ -169,6 +162,157 @@
       </div>
     </div>
 
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalEmailAbierto" (click)="cerrarCambioEmail()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal__header">
+        <h2 class="modal__title">
+          <svg lucideIcon="mail-check"></svg> Cambiar correo
+        </h2>
+        <button
+          class="modal__close"
+          type="button"
+          (click)="cerrarCambioEmail()"
+          [disabled]="enviandoCodigo || confirmando"
+        >
+          <svg lucideIcon="x"></svg>
+        </button>
+      </div>
+
+      <div class="modal__body" *ngIf="pasoEmail === 'nuevo'">
+        <p class="modal__info">
+          Por seguridad, confirma tu contraseña actual. Enviaremos un código de 6 dígitos
+          al correo nuevo para verificar que eres tú.
+        </p>
+
+        <div class="field">
+          <label class="field__label">Correo actual</label>
+          <input class="field__input" type="email" [value]="emailActual" disabled />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Correo nuevo</label>
+          <input
+            class="field__input"
+            type="email"
+            [(ngModel)]="emailNuevo"
+            placeholder="nuevo@correo.com"
+            email
+            #emailNuevoP="ngModel"
+          />
+          <span class="field__error" *ngIf="emailNuevoP.invalid && emailNuevoP.touched">
+            Ingresa un correo válido
+          </span>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Tu contraseña actual</label>
+          <div class="field__password-wrap">
+            <input
+              class="field__input"
+              [type]="mostrarPasswordActual ? 'text' : 'password'"
+              [(ngModel)]="passwordActual"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              #passActual="ngModel"
+            />
+            <button
+              class="field__eye"
+              type="button"
+              (click)="togglePasswordActual()"
+              [title]="mostrarPasswordActual ? 'Ocultar' : 'Mostrar'"
+            >
+              <svg *ngIf="mostrarPasswordActual" lucideIcon="eye-off"></svg>
+              <svg *ngIf="!mostrarPasswordActual" lucideIcon="eye"></svg>
+            </button>
+          </div>
+          <span class="field__error" *ngIf="passActual.touched && !passwordActual">
+            Ingresa tu contraseña actual
+          </span>
+        </div>
+      </div>
+
+      <div class="modal__body" *ngIf="pasoEmail === 'codigo'">
+        <p class="modal__info">
+          Ingresa el código de 6 dígitos que enviamos a
+          <strong class="modal__strong">{{ emailNuevo }}</strong>.
+          El código expira en 10 minutos.
+        </p>
+
+        <div class="field">
+          <label class="field__label">Código de verificación</label>
+          <input
+            class="field__input field__input--codigo"
+            type="text"
+            inputmode="numeric"
+            maxlength="6"
+            [(ngModel)]="codigo"
+            placeholder="000000"
+            (keyup.enter)="confirmarCodigo()"
+            #codigoP="ngModel"
+          />
+          <span class="field__error" *ngIf="codigoP.touched && codigo && !/^\d{6}$/.test(codigo)">
+            El código son 6 dígitos
+          </span>
+        </div>
+
+        <div class="modal__aviso">
+          <svg lucideIcon="shield-check"></svg>
+          Al confirmar el cambio, avisaremos al correo anterior y tu sesión se cerrará
+          en todos los dispositivos.
+        </div>
+      </div>
+
+      <p class="modal__error" *ngIf="errorEmail">
+        <svg lucideIcon="circle-x"></svg> {{ errorEmail }}
+      </p>
+
+      <div class="modal__footer">
+        <button
+          class="btn btn--ghost"
+          type="button"
+          (click)="cerrarCambioEmail()"
+          [disabled]="enviandoCodigo || confirmando"
+        >
+          Cancelar
+        </button>
+
+        <button
+          class="btn btn--ghost"
+          type="button"
+          *ngIf="pasoEmail === 'codigo'"
+          (click)="reenviarCodigo()"
+          [disabled]="enviandoCodigo || confirmando"
+        >
+          Usar otro correo
+        </button>
+
+        <button
+          class="btn btn--primary"
+          type="button"
+          *ngIf="pasoEmail === 'nuevo'"
+          (click)="solicitarCodigo()"
+          [disabled]="enviandoCodigo"
+        >
+          <span class="btn-spinner" *ngIf="enviandoCodigo"></span>
+          {{ enviandoCodigo ? 'Enviando...' : 'Enviar código' }}
+        </button>
+
+        <button
+          class="btn btn--primary"
+          type="button"
+          *ngIf="pasoEmail === 'codigo'"
+          (click)="confirmarCodigo()"
+          [disabled]="confirmando"
+        >
+          <span class="btn-spinner" *ngIf="confirmando"></span>
+          {{ confirmando ? 'Confirmando...' : 'Confirmar cambio' }}
+        </button>
+      </div>
+
+    </div>
   </div>
 
 </div>
