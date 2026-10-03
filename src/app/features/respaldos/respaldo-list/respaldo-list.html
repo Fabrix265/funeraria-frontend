@@ -11,15 +11,18 @@
     </div>
     <div class="header-acciones">
       <button class="btn btn--ghost" (click)="resincronizar()"
+              [disabled]="sincronizando"
               title="Volver a leer los respaldos desde Google Drive">
-        <svg lucideIcon="refresh-cw" style="width:14px;height:14px"></svg> Sincronizar
+        <span class="btn-spinner" *ngIf="sincronizando"></span>
+        <svg *ngIf="!sincronizando" lucideIcon="refresh-cw" style="width:14px;height:14px"></svg>
+        {{ sincronizando ? 'Sincronizando...' : 'Sincronizar' }}
       </button>
       <button class="btn btn--secondary" *ngIf="puedeCrear" (click)="abrirConfig()">
         <svg lucideIcon="settings" style="width:14px;height:14px"></svg> Politica
       </button>
       <button class="btn btn--primary" *ngIf="puedeCrear" (click)="abrirCrear()"
-              [disabled]="estado?.maximo_alcanzado || !!estado?.job_en_ejecucion"
-              [title]="estado?.maximo_alcanzado ? 'Se alcanzo el maximo de respaldos guardados. Elimina el mas antiguo o sube el limite.' : ''">
+              [disabled]="!!estado?.job_en_ejecucion"
+              [title]="estado?.maximo_alcanzado ? 'Al superar el limite se retirara automaticamente el respaldo mas antiguo.' : ''">
         <svg lucideIcon="plus" style="width:14px;height:14px"></svg> Generar respaldo
       </button>
     </div>
@@ -292,7 +295,9 @@
         <label class="field__label">
           Escribe <strong>{{ restaurarObjetivo.id }}</strong> para confirmar
         </label>
-        <input class="field__input" type="text" [(ngModel)]="confirmacionTexto"
+        <input class="field__input" type="text"
+               [ngModel]="confirmacionTexto"
+               (ngModelChange)="confirmacionTexto = $event; errorRestaurar = ''"
                placeholder="{{ restaurarObjetivo.id }}" autocomplete="off" />
         <span class="field__error" *ngIf="confirmacionTexto && !confirmacionCorrecta">
           Debe coincidir con el numero del respaldo
@@ -305,7 +310,9 @@
       </label>
 
       <label class="casilla">
-        <input type="checkbox" [(ngModel)]="entendido" />
+        <input type="checkbox"
+               [ngModel]="entendido"
+               (ngModelChange)="entendido = $event; errorRestaurar = ''" />
         Entiendo que los cambios hechos despues de esa fecha se perderan
       </label>
     </div>
@@ -330,8 +337,13 @@
       <div class="field">
         <label class="field__label">Pega el codigo aqui</label>
         <input class="field__input field__input--codigo" type="text" maxlength="200"
-               [(ngModel)]="codigoIngresado" (keyup.enter)="confirmarRestauracion()"
+               [ngModel]="codigoIngresado"
+               (ngModelChange)="codigoIngresado = $event; errorRestaurar = ''"
+               (keyup.enter)="confirmarRestauracion()"
                autocomplete="off" />
+        <span class="field__error" *ngIf="codigoIngresado && !codigoListo">
+          El codigo debe tener al menos 10 caracteres
+        </span>
       </div>
 
       <div class="modal__aviso">
@@ -353,13 +365,14 @@
 
       <button class="btn btn--danger" *ngIf="pasoRestaurar === 'confirmacion'"
               (click)="solicitarCodigo()"
-              [disabled]="!confirmacionCorrecta || !entendido || preparandoCodigo">
+              [disabled]="preparandoCodigo">
         <span class="btn-spinner" *ngIf="preparandoCodigo"></span>
         {{ preparandoCodigo ? 'Generando...' : 'Generar codigo' }}
       </button>
 
       <button class="btn btn--danger" *ngIf="pasoRestaurar === 'codigo'"
-              (click)="confirmarRestauracion()" [disabled]="!codigoListo || lanzando">
+              (click)="confirmarRestauracion()"
+              [disabled]="lanzando">
         <span class="btn-spinner" *ngIf="lanzando"></span>
         {{ lanzando ? 'Restaurando...' : 'Restaurar ahora' }}
       </button>

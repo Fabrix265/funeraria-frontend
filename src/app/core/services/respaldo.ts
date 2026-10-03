@@ -7,6 +7,7 @@ import {
   RespaldoEstado,
   RespaldoJob,
   RespaldoListaResponse,
+  RespaldoResincronizacion,
   TokenRestauracion,
 } from '../models/respaldo.model'
 import { environment } from '../../../environments/environment'
@@ -43,11 +44,8 @@ export class RespaldoService {
     return this.http.post<RespaldoJob>(`${this.api}/`, { observacion })
   }
 
-  resincronizar(): Observable<{ creados: number; actualizados: number; eliminados: number }> {
-    return this.http.post<{ creados: number; actualizados: number; eliminados: number }>(
-      `${this.api}/resincronizar`,
-      {}
-    )
+  resincronizar(): Observable<RespaldoResincronizacion> {
+    return this.http.post<RespaldoResincronizacion>(`${this.api}/resincronizar`, {})
   }
 
   solicitarCodigo(respaldoId: number): Observable<TokenRestauracion> {

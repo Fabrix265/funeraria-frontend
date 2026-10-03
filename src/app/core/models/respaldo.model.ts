@@ -75,3 +75,11 @@ export interface TokenRestauracion {
   token: string
   expira_en: string
 }
+
+export interface RespaldoResincronizacion {
+  creados: number
+  actualizados: number
+  eliminados: number
+  manifiestos_ilegibles: number
+  total: number
+}

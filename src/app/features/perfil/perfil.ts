@@ -5,6 +5,7 @@ import { LucideDynamicIcon } from '@lucide/angular'
 import { Router } from '@angular/router'
 import { UserService } from '../../core/services/user'
 import { Drive } from '../../core/services/drive'
+import { formatearFechaHora } from '../../core/utils/fecha.utils'
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -98,7 +99,7 @@ export class Perfil implements OnInit, OnDestroy {
       next: (s) => {
         this.driveAutorizado = s.autorizado
         this.driveMotivo     = s.motivo
-        this.driveExpiracion = s.expira_en ? new Date(s.expira_en).toLocaleString() : ''
+        this.driveExpiracion = s.expira_en ? formatearFechaHora(s.expira_en) : ''
         this.driveCargando   = false
         this.cdr.detectChanges()
       },

@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router'
 import { LucideDynamicIcon } from '@lucide/angular'
 import { BitacoraService } from '../../../core/services/bitacora'
 import { BitacoraEntry } from '../../../core/models/bitacora.model'
+import { formatearFechaHora } from '../../../core/utils/fecha.utils'
 
 @Component({
   selector: 'app-bitacora-list',
@@ -158,14 +159,7 @@ export class BitacoraList implements OnInit {
   }
 
   formatDate(dateStr: string): string {
-    const d = new Date(dateStr)
-    return d.toLocaleString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return formatearFechaHora(dateStr)
   }
 
   exportarExcel(): void {

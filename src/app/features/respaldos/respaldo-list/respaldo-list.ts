@@ -6,6 +6,7 @@ import { LucideDynamicIcon } from '@lucide/angular'
 import { RespaldoService } from '../../../core/services/respaldo'
 import { ToastService } from '../../../core/services/toast'
 import { tienePermiso } from '../../../core/utils/auth.utils'
+import { formatearFechaHora, formatearHora } from '../../../core/utils/fecha.utils'
 import {
   Respaldo,
   RespaldoConfig,
@@ -32,6 +33,8 @@ export class RespaldoList implements OnInit, OnDestroy {
   modalCrearAbierto = false
   observacion = ''
   creando = false
+
+  sincronizando = false
 
   modalConfigAbierto = false
   configForm: RespaldoConfig = { frecuencia_dias: 15, dias_advertencia: 3, maximo_respaldos: 15 }
@@ -115,16 +118,33 @@ export class RespaldoList implements OnInit, OnDestroy {
   }
 
   resincronizar(): void {
+    if (this.sincronizando) return
+    this.sincronizando = true
+    this.cdr.detectChanges()
+
     this.respaldoService.resincronizar().subscribe({
       next: (res) => {
+        this.sincronizando = false
         this.toast.mostrar(
           `Sincronizados con Drive: ${res.creados} nuevo(s), ${res.actualizados} actualizado(s), ${res.eliminados} retirado(s)`,
           'exito'
         )
+        if (res.manifiestos_ilegibles > 0) {
+          setTimeout(
+            () =>
+              this.toast.mostrar(
+                `${res.manifiestos_ilegibles} manifiesto(s) de Drive no se pudieron leer`,
+                'error'
+              ),
+            3600
+          )
+        }
         this.cargar()
         this.cargarEstado()
+        this.cdr.detectChanges()
       },
       error: (e) => {
+        this.sincronizando = false
         this.toast.mostrar(e.error?.detail || 'No se pudo sincronizar con Drive', 'error')
         this.cdr.detectChanges()
       },
@@ -138,13 +158,8 @@ export class RespaldoList implements OnInit, OnDestroy {
       this.toast.mostrar('Ya hay un respaldo o una restauración en curso', 'error')
       return
     }
-    if (this.estado?.maximo_alcanzado) {
-      this.toast.mostrar(
-        'Se alcanzó el máximo de respaldos guardados. Sube el límite o elimina el más antiguo.',
-        'error'
-      )
-      return
-    }
+    // El máximo no bloquea: al crear, el backend retira solo el más antiguo
+    // (_podar_por_maximo), así que el límite se respeta sin trabar el sistema.
     this.observacion = ''
     this.modalCrearAbierto = true
     this.cdr.detectChanges()
@@ -304,10 +319,29 @@ export class RespaldoList implements OnInit, OnDestroy {
   }
 
   solicitarCodigo(): void {
-    if (!this.restaurarObjetivo || !this.confirmacionCorrecta || !this.entendido) return
+    const objetivo = this.restaurarObjetivo
+    if (!objetivo) return
+
+    if (!this.confirmacionTexto.trim()) {
+      this.errorRestaurar = `Escribe el número ${objetivo.id} para confirmar.`
+      this.cdr.detectChanges()
+      return
+    }
+    if (!this.confirmacionCorrecta) {
+      this.errorRestaurar = `La confirmación no coincide: debe ser ${objetivo.id}.`
+      this.cdr.detectChanges()
+      return
+    }
+    if (!this.entendido) {
+      this.errorRestaurar =
+        'Debes marcar la casilla "Entiendo que los cambios hechos despues de esa fecha se perderan".'
+      this.cdr.detectChanges()
+      return
+    }
+
     this.preparandoCodigo = true
     this.errorRestaurar = ''
-    this.respaldoService.solicitarCodigo(this.restaurarObjetivo.id).subscribe({
+    this.respaldoService.solicitarCodigo(objetivo.id).subscribe({
       next: (res) => {
         this.preparandoCodigo = false
         this.tokenRestauracion = res.token
@@ -347,13 +381,27 @@ export class RespaldoList implements OnInit, OnDestroy {
   }
 
   confirmarRestauracion(): void {
-    if (!this.restaurarObjetivo || !this.codigoListo) return
+    const objetivo = this.restaurarObjetivo
+    if (!objetivo) return
+
+    const codigo = this.codigoIngresado.trim()
+    if (!codigo) {
+      this.errorRestaurar = 'Pega o escribe el codigo de confirmacion para continuar.'
+      this.cdr.detectChanges()
+      return
+    }
+    if (codigo.length < 10) {
+      this.errorRestaurar = 'El codigo no es valido: debe tener al menos 10 caracteres.'
+      this.cdr.detectChanges()
+      return
+    }
+
     this.lanzando = true
     this.errorRestaurar = ''
     this.respaldoService
-      .restaurar(this.restaurarObjetivo.id, {
+      .restaurar(objetivo.id, {
         confirmacion: this.confirmacionTexto.trim(),
-        token: this.codigoIngresado.trim(),
+        token: codigo,
         restaurar_archivos: this.restaurarArchivos,
       })
       .subscribe({
@@ -467,23 +515,11 @@ export class RespaldoList implements OnInit, OnDestroy {
   }
 
   formatDate(dateStr: string | null | undefined): string {
-    if (!dateStr) return '—'
-    const d = new Date(dateStr)
-    return d.toLocaleString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return formatearFechaHora(dateStr)
   }
 
   formatHora(dateStr: string | null | undefined): string {
-    if (!dateStr) return '—'
-    return new Date(dateStr).toLocaleTimeString('es-PE', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return formatearHora(dateStr)
   }
 
   get vigenciaLabel(): string {
