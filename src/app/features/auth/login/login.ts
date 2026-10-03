@@ -18,6 +18,7 @@ export class Login implements OnInit {
   password  = ''
   error     = ''
   aviso     = ''
+  avisoAlerta = false
   cargando  = false
   mostrarPassword = false
 
@@ -31,6 +32,7 @@ export class Login implements OnInit {
     const estado = history.state
     if (estado && estado.mensaje) {
       this.aviso = estado.mensaje
+      this.avisoAlerta = estado.tipo === 'alerta'
       this.cdr.detectChanges()
     }
   }

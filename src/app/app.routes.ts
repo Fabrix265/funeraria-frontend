@@ -28,6 +28,7 @@ import { MainLayout } from './layout/main-layout/main-layout'
 import { Ia } from './features/ia/ia'
 import { Predicciones } from './features/predicciones/predicciones'
 import { BitacoraList } from './features/bitacora/bitacora-list/bitacora-list'
+import { RespaldoList } from './features/respaldos/respaldo-list/respaldo-list'
 import { permisoGuard } from './core/guards/permisos-guard';
 
 export const routes: Routes = [
@@ -142,6 +143,12 @@ export const routes: Routes = [
         component: BitacoraList,
         canActivate: [permisoGuard],
         data: { permiso: 'bitacora:listar' },
+      },
+      {
+        path: 'respaldos',
+        component: RespaldoList,
+        canActivate: [permisoGuard],
+        data: { permiso: 'respaldos:listar' },
       },
     ],
   },

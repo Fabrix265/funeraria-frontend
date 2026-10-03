@@ -65,8 +65,11 @@
           </span>
         </div>
 
-        <div class="login-aviso" *ngIf="aviso">
-          <span class="login-error__icon"><svg lucideIcon="circle-check"></svg></span>
+        <div class="login-aviso" [class.login-aviso--alerta]="avisoAlerta" *ngIf="aviso">
+          <span class="login-error__icon">
+            <svg *ngIf="!avisoAlerta" lucideIcon="circle-check"></svg>
+            <svg *ngIf="avisoAlerta" lucideIcon="alert-triangle"></svg>
+          </span>
           {{ aviso }}
         </div>
 

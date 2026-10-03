@@ -25,6 +25,7 @@ export class MainLayout implements OnInit {
   puedeVerFallecidos = false;
   puedeVerIA = false;
   puedeVerBitacora = false;
+  puedeVerRespaldos = false;
 
   constructor(private router: Router, public toast: ToastService) {}
 
@@ -43,6 +44,7 @@ export class MainLayout implements OnInit {
     this.puedeVerFallecidos = tienePermiso('fallecidos:leer');
     this.puedeVerIA = !!localStorage.getItem('token');
     this.puedeVerBitacora = tienePermiso('bitacora:listar');
+    this.puedeVerRespaldos = tienePermiso('respaldos:listar');
   }
 
   @HostListener('window:resize')

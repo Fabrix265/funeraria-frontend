@@ -53,6 +53,11 @@ import {
   LucidePlug,
   LucidePlugZap,
   LucideShieldCheck,
+  LucideDatabaseBackup,
+  LucideDatabase,
+  LucideRotateCcw,
+  LucideShieldAlert,
+  LucideArchiveRestore,
 } from '@lucide/angular'
 
 import { routes } from './app.routes'
@@ -121,6 +126,11 @@ export const appConfig: ApplicationConfig = {
       LucidePlug,
       LucidePlugZap,
       LucideShieldCheck,
+      LucideDatabaseBackup,
+      LucideDatabase,
+      LucideRotateCcw,
+      LucideShieldAlert,
+      LucideArchiveRestore,
     ),
 
   ]

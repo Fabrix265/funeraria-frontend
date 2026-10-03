@@ -38,6 +38,8 @@ export class BitacoraList implements OnInit {
     { valor: 'eliminar', label: 'Eliminar' },
     { valor: 'cambiar_estado', label: 'Cambiar estado' },
     { valor: 'actualizar_stock', label: 'Actualizar stock' },
+    { valor: 'restaurar', label: 'Restaurar' },
+    { valor: 'descargar', label: 'Descargar' },
   ]
 
   modulosDisponibles = [
@@ -52,6 +54,7 @@ export class BitacoraList implements OnInit {
     { valor: 'usuarios', label: 'Usuarios' },
     { valor: 'roles', label: 'Roles' },
     { valor: 'drive', label: 'Google Drive' },
+    { valor: 'respaldos', label: 'Respaldos' },
   ]
 
   constructor(private bitacoraService: BitacoraService, private cdr: ChangeDetectorRef) {}
@@ -117,6 +120,7 @@ export class BitacoraList implements OnInit {
       usuarios: 'badge--usuarios',
       roles: 'badge--roles',
       drive: 'badge--drive',
+      respaldos: 'badge--respaldos',
     }
     return colores[modulo] || 'badge--default'
   }
@@ -130,6 +134,8 @@ export class BitacoraList implements OnInit {
       eliminar: 'Eliminar',
       cambiar_estado: 'Cambiar estado',
       actualizar_stock: 'Actualizar stock',
+      restaurar: 'Restaurar',
+      descargar: 'Descargar',
     }
     return labels[accion] || accion
   }
@@ -146,6 +152,7 @@ export class BitacoraList implements OnInit {
       usuarios: 'Usuarios',
       roles: 'Roles',
       drive: 'Drive',
+      respaldos: 'Respaldos',
     }
     return labels[modulo] || modulo
   }

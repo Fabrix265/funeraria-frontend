@@ -135,7 +135,10 @@
 .badge--fallecidos { background: rgba(184,202,216,.1); color: #b8cad8; border: 1px solid rgba(184,202,216,.25); }
 .badge--usuarios { background: rgba(184,202,216,.1); color: #b8cad8; border: 1px solid rgba(184,202,216,.25); }
 .badge--roles { background: rgba(232,213,160,.12); color: #e8d5a0; border: 1px solid rgba(232,213,160,.28); }
-.badge--drive { background: rgba(74,158,106,.12); color: #7ecfa0; border: 1px solid rgba(74,158,106,.3); }
+.badge--drive { background: rgba(74,158,106,.12); 
+color: #7ecfa0; border: 1px solid rgba(74,158,106,.3); }
+.badge--respaldos { background: rgba(200,180,232,.12); 
+color: #c8b4e8; border: 1px solid rgba(200,180,232,.3); }
 .badge--default { background: rgba(184,202,216,.1); color: #b8cad8; border: 1px solid rgba(184,202,216,.25); }
 
 .badge-modulo {

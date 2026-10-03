@@ -1,0 +1,461 @@
+<div class="page-wrapper">
+
+  <header class="page-header">
+    <div class="page-header__left">
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">&#8862;</a>
+      <svg lucideIcon="database-backup" class="page-header__icon"></svg>
+      <div>
+        <h1 class="page-header__title">Respaldos</h1>
+        <p class="page-header__sub">Copia de seguridad de la base de datos y de los documentos de servicios</p>
+      </div>
+    </div>
+    <div class="header-acciones">
+      <button class="btn btn--ghost" (click)="resincronizar()"
+              title="Volver a leer los respaldos desde Google Drive">
+        <svg lucideIcon="refresh-cw" style="width:14px;height:14px"></svg> Sincronizar
+      </button>
+      <button class="btn btn--secondary" *ngIf="puedeCrear" (click)="abrirConfig()">
+        <svg lucideIcon="settings" style="width:14px;height:14px"></svg> Politica
+      </button>
+      <button class="btn btn--primary" *ngIf="puedeCrear" (click)="abrirCrear()"
+              [disabled]="estado?.maximo_alcanzado || !!estado?.job_en_ejecucion"
+              [title]="estado?.maximo_alcanzado ? 'Se alcanzo el maximo de respaldos guardados. Elimina el mas antiguo o sube el limite.' : ''">
+        <svg lucideIcon="plus" style="width:14px;height:14px"></svg> Generar respaldo
+      </button>
+    </div>
+  </header>
+
+  <section class="estado-grid" *ngIf="estado">
+
+    <article class="estado-card estado-card--vigencia">
+      <div class="estado-card__head">
+        <span class="estado-card__label">Vigencia</span>
+        <span class="vigencia" [ngClass]="vigenciaClase">{{ vigenciaLabel }}</span>
+      </div>
+      <p class="estado-card__valor">{{ diasDesdeUltimo }}</p>
+      <p class="estado-card__nota" *ngIf="estado.fecha_siguiente_recomendada">
+        Siguiente recomendado: {{ formatDate(estado.fecha_siguiente_recomendada) }}
+      </p>
+    </article>
+
+    <article class="estado-card">
+      <span class="estado-card__label">Ultimo respaldo</span>
+      <p class="estado-card__valor" *ngIf="estado.ultimo_respaldo; else sinRespaldo">
+        {{ formatDate(estado.ultimo_respaldo.fecha) }}
+      </p>
+      <ng-template #sinRespaldo>
+        <p class="estado-card__valor">Aun no hay respaldos</p>
+      </ng-template>
+      <p class="estado-card__nota" *ngIf="estado.ultimo_respaldo">
+        {{ estado.ultimo_respaldo.nombre_archivo }}
+        &middot; {{ formatearTamano(estado.ultimo_respaldo.tamano_bytes) }}
+      </p>
+    </article>
+
+    <article class="estado-card">
+      <span class="estado-card__label">Politica actual</span>
+      <p class="estado-card__valor">Cada {{ estado.config.frecuencia_dias }} dia(s)</p>
+      <p class="estado-card__nota">
+        Aviso con {{ estado.config.dias_advertencia }} dia(s) &middot;
+        maximo {{ estado.config.maximo_respaldos }} guardados
+      </p>
+      <p class="estado-card__nota estado-card__nota--warn" *ngIf="estado.maximo_alcanzado">
+        Limite alcanzado: se retira automaticamente el mas antiguo.
+      </p>
+    </article>
+
+    <article class="estado-card">
+      <span class="estado-card__label">Requisitos</span>
+      <ul class="requisitos">
+        <li [class.requisito--off]="!estado.pg_dump_disponible"
+            [title]="estado.pg_dump_ruta || 'No encontrado'">
+          <svg lucideIcon="database"></svg>
+          <span>pg_dump</span>
+          <em>{{ estado.pg_dump_disponible ? 'listo' : 'no instalado' }}</em>
+        </li>
+        <li [class.requisito--off]="!estado.psql_disponible"
+            [title]="estado.psql_ruta || 'No encontrado'">
+          <svg lucideIcon="database"></svg>
+          <span>psql</span>
+          <em>{{ estado.psql_disponible ? 'listo' : 'no instalado' }}</em>
+        </li>
+        <li [class.requisito--off]="!estado.drive_conectado" [title]="estado.drive_motivo || ''">
+          <svg lucideIcon="cloud"></svg>
+          <span>Google Drive</span>
+          <em>{{ estado.drive_conectado ? 'conectado' : 'sin conexion' }}</em>
+        </li>
+      </ul>
+    </article>
+
+  </section>
+
+  <div class="table-loader" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="empty-state" *ngIf="!cargando && respaldos.length === 0">
+    <svg lucideIcon="database-backup" class="empty-state__icon"></svg>
+    <p>Todavia no hay respaldos. Genera el primero para poder recuperar el sistema.</p>
+  </div>
+
+  <section class="table-section" *ngIf="!cargando && respaldos.length > 0">
+    <div class="table-wrapper">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Respaldo</th>
+            <th>Tipo</th>
+            <th>Tamano</th>
+            <th>Documentos</th>
+            <th>Estado</th>
+            <th *ngIf="puedeRestaurar || puedeEliminar || puedeCrear">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of respaldos" class="tabla__fila"
+              [class.tabla__fila--inactivo]="r.estado === 'fallido'">
+            <td class="tabla__fecha">{{ formatDate(r.fecha) }}</td>
+            <td class="tabla__nombre">
+              <strong>#{{ r.id }}</strong> {{ r.etiqueta }}
+              <span class="fila-nota" *ngIf="r.observacion">{{ r.observacion }}</span>
+            </td>
+            <td>
+              <span class="tipo-badge" [class.tipo-badge--seguridad]="r.tipo === 'seguridad'">
+                {{ r.tipo === 'seguridad' ? 'Seguridad' : 'Manual' }}
+              </span>
+            </td>
+            <td>{{ formatearTamano(r.tamano_bytes) }}</td>
+            <td>{{ r.cantidad_archivos }}</td>
+            <td>
+              <span class="estado-badge" [ngClass]="estadoClase(r)">{{ estadoLabel(r) }}</span>
+            </td>
+            <td class="tabla__acciones">
+              <button class="icon-btn icon-btn--stock" title="Descargar archivo .sql"
+                      (click)="descargar(r)">
+                <svg lucideIcon="download"></svg>
+              </button>
+              <button class="icon-btn icon-btn--stock" title="Recuperar solo los documentos"
+                      *ngIf="puedeRestaurar && r.estado === 'completado'"
+                      (click)="recuperarArchivos(r)">
+                <svg lucideIcon="archive-restore"></svg>
+              </button>
+              <button class="icon-btn icon-btn--edit" title="Restaurar este respaldo"
+                      *ngIf="puedeRestaurar && r.estado === 'completado'"
+                      (click)="abrirRestaurar(r)">
+                <svg lucideIcon="rotate-ccw"></svg>
+              </button>
+              <button class="icon-btn icon-btn--delete" title="Eliminar respaldo"
+                      *ngIf="puedeEliminar && esBorrable(r)"
+                      (click)="abrirEliminar(r)">
+                <svg lucideIcon="trash-2"></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tabla-ayuda">
+      Solo se puede eliminar el respaldo mas antiguo y unicamente cuando hay mas de dos
+      respaldos completados.
+    </p>
+  </section>
+
+</div>
+
+<!-- ---------------------------------------------------------- crear -->
+
+<div class="modal-overlay" *ngIf="modalCrearAbierto" (click)="cerrarCrear()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">
+        <svg lucideIcon="database-backup"></svg> Generar respaldo
+      </h2>
+      <button class="modal__close" (click)="cerrarCrear()" [disabled]="creando">
+        <svg lucideIcon="x"></svg>
+      </button>
+    </div>
+
+    <div class="modal__body">
+      <p class="modal__info">
+        Se creara una copia de la base de datos (archivo <strong class="modal__strong">.sql</strong>)
+        y un snapshot de todos los documentos de servicios en Google Drive. Cada corrida deja
+        ademas el estado previo recuperable si algo falla.
+      </p>
+
+      <div class="field">
+        <label class="field__label">Observacion (opcional)</label>
+        <input class="field__input" type="text" maxlength="255" [(ngModel)]="observacion"
+               placeholder="Ej.: antes del cierre mensual" />
+      </div>
+
+      <div class="modal__aviso">
+        <svg lucideIcon="shield-check"></svg>
+        El trabajo corre en segundo plano y podras seguir su avance paso a paso.
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarCrear()" [disabled]="creando">Cancelar</button>
+      <button class="btn btn--primary" (click)="generar()" [disabled]="creando">
+        <span class="btn-spinner" *ngIf="creando"></span>
+        {{ creando ? 'Iniciando...' : 'Generar respaldo' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ----------------------------------------------------- politica -->
+
+<div class="modal-overlay" *ngIf="modalConfigAbierto" (click)="cerrarConfig()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">
+        <svg lucideIcon="settings"></svg> Politica de respaldos
+      </h2>
+      <button class="modal__close" (click)="cerrarConfig()" [disabled]="guardandoConfig">
+        <svg lucideIcon="x"></svg>
+      </button>
+    </div>
+
+    <div class="modal__body">
+      <p class="modal__info">
+        Define con que frecuencia deberias respaldar, cuanto tiempo antes de vencer avisa el
+        sistema y cuantos respaldos se conservan.
+      </p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label class="field__label">Frecuencia (dias)</label>
+          <input class="field__input" type="number" min="1" max="90"
+                 [(ngModel)]="configForm.frecuencia_dias" />
+        </div>
+        <div class="field">
+          <label class="field__label">Aviso anticipado (dias)</label>
+          <input class="field__input" type="number" min="1" max="90"
+                 [(ngModel)]="configForm.dias_advertencia" />
+        </div>
+        <div class="field">
+          <label class="field__label">Maximo de respaldos</label>
+          <input class="field__input" type="number" min="2" max="200"
+                 [(ngModel)]="configForm.maximo_respaldos" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarConfig()" [disabled]="guardandoConfig">
+        Cancelar
+      </button>
+      <button class="btn btn--primary" (click)="guardarConfig()"
+              [disabled]="guardandoConfig || configForm.frecuencia_dias < 1 ||
+                          configForm.maximo_respaldos < 2">
+        <span class="btn-spinner" *ngIf="guardandoConfig"></span>
+        {{ guardandoConfig ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------------------------------------------------- restaurar -->
+
+<div class="modal-overlay" *ngIf="modalRestaurarAbierto && restaurarObjetivo" (click)="cerrarRestaurar()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">
+        <svg lucideIcon="rotate-ccw"></svg> Restaurar respaldo #{{ restaurarObjetivo.id }}
+      </h2>
+      <button class="modal__close" (click)="cerrarRestaurar()"
+              [disabled]="preparandoCodigo || lanzando">
+        <svg lucideIcon="x"></svg>
+      </button>
+    </div>
+
+    <div class="modal__body" *ngIf="pasoRestaurar === 'confirmacion'">
+
+      <div class="pasos-indicador">
+        <span class="paso-indicador paso-indicador--activo">1. Confirmar</span>
+        <span class="paso-indicador">2. Codigo</span>
+      </div>
+
+      <div class="modal__warn">
+        <svg lucideIcon="shield-alert"></svg>
+        <span>
+          La base de datos actual sera reemplazada por la del
+          <strong class="modal__strong">{{ formatDate(restaurarObjetivo.fecha) }}</strong>.
+          Antes de restaurar se generara automaticamente un respaldo de seguridad del estado actual.
+        </span>
+      </div>
+
+      <div class="field">
+        <label class="field__label">
+          Escribe <strong>{{ restaurarObjetivo.id }}</strong> para confirmar
+        </label>
+        <input class="field__input" type="text" [(ngModel)]="confirmacionTexto"
+               placeholder="{{ restaurarObjetivo.id }}" autocomplete="off" />
+        <span class="field__error" *ngIf="confirmacionTexto && !confirmacionCorrecta">
+          Debe coincidir con el numero del respaldo
+        </span>
+      </div>
+
+      <label class="casilla">
+        <input type="checkbox" [(ngModel)]="restaurarArchivos" />
+        Restaurar tambien los documentos de servicios
+      </label>
+
+      <label class="casilla">
+        <input type="checkbox" [(ngModel)]="entendido" />
+        Entiendo que los cambios hechos despues de esa fecha se perderan
+      </label>
+    </div>
+
+    <div class="modal__body" *ngIf="pasoRestaurar === 'codigo'">
+
+      <div class="pasos-indicador">
+        <span class="paso-indicador paso-indicador--listo">1. Confirmar</span>
+        <span class="paso-indicador paso-indicador--activo">2. Codigo</span>
+      </div>
+
+      <p class="modal__info">
+        Este codigo se muestra <strong class="modal__strong">una sola vez</strong> y vence a las
+        {{ formatHora(expiraEn) }}. Si cierras la ventana, vuelve a solicitarlo.
+      </p>
+
+      <div class="codigo-box">
+        <code class="codigo-box__valor">{{ tokenRestauracion }}</code>
+        <button class="btn btn--ghost btn--sm" (click)="copiarCodigo()">Copiar</button>
+      </div>
+
+      <div class="field">
+        <label class="field__label">Pega el codigo aqui</label>
+        <input class="field__input field__input--codigo" type="text" maxlength="200"
+               [(ngModel)]="codigoIngresado" (keyup.enter)="confirmarRestauracion()"
+               autocomplete="off" />
+      </div>
+
+      <div class="modal__aviso">
+        <svg lucideIcon="alert-triangle"></svg>
+        Al restaurar se cerraran las demas sesiones activas, excepto la tuya.
+      </div>
+    </div>
+
+    <p class="modal__error" *ngIf="errorRestaurar">
+      <svg lucideIcon="circle-x"></svg> {{ errorRestaurar }}
+    </p>
+
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarRestaurar()"
+              [disabled]="preparandoCodigo || lanzando">Cancelar</button>
+
+      <button class="btn btn--ghost" *ngIf="pasoRestaurar === 'codigo'"
+              (click)="volverAPasoUno()" [disabled]="preparandoCodigo || lanzando">Atras</button>
+
+      <button class="btn btn--danger" *ngIf="pasoRestaurar === 'confirmacion'"
+              (click)="solicitarCodigo()"
+              [disabled]="!confirmacionCorrecta || !entendido || preparandoCodigo">
+        <span class="btn-spinner" *ngIf="preparandoCodigo"></span>
+        {{ preparandoCodigo ? 'Generando...' : 'Generar codigo' }}
+      </button>
+
+      <button class="btn btn--danger" *ngIf="pasoRestaurar === 'codigo'"
+              (click)="confirmarRestauracion()" [disabled]="!codigoListo || lanzando">
+        <span class="btn-spinner" *ngIf="lanzando"></span>
+        {{ lanzando ? 'Restaurando...' : 'Restaurar ahora' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ----------------------------------------------------- eliminar -->
+
+<div class="modal-overlay" *ngIf="modalEliminarAbierto && eliminarObjetivo" (click)="cerrarEliminar()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">
+        <svg lucideIcon="trash-2"></svg> Eliminar respaldo
+      </h2>
+      <button class="modal__close" (click)="cerrarEliminar()" [disabled]="eliminando">
+        <svg lucideIcon="x"></svg>
+      </button>
+    </div>
+
+    <div class="modal__body">
+      <p class="modal__warn">
+        <svg lucideIcon="alert-triangle"></svg>
+        <span>
+          Se borrara el respaldo <strong class="modal__strong">#{{ eliminarObjetivo.id }}</strong>
+          ({{ formatDate(eliminarObjetivo.fecha) }}) de la base de datos y de Google Drive.
+          Esta accion no se puede deshacer.
+        </span>
+      </p>
+      <p class="modal__info">
+        Por seguridad solo se permite eliminar el respaldo mas antiguo y siempre deben quedar
+        al menos dos respaldos completados.
+      </p>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarEliminar()" [disabled]="eliminando">
+        Cancelar
+      </button>
+      <button class="btn btn--danger" (click)="eliminar()" [disabled]="eliminando">
+        <span class="btn-spinner" *ngIf="eliminando"></span>
+        {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------- trabajo -->
+
+<div class="modal-overlay" *ngIf="modalJobAbierto && job">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">
+        <svg lucideIcon="loader" class="giro" *ngIf="jobEnCurso"></svg>
+        <svg lucideIcon="circle-check" *ngIf="job.estado === 'completado'"></svg>
+        <svg lucideIcon="circle-x" *ngIf="job.estado === 'fallido'"></svg>
+        {{ tituloJob }}
+      </h2>
+      <button class="modal__close" (click)="cerrarJob()" [disabled]="jobEnCurso">
+        <svg lucideIcon="x"></svg>
+      </button>
+    </div>
+
+    <div class="modal__body">
+      <div class="job-barra">
+        <div class="job-barra__relleno" [style.width.%]="progresoPaso"></div>
+      </div>
+
+      <ul class="job-pasos">
+        <li *ngFor="let p of job.pasos" class="job-paso" [ngClass]="'job-paso--' + p.estado">
+          <span class="job-paso__icono">
+            <svg *ngIf="p.estado === 'completado'" lucideIcon="check"></svg>
+            <svg *ngIf="p.estado === 'fallido'" lucideIcon="x"></svg>
+            <svg *ngIf="p.estado === 'en_proceso'" lucideIcon="loader" class="giro"></svg>
+            <i *ngIf="p.estado === 'pendiente'" class="job-paso__pendiente"></i>
+          </span>
+          <span class="job-paso__nombre">{{ p.nombre }}</span>
+          <span class="job-paso__mensaje" *ngIf="p.mensaje">{{ p.mensaje }}</span>
+        </li>
+      </ul>
+
+      <p class="modal__error" *ngIf="job.estado === 'fallido'">
+        <svg lucideIcon="circle-x"></svg> {{ job.mensaje || 'El trabajo termino con errores.' }}
+      </p>
+
+      <p class="modal__info" *ngIf="job.estado === 'completado'">
+        <svg lucideIcon="circle-check"></svg>
+        Trabajo finalizado. Ya puedes cerrar esta ventana.
+      </p>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn btn--primary" (click)="cerrarJob()" [disabled]="jobEnCurso">
+        <span class="btn-spinner" *ngIf="jobEnCurso"></span>
+        {{ jobEnCurso ? 'En curso...' : 'Cerrar' }}
+      </button>
+    </div>
+  </div>
+</div>
