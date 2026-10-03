@@ -213,6 +213,19 @@
 }
 .login-error__icon svg { width: 16px; height: 16px; }
 
+.login-aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(110,220,150,.1);
+  border: 1px solid rgba(110,220,150,.3);
+  border-radius: var(--radius-sm);
+  color: #8fe0ae;
+  font-size: 0.85rem;
+}
+.login-aviso .login-error__icon svg { width: 16px; height: 16px; }
+
 .login-btn {
   display: flex;
   align-items: center;

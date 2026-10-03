@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core'
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core'
 import { Router, RouterLink } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
@@ -12,11 +12,12 @@ import { LucideDynamicIcon } from '@lucide/angular'
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class Login {
+export class Login implements OnInit {
 
   username  = ''
   password  = ''
   error     = ''
+  aviso     = ''
   cargando  = false
   mostrarPassword = false
 
@@ -25,6 +26,14 @@ export class Login {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    const estado = history.state
+    if (estado && estado.mensaje) {
+      this.aviso = estado.mensaje
+      this.cdr.detectChanges()
+    }
+  }
 
   login(): void {
     this.error    = ''

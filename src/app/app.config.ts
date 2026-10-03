@@ -46,6 +46,13 @@ import {
   LucideUploadCloud,
   LucideFileCheck,
   LucideScroll,
+  LucideMail,
+  LucideMailCheck,
+  LucideKeyRound,
+  LucideCloud,
+  LucidePlug,
+  LucidePlugZap,
+  LucideShieldCheck,
 } from '@lucide/angular'
 
 import { routes } from './app.routes'
@@ -107,6 +114,13 @@ export const appConfig: ApplicationConfig = {
       LucideUploadCloud,
       LucideFileCheck,
       LucideScroll,
+      LucideMail,
+      LucideMailCheck,
+      LucideKeyRound,
+      LucideCloud,
+      LucidePlug,
+      LucidePlugZap,
+      LucideShieldCheck,
     ),
 
   ]

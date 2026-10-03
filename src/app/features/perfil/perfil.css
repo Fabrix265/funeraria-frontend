@@ -85,8 +85,38 @@
 .btn--primary { background: var(--border-2); color: var(--text); border-color: #3a6090; }
 .btn--primary:hover:not(:disabled) { background: #2a4f7c; border-color: var(--silver); }
 .btn--primary:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--ghost { background: transparent; color: var(--text-muted); border-color: var(--border-2); }
+.btn--ghost:hover:not(:disabled) { color: var(--text); border-color: var(--silver); background: var(--bg-hover); }
+.btn--ghost:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; width: fit-content; }
+.btn--sm svg { width: 14px; height: 14px; }
 .btn-spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.field__hint { color: var(--text-muted); font-size: 0.76rem; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(4,10,20,.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn .18s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { background: var(--bg-card); border: 1px solid var(--border-2); border-radius: var(--radius); width: 100%; max-width: 480px; box-shadow: var(--shadow); animation: slideUp .2s ease; }
+@keyframes slideUp { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal__header { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--border); }
+.modal__title { font-family: var(--font-head); font-size: 1.3rem; color: var(--text); display: flex; align-items: center; gap: .5rem; }
+.modal__title svg { width: 18px; height: 18px; color: var(--silver); }
+.modal__close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; line-height: 1; transition: color var(--transition); }
+.modal__close:hover:not(:disabled) { color: var(--text); }
+.modal__close:disabled { opacity: .45; cursor: not-allowed; }
+.modal__close svg { width: 16px; height: 16px; }
+.modal__body { padding: 1.4rem; display: flex; flex-direction: column; gap: 1rem; }
+.modal__info { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+.modal__strong { color: var(--text); }
+.modal__aviso { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.7rem 0.85rem; background: rgba(160,204,232,.07); border: 1px solid rgba(160,204,232,.2); border-radius: var(--radius-sm); color: var(--text-light); font-size: 0.82rem; line-height: 1.5; }
+.modal__aviso svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; color: #a0cce8; }
+.modal__error { display: flex; align-items: center; gap: 0.45rem; margin: 0 1.4rem; padding: 0.6rem 0.8rem; background: rgba(176,48,48,.12); border: 1px solid rgba(176,48,48,.3); border-radius: var(--radius-sm); color: #d08080; font-size: 0.85rem; }
+.modal__error svg { width: 15px; height: 15px; flex-shrink: 0; }
+.modal__footer { padding: 1rem 1.4rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.65rem; }
+
+.field__input--codigo { text-align: center; letter-spacing: 10px; font-size: 1.2rem; font-weight: 600; padding: 0.7rem 0.8rem; }
+.field__input:disabled { opacity: .6; cursor: not-allowed; }
 
 .drive-row { display: flex; flex-direction: column; gap: 0.45rem; }
 .drive-badge {

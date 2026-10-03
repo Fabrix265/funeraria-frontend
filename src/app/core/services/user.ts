@@ -30,6 +30,16 @@ export interface UserActualizarAdmin {
   password?: string;
 }
 
+export interface CambioEmailSolicitar {
+  email_nuevo: string;
+  password_actual: string;
+}
+
+export interface CambioEmailConfirmar {
+  email_nuevo: string;
+  codigo: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private api = `${environment.apiUrl}/users`;
@@ -60,8 +70,20 @@ export class UserService {
     return this.http.delete(`${this.api}/${id}`);
   }
 
-  actualizarPerfil(data: { username?: string; email?: string; password?: string }): Observable<UserLeer> {
+  actualizarPerfil(data: { username?: string; password?: string }): Observable<UserLeer> {
     return this.http.put<UserLeer>(`${this.api}/me`, data);
+  }
+
+  solicitarCambioEmail(data: CambioEmailSolicitar): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.api}/me/email-change`, data);
+  }
+
+  confirmarCambioEmail(data: CambioEmailConfirmar): Observable<UserLeer> {
+    return this.http.post<UserLeer>(`${this.api}/me/email-change/confirm`, data);
+  }
+
+  cancelarCambioEmail(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.api}/me/email-change`);
   }
 
   obtenerPerfil(): Observable<UserLeer> {
