@@ -226,6 +226,12 @@
 }
 .login-aviso .login-error__icon svg { width: 16px; height: 16px; }
 
+.login-aviso--alerta {
+  background: rgba(232, 213, 160, .1);
+  border-color: rgba(232, 213, 160, .35);
+  color: #e8d5a0;
+}
+
 .login-btn {
   display: flex;
   align-items: center;

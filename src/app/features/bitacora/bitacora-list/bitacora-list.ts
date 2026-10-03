@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router'
 import { LucideDynamicIcon } from '@lucide/angular'
 import { BitacoraService } from '../../../core/services/bitacora'
 import { BitacoraEntry } from '../../../core/models/bitacora.model'
+import { formatearFechaHora } from '../../../core/utils/fecha.utils'
 
 @Component({
   selector: 'app-bitacora-list',
@@ -38,6 +39,8 @@ export class BitacoraList implements OnInit {
     { valor: 'eliminar', label: 'Eliminar' },
     { valor: 'cambiar_estado', label: 'Cambiar estado' },
     { valor: 'actualizar_stock', label: 'Actualizar stock' },
+    { valor: 'restaurar', label: 'Restaurar' },
+    { valor: 'descargar', label: 'Descargar' },
   ]
 
   modulosDisponibles = [
@@ -52,6 +55,7 @@ export class BitacoraList implements OnInit {
     { valor: 'usuarios', label: 'Usuarios' },
     { valor: 'roles', label: 'Roles' },
     { valor: 'drive', label: 'Google Drive' },
+    { valor: 'respaldos', label: 'Respaldos' },
   ]
 
   constructor(private bitacoraService: BitacoraService, private cdr: ChangeDetectorRef) {}
@@ -117,6 +121,7 @@ export class BitacoraList implements OnInit {
       usuarios: 'badge--usuarios',
       roles: 'badge--roles',
       drive: 'badge--drive',
+      respaldos: 'badge--respaldos',
     }
     return colores[modulo] || 'badge--default'
   }
@@ -130,6 +135,8 @@ export class BitacoraList implements OnInit {
       eliminar: 'Eliminar',
       cambiar_estado: 'Cambiar estado',
       actualizar_stock: 'Actualizar stock',
+      restaurar: 'Restaurar',
+      descargar: 'Descargar',
     }
     return labels[accion] || accion
   }
@@ -146,19 +153,13 @@ export class BitacoraList implements OnInit {
       usuarios: 'Usuarios',
       roles: 'Roles',
       drive: 'Drive',
+      respaldos: 'Respaldos',
     }
     return labels[modulo] || modulo
   }
 
   formatDate(dateStr: string): string {
-    const d = new Date(dateStr)
-    return d.toLocaleString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return formatearFechaHora(dateStr)
   }
 
   exportarExcel(): void {

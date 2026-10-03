@@ -97,6 +97,12 @@
         <span class="sidebar__link-label">Bitacora</span>
       </a>
 
+      <a class="sidebar__link" routerLink="/respaldos" routerLinkActive="sidebar__link--active"
+         *ngIf="puedeVerRespaldos" (click)="cerrarSidebarMobile()">
+        <svg lucideIcon="database-backup" class="sidebar__link-icon"></svg>
+        <span class="sidebar__link-label">Respaldos</span>
+      </a>
+
       <a class="sidebar__link" routerLink="/perfil" routerLinkActive="sidebar__link--active"
          (click)="cerrarSidebarMobile()">
         <svg lucideIcon="settings" class="sidebar__link-icon"></svg>
