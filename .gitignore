@@ -42,3 +42,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Documentos de edición (borradores entregables — no versionar)
+docs/new_docs/
+docs/old_docs/

@@ -4,6 +4,8 @@ import { authGuard } from './core/guards/auth-guard'
 import { roleGuard } from './core/guards/role-guard'
 
 import { Login } from './features/auth/login/login'
+import { Recuperar } from './features/auth/recuperar/recuperar'
+import { Restablecer } from './features/auth/restablecer/restablecer'
 import { Dashboard } from './features/dashboard/dashboard'
 
 import { ServicioList } from './features/servicios/servicio-list/servicio-list'
@@ -25,12 +27,24 @@ import { MainLayout } from './layout/main-layout/main-layout'
 
 import { Ia } from './features/ia/ia'
 import { Predicciones } from './features/predicciones/predicciones'
+import { BitacoraList } from './features/bitacora/bitacora-list/bitacora-list'
+import { RespaldoList } from './features/respaldos/respaldo-list/respaldo-list'
 import { permisoGuard } from './core/guards/permisos-guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: Login,
+  },
+
+  {
+    path: 'recuperar',
+    component: Recuperar,
+  },
+
+  {
+    path: 'restablecer',
+    component: Restablecer,
   },
 
   {
@@ -123,6 +137,18 @@ export const routes: Routes = [
           import('./features/roles/roles-list/roles-list').then((m) => m.RolesList),
         canActivate: [roleGuard],
         data: { roles: ['administrador'] },
+      },
+      {
+        path: 'bitacora',
+        component: BitacoraList,
+        canActivate: [permisoGuard],
+        data: { permiso: 'bitacora:listar' },
+      },
+      {
+        path: 'respaldos',
+        component: RespaldoList,
+        canActivate: [permisoGuard],
+        data: { permiso: 'respaldos:listar' },
       },
     ],
   },

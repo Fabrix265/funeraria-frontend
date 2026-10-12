@@ -1,28 +1,41 @@
-import { Component } from '@angular/core'
-import { Router } from '@angular/router'
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core'
+import { Router, RouterLink } from '@angular/router'
 import { Auth } from '../../../core/services/auth'
 import { FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
+import { LucideDynamicIcon } from '@lucide/angular'
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink, LucideDynamicIcon],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class Login {
+export class Login implements OnInit {
 
   username  = ''
   password  = ''
   error     = ''
+  aviso     = ''
+  avisoAlerta = false
   cargando  = false
   mostrarPassword = false
 
   constructor(
     private auth: Auth,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    const estado = history.state
+    if (estado && estado.mensaje) {
+      this.aviso = estado.mensaje
+      this.avisoAlerta = estado.tipo === 'alerta'
+      this.cdr.detectChanges()
+    }
+  }
 
   login(): void {
     this.error    = ''
@@ -39,6 +52,7 @@ export class Login {
           this.error = err.error?.detail || 'Usuario o contraseña incorrectos'
         }
         this.cargando = false
+        this.cdr.detectChanges()
       }
     })
   }

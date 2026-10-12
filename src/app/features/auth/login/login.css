@@ -184,12 +184,14 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
-  line-height: 1;
   color: var(--text-muted);
   padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color var(--transition);
 }
+.field__eye svg { width: 18px; height: 18px; }
 .field__eye:hover { color: var(--text); }
 
 .login-error {
@@ -205,9 +207,29 @@
 }
 
 .login-error__icon {
-  font-weight: 700;
-  font-size: 0.8rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.login-error__icon svg { width: 16px; height: 16px; }
+
+.login-aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(110,220,150,.1);
+  border: 1px solid rgba(110,220,150,.3);
+  border-radius: var(--radius-sm);
+  color: #8fe0ae;
+  font-size: 0.85rem;
+}
+.login-aviso .login-error__icon svg { width: 16px; height: 16px; }
+
+.login-aviso--alerta {
+  background: rgba(232, 213, 160, .1);
+  border-color: rgba(232, 213, 160, .35);
+  color: #e8d5a0;
 }
 
 .login-btn {
@@ -251,6 +273,22 @@
   animation: spin 0.6s linear infinite;
   display: inline-block;
   flex-shrink: 0;
+}
+
+.login-links {
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
+.login-links a {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.login-links a:hover {
+  color: var(--text);
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
