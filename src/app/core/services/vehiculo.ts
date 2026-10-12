@@ -39,4 +39,14 @@ export class VehiculoService {
   cambiarEstado(id: number, activo: boolean) {
     return this.http.patch<Vehiculo>(`${this.api}/${id}/status`, { activo });
   }
+
+  agregarImagen(vehiculoId: number, archivo: File) {
+    const formData = new FormData();
+    formData.append('imagen', archivo);
+    return this.http.post<Vehiculo>(`${this.api}/${vehiculoId}/imagenes`, formData);
+  }
+
+  eliminarImagen(vehiculoId: number, imagenId: number) {
+    return this.http.delete<Vehiculo>(`${this.api}/${vehiculoId}/imagenes/${imagenId}`);
+  }
 }

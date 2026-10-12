@@ -2,8 +2,8 @@
 
   <header class="page-header">
     <div class="page-header__left">
-      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard">⊞</a>
-      <span class="page-header__icon">📋</span>
+      <a class="btn-dashboard" routerLink="/dashboard" title="Ir al dashboard"><svg lucideIcon="layout-dashboard"></svg></a>
+      <svg lucideIcon="file-text" class="page-header__icon"></svg>
       <div>
         <h1 class="page-header__title">Servicios</h1>
         <p class="page-header__sub">Registro de servicios funerarios</p>
@@ -49,7 +49,7 @@
       </div>
 
       <div class="filtro-group filtro-group--action">
-        <button class="btn btn--ghost" (click)="limpiar()">✕ Limpiar</button>
+        <button class="btn btn--ghost" (click)="limpiar()"><svg lucideIcon="x" style="width:14px;height:14px"></svg> Limpiar</button>
         <button class="btn btn--secondary" (click)="aplicarFiltros()">Buscar</button>
       </div>
 
@@ -61,7 +61,7 @@
   </div>
 
   <div class="empty-state" *ngIf="!cargando && servicios.length === 0">
-    <span class="empty-state__icon">📋</span>
+      <svg lucideIcon="file-text" class="empty-state__icon"></svg>
     <p>No se encontraron servicios</p>
   </div>
 
@@ -95,7 +95,7 @@
             </td>
             <td class="tabla__acciones">
               <a class="icon-btn icon-btn--view" title="Ver detalle"
-                [routerLink]="['/servicios', s.id]">👁</a>
+                [routerLink]="['/servicios', s.id]"><svg lucideIcon="eye"></svg></a>
             </td>
           </tr>
         </tbody>

@@ -43,4 +43,14 @@ export class CapillaService {
   cambiarEstado(id: number, activo: boolean) {
     return this.http.patch<Capilla>(`${this.api}/${id}/status`, { activo });
   }
+
+    agregarImagen(capillaId: number, archivo: File) {
+    const formData = new FormData();
+    formData.append('imagen', archivo);
+    return this.http.post<Capilla>(`${this.api}/${capillaId}/imagenes`, formData);
+  }
+
+  eliminarImagen(capillaId: number, imagenId: number) {
+    return this.http.delete<Capilla>(`${this.api}/${capillaId}/imagenes/${imagenId}`);
+  }
 }
