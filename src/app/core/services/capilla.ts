@@ -44,9 +44,9 @@ export class CapillaService {
     return this.http.patch<Capilla>(`${this.api}/${id}/status`, { activo });
   }
 
-    agregarImagen(capillaId: number, archivo: File) {
+  agregarImagenes(capillaId: number, archivos: File[]) {
     const formData = new FormData();
-    formData.append('imagen', archivo);
+    archivos.forEach((archivo) => formData.append('imagenes', archivo));
     return this.http.post<Capilla>(`${this.api}/${capillaId}/imagenes`, formData);
   }
 
