@@ -29,6 +29,9 @@ export class RolesList implements OnInit {
   modoEdicion = false;
   rolSeleccionado: RoleDetalle | null = null;
 
+  modalVerPermisosAbierto = false;
+  rolVerPermisos: RoleDetalle | null = null;
+
   constructor(
     private roleService: Role,
     private cdr: ChangeDetectorRef,
@@ -156,5 +159,30 @@ export class RolesList implements OnInit {
     this.rolSeleccionado = rol;
     this.form = { nombre: rol.nombre, permisos_ids: rol.permisos.map((p) => p.id) };
     this.modalAbierto = true;
+  }
+  
+  abrirModalVerPermisos(rol: RoleDetalle): void {
+    this.rolVerPermisos = rol;
+    this.modalVerPermisosAbierto = true;
+  }
+
+  cerrarModalVerPermisos(): void {
+    this.modalVerPermisosAbierto = false;
+    this.rolVerPermisos = null;
+  }
+
+  agruparPermisos(permisos: PermissionLeer[]): { modulo: string; permisos: PermissionLeer[] }[] {
+    const grupos: { [key: string]: PermissionLeer[] } = {};
+    for (const p of permisos) {
+      const modulo = p.nombre.split(':')[0];
+      if (!grupos[modulo]) grupos[modulo] = [];
+      grupos[modulo].push(p);
+    }
+    return Object.entries(grupos).map(([modulo, permisos]) => ({ modulo, permisos }));
+  }
+
+  etiquetaPermiso(nombre: string): string {
+    const partes = nombre.split(':');
+    return partes.length > 1 ? partes[1] : nombre;
   }
 }
