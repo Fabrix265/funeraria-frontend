@@ -175,7 +175,13 @@
           </div>
           <div class="field">
             <label class="field__label">Color *</label>
-            <input class="field__input" type="text" [(ngModel)]="detalleForm.color" [disabled]="!puedeEditar" />
+            <input class="field__input" type="text" [(ngModel)]="detalleForm.color" [disabled]="!puedeEditar"
+                  minlength="1" maxlength="50"
+                  pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\-]+)*$"
+                  #colorDetalle="ngModel" />
+            <span class="field__error" *ngIf="colorDetalle.invalid && colorDetalle.touched">
+              Solo letras, espacios y guiones
+            </span>
           </div>
           <div class="field">
             <label class="field__label">Stock</label>

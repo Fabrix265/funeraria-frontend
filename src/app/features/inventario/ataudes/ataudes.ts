@@ -185,6 +185,11 @@ export class Ataudes implements OnInit {
       this.mostrarMensaje('Completa todos los campos requeridos', 'error');
       return;
     }
+    const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\-]+)*$/;
+    if (!soloLetras.test(this.detalleForm.color)) {
+      this.mostrarMensaje('El color solo puede contener letras, espacios y guiones', 'error');
+      return;
+    }
     this.ataudService.actualizar(this.ataudSeleccionado.id, this.detalleForm).subscribe({
       next: (actualizado) => {
         this.ataudSeleccionado = actualizado;
