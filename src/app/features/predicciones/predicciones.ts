@@ -1,6 +1,7 @@
-import { Component, ChangeDetectorRef } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
+import { HttpClient } from '@angular/common/http'
 import { RouterLink } from '@angular/router'
 import { LucideDynamicIcon } from '@lucide/angular'
 import { NgApexchartsModule } from 'ng-apexcharts'
@@ -17,6 +18,7 @@ import {
 import { PrediccionService } from '../../core/services/prediccion'
 import { AtaudService } from '../../core/services/ataud'
 import { DemandaResponse } from '../../core/models/prediccion.model'
+import { environment } from '../../../environments/environment'
 
 export type ChartOptions = {
   series: ApexAxisChartSeries
@@ -37,11 +39,12 @@ export type ChartOptions = {
   templateUrl: './predicciones.html',
   styleUrls: ['./predicciones.css']
 })
-export class Predicciones {
+export class Predicciones implements OnInit {
 
   resultadoDemanda: DemandaResponse | null = null
   cargandoDemanda = false
   error = ''
+  servicioNoDisponible = false
   usarStockActual = false
   mesesDemanda: number = 6
   chartDemanda: Partial<ChartOptions> = {}
@@ -49,8 +52,18 @@ export class Predicciones {
   constructor(
     private prediccionService: PrediccionService,
     private ataudService: AtaudService,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    this.http.get(`${environment.iaApiUrl}/`).subscribe({
+      error: () => {
+        this.servicioNoDisponible = true
+        this.cdr.detectChanges()
+      }
+    })
+  }
 
   calcularDemanda(): void {
     this.cargandoDemanda = true
