@@ -45,8 +45,12 @@
         <div class="field">
           <label class="field__label">Fecha *</label>
           <input class="field__input" type="date" [(ngModel)]="form.fecha" name="fecha"
-                 [min]="fechaMinima" (ngModelChange)="onFechaChange()" />
+                 (ngModelChange)="onFechaChange()" />
           <span class="field__error" *ngIf="errorFecha">{{ errorFecha }}</span>
+          <span class="field__warning" *ngIf="fechaEsPasada">
+            <svg lucideIcon="triangle-alert" style="width:14px;height:14px"></svg>
+            Estás eligiendo una fecha pasada
+          </span>
         </div>
         <div class="field">
           <label class="field__label">Costo (S/) *</label>
@@ -239,4 +243,28 @@
     </button>
   </div>
 
+</div>
+
+<div class="modal-overlay" *ngIf="modalFechaPasadaAbierto" (click)="cerrarModalFechaPasada()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--warning">
+      <h2 class="modal__title">Fecha pasada</h2>
+      <button class="modal__close" (click)="cerrarModalFechaPasada()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__warn">
+        Estás eligiendo una fecha pasada ({{ form.fecha }}), ¿estás seguro?
+      </p>
+      <label class="modal__check">
+        <input type="checkbox" [(ngModel)]="fechaPasadaConfirmada" name="confirmarFechaPasada" />
+        <span>Confirmo que deseo registrar el servicio con una fecha pasada.</span>
+      </label>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalFechaPasada()">Cancelar</button>
+      <button class="btn btn--primary" (click)="confirmarFechaPasada()" [disabled]="!fechaPasadaConfirmada">
+        Sí, continuar
+      </button>
+    </div>
+  </div>
 </div>
