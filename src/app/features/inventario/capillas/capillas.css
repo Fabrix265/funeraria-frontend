@@ -262,3 +262,32 @@
   opacity: .5;
   cursor: not-allowed;
 }
+
+.stock-stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+.stock-stepper__input {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+.stock-stepper__btn {
+  width: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition), border-color var(--transition);
+}
+.stock-stepper__btn:hover { border-color: var(--border-2); background: var(--bg-hover); }
+.stock-stepper__btn:active { transform: scale(0.95); }
