@@ -215,7 +215,11 @@
     <div class="modal__body">
       <div class="field">
         <label class="field__label">Stock inicial</label>
-        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="form.stock" pattern="^[0-9]+$" #stockA="ngModel" />
+        <div class="stock-stepper">
+          <button type="button" class="stock-stepper__btn" (click)="disminuirStockCrear()" title="Disminuir" aria-label="Disminuir stock">−</button>
+          <input class="field__input stock-stepper__input" type="text" inputmode="numeric" [(ngModel)]="form.stock" pattern="^[0-9]+$" #stockA="ngModel" />
+          <button type="button" class="stock-stepper__btn" (click)="aumentarStockCrear()" title="Aumentar" aria-label="Aumentar stock">+</button>
+        </div>
         <span class="field__error" *ngIf="stockA.invalid && stockA.touched">Solo números enteros positivos</span>
       </div>
       <div class="field">
@@ -255,8 +259,12 @@
       </p>
       <div class="field">
         <label class="field__label">Cantidad (+ para sumar, − para restar)</label>
-        <input class="field__input" type="text" inputmode="numeric" [(ngModel)]="cantidadStock"
-               placeholder="Ej: 5 o -2" pattern="^-?[0-9]+$" #cantidadStockA="ngModel" />
+        <div class="stock-stepper">
+          <button type="button" class="stock-stepper__btn" (click)="disminuirCantidadStock()" title="Restar" aria-label="Restar stock">−</button>
+          <input class="field__input stock-stepper__input" type="text" inputmode="numeric" [(ngModel)]="cantidadStock"
+                 placeholder="Ej: 5 o -2" pattern="^-?[0-9]+$" #cantidadStockA="ngModel" />
+          <button type="button" class="stock-stepper__btn" (click)="aumentarCantidadStock()" title="Sumar" aria-label="Sumar stock">+</button>
+        </div>
         <span class="field__error" *ngIf="cantidadStockA.invalid && cantidadStockA.touched">Solo números enteros</span>
       </div>
     </div>

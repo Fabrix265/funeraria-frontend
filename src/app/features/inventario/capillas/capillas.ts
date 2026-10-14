@@ -185,6 +185,22 @@ export class Capillas implements OnInit {
     this.modalStockAbierto = true;
   }
 
+  aumentarStockCrear(): void {
+    this.form.stock = (Number(this.form.stock) || 0) + 1;
+  }
+
+  disminuirStockCrear(): void {
+    this.form.stock = Math.max(0, (Number(this.form.stock) || 0) - 1);
+  }
+
+  aumentarCantidadStock(): void {
+    this.cantidadStock = (Number(this.cantidadStock) || 0) + 1;
+  }
+
+  disminuirCantidadStock(): void {
+    this.cantidadStock = (Number(this.cantidadStock) || 0) - 1;
+  }
+
   cerrarModalStock(): void {
     this.modalStockAbierto = false;
     this.capillaStock = null;
