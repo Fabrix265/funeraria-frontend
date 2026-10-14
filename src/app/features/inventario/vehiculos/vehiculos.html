@@ -200,7 +200,7 @@
           <img [src]="img.url" alt="Miniatura {{ i + 1 }}" />
         </div>
 
-        <input #fileInput type="file" accept="image/*" hidden [disabled]="subiendoImagen" (change)="onArchivoSeleccionado($event)" />
+        <input #fileInput type="file" accept="image/*" multiple hidden [disabled]="subiendoImagen" (change)="onArchivosSeleccionados($event)" />
         <button class="carrete-tira__agregar" type="button" [disabled]="subiendoImagen" (click)="fileInput.click()">
           <svg *ngIf="!subiendoImagen" lucideIcon="plus"></svg>
           <div class="mini-spinner" *ngIf="subiendoImagen"></div>

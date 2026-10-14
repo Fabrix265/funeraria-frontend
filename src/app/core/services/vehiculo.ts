@@ -40,9 +40,9 @@ export class VehiculoService {
     return this.http.patch<Vehiculo>(`${this.api}/${id}/status`, { activo });
   }
 
-  agregarImagen(vehiculoId: number, archivo: File) {
+  agregarImagenes(vehiculoId: number, archivos: File[]) {
     const formData = new FormData();
-    formData.append('imagen', archivo);
+    archivos.forEach((archivo) => formData.append('imagenes', archivo));
     return this.http.post<Vehiculo>(`${this.api}/${vehiculoId}/imagenes`, formData);
   }
 

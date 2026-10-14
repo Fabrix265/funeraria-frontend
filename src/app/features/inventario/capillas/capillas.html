@@ -258,9 +258,10 @@
           #fileInput
           type="file"
           accept="image/*"
+          multiple
           hidden
           [disabled]="subiendoImagen"
-          (change)="onArchivoSeleccionado($event)"
+          (change)="onArchivosSeleccionados($event)"
         />
         <button
           class="btn btn--secondary file-upload-btn"
@@ -269,7 +270,7 @@
           (click)="fileInput.click()"
         >
           <svg lucideIcon="upload"></svg>
-          {{ subiendoImagen ? 'Subiendo...' : 'Seleccionar imagen' }}
+          {{ subiendoImagen ? 'Subiendo...' : 'Seleccionar imagenes' }}
         </button>
       </div>
     </div>
