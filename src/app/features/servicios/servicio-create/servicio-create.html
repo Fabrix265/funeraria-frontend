@@ -243,6 +243,10 @@
     </button>
   </div>
 
+  <p class="form-aviso" *ngIf="!esEdicion">
+    Estos datos serán almacenados y no serán tratados por terceros.
+  </p>
+
 </div>
 
 <div class="modal-overlay" *ngIf="modalFechaPasadaAbierto" (click)="cerrarModalFechaPasada()">
