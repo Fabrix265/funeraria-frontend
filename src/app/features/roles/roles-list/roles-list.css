@@ -315,3 +315,23 @@
   .permisos-chips { gap: 0.25rem; }
   .permiso-chip { font-size: 0.65rem; }
 }
+
+.permisos-resumen {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.permisos-resumen__count {
+  font-weight: 600;
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+.permisos-resumen__modulos {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.permisos-resumen__btn {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}

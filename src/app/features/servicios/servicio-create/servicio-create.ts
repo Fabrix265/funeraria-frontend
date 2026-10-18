@@ -75,7 +75,7 @@ export class ServicioCreate implements OnInit {
   }
 
   private validarFecha(fecha: string): boolean {
-    return fecha >= this.fechaMinima;
+    return !!fecha;
   }
 
   verificandoFallecido = false;
@@ -90,6 +90,9 @@ export class ServicioCreate implements OnInit {
   errorFecha = '';
   errorTelefono = '';
   errorCosto = '';
+
+  modalFechaPasadaAbierto = false;
+  fechaPasadaConfirmada = false;
 
   constructor(
     private servicioService: Servicio,
@@ -270,6 +273,11 @@ export class ServicioCreate implements OnInit {
     }
     if (!this.validarNombre(this.form.contratante.nombre)) {
       this.toast.mostrar('El nombre del contratante contiene caracteres no permitidos', 'error');
+      return;
+    }
+
+    if (this.fechaEsPasada && !this.fechaPasadaConfirmada) {
+      this.modalFechaPasadaAbierto = true;
       return;
     }
 
@@ -466,11 +474,23 @@ export class ServicioCreate implements OnInit {
   }
 
   onFechaChange(): void {
-    if (this.form.fecha && this.form.fecha < this.fechaMinima) {
-      this.errorFecha = 'La fecha no puede ser anterior al día de hoy';
-    } else {
-      this.errorFecha = '';
-    }
+    this.errorFecha = '';
+    this.fechaPasadaConfirmada = false;
+  }
+
+  get fechaEsPasada(): boolean {
+    return !!this.form.fecha && this.form.fecha < this.fechaMinima;
+  }
+
+  confirmarFechaPasada(): void {
+    if (!this.fechaPasadaConfirmada) return;
+    this.modalFechaPasadaAbierto = false;
+    this.guardar();
+  }
+
+  cerrarModalFechaPasada(): void {
+    this.modalFechaPasadaAbierto = false;
+    this.fechaPasadaConfirmada = false;
   }
 
   onTelefonoInput(): void {

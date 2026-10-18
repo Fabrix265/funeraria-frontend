@@ -215,26 +215,26 @@ export class Vehiculos implements OnInit {
     this.previewIndex = index;
   }
 
-  onArchivoSeleccionado(event: Event): void {
+  onArchivosSeleccionados(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length || !this.vehiculoImagenes) return;
 
-    const archivo = input.files[0];
+    const archivos = Array.from(input.files);
     this.subiendoImagen = true;
-    this.vehiculoService.agregarImagen(this.vehiculoImagenes.id, archivo).subscribe({
+    this.vehiculoService.agregarImagenes(this.vehiculoImagenes.id, archivos).subscribe({
       next: (vehiculoActualizado) => {
         this.vehiculoImagenes = vehiculoActualizado;
         this.actualizarEnLista(vehiculoActualizado);
         this.previewIndex = vehiculoActualizado.imagenes.length - 1;
         this.subiendoImagen = false;
         input.value = '';
-        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.mostrarMensaje(`${archivos.length} imagen(es) agregada(s)`, 'exito');
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.subiendoImagen = false;
         input.value = '';
-        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imágenes', 'error');
         this.cdr.detectChanges();
       },
     });

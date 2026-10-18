@@ -185,6 +185,11 @@ export class Ataudes implements OnInit {
       this.mostrarMensaje('Completa todos los campos requeridos', 'error');
       return;
     }
+    const soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\-]+)*$/;
+    if (!soloLetras.test(this.detalleForm.color)) {
+      this.mostrarMensaje('El color solo puede contener letras, espacios y guiones', 'error');
+      return;
+    }
     this.ataudService.actualizar(this.ataudSeleccionado.id, this.detalleForm).subscribe({
       next: (actualizado) => {
         this.ataudSeleccionado = actualizado;
@@ -251,6 +256,22 @@ export class Ataudes implements OnInit {
     this.modalStockAbierto = true;
   }
 
+  aumentarStockCrear(): void {
+    this.form.stock = (Number(this.form.stock) || 0) + 1;
+  }
+
+  disminuirStockCrear(): void {
+    this.form.stock = Math.max(0, (Number(this.form.stock) || 0) - 1);
+  }
+
+  aumentarCantidadStock(): void {
+    this.cantidadStock = (Number(this.cantidadStock) || 0) + 1;
+  }
+
+  disminuirCantidadStock(): void {
+    this.cantidadStock = (Number(this.cantidadStock) || 0) - 1;
+  }
+
   cerrarModalStock(): void {
     this.modalStockAbierto = false;
   }
@@ -307,28 +328,26 @@ export class Ataudes implements OnInit {
     });
   }
 
-  // --- Imágenes ---
-
-  onArchivoSeleccionado(event: Event): void {
+  onArchivosSeleccionados(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length || !this.ataudSeleccionado) return;
 
-    const archivo = input.files[0];
+    const archivos = Array.from(input.files);
     this.subiendoImagen = true;
-    this.ataudService.agregarImagen(this.ataudSeleccionado.id, archivo).subscribe({
+    this.ataudService.agregarImagenes(this.ataudSeleccionado.id, archivos).subscribe({
       next: (actualizado) => {
         this.ataudSeleccionado = actualizado;
         this.actualizarEnLista(actualizado);
         this.previewIndex = (actualizado.imagenes?.length || 1) - 1;
         this.subiendoImagen = false;
         input.value = '';
-        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.mostrarMensaje(`${archivos.length} imagen(es) agregada(s)`, 'exito');
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.subiendoImagen = false;
         input.value = '';
-        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imágenes', 'error');
         this.cdr.detectChanges();
       },
     });

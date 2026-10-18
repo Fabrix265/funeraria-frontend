@@ -185,6 +185,22 @@ export class Capillas implements OnInit {
     this.modalStockAbierto = true;
   }
 
+  aumentarStockCrear(): void {
+    this.form.stock = (Number(this.form.stock) || 0) + 1;
+  }
+
+  disminuirStockCrear(): void {
+    this.form.stock = Math.max(0, (Number(this.form.stock) || 0) - 1);
+  }
+
+  aumentarCantidadStock(): void {
+    this.cantidadStock = (Number(this.cantidadStock) || 0) + 1;
+  }
+
+  disminuirCantidadStock(): void {
+    this.cantidadStock = (Number(this.cantidadStock) || 0) - 1;
+  }
+
   cerrarModalStock(): void {
     this.modalStockAbierto = false;
     this.capillaStock = null;
@@ -249,30 +265,29 @@ export class Capillas implements OnInit {
     this.capillaImagenes = null;
   }
 
-  onArchivoSeleccionado(event: Event): void {
+  onArchivosSeleccionados(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length || !this.capillaImagenes) return;
 
-    const archivo = input.files[0];
+    const archivos = Array.from(input.files);
     this.subiendoImagen = true;
-    this.capillaService.agregarImagen(this.capillaImagenes.id, archivo).subscribe({
+    this.capillaService.agregarImagenes(this.capillaImagenes.id, archivos).subscribe({
       next: (capillaActualizada) => {
         this.capillaImagenes = capillaActualizada;
         this.actualizarEnLista(capillaActualizada);
         this.subiendoImagen = false;
         input.value = '';
-        this.mostrarMensaje('Imagen agregada', 'exito');
+        this.mostrarMensaje(`${archivos.length} imagen(es) agregada(s)`, 'exito');
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.subiendoImagen = false;
         input.value = '';
-        this.mostrarMensaje(e.error?.detail || 'Error al subir imagen', 'error');
+        this.mostrarMensaje(e.error?.detail || 'Error al subir imágenes', 'error');
         this.cdr.detectChanges();
       },
     });
   }
-
 
   eliminarImagen(imagenId: number): void {
     if (!this.capillaImagenes) return;

@@ -43,9 +43,9 @@ export class AtaudService {
     return this.http.patch<Ataud>(`${this.api}/${id}/status`, { activo });
   }
 
-  agregarImagen(ataudId: number, archivo: File) {
+  agregarImagenes(ataudId: number, archivos: File[]) {
     const formData = new FormData();
-    formData.append('imagen', archivo);
+    archivos.forEach((archivo) => formData.append('imagenes', archivo));
     return this.http.post<Ataud>(`${this.api}/${ataudId}/imagenes`, formData);
   }
 

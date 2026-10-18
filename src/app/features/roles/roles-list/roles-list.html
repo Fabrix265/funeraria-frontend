@@ -50,8 +50,12 @@
               </span>
           </td>
           <td>
-            <div class="permisos-chips" *ngIf="rol.permisos && rol.permisos.length > 0">
-              <span class="permiso-chip" *ngFor="let p of rol.permisos">{{ p.nombre }}</span>
+            <div class="permisos-resumen" *ngIf="rol.permisos && rol.permisos.length > 0">
+              <span class="permisos-resumen__count">{{ rol.permisos.length }} permisos</span>
+              <span class="permisos-resumen__modulos">en {{ agruparPermisos(rol.permisos).length }} módulo(s)</span>
+              <button class="btn btn--ghost permisos-resumen__btn" (click)="abrirModalVerPermisos(rol)">
+                Ver detalle
+              </button>
             </div>
             <span *ngIf="!rol.permisos || rol.permisos.length === 0" style="color:#999; font-size:0.85em">Sin permisos</span>
           </td>
@@ -101,7 +105,7 @@
           <div class="permisos-checkboxes">
             <label class="permiso-check" *ngFor="let p of grupo.permisos">
               <input type="checkbox" [checked]="tienePermiso(p.id)" (change)="togglePermiso(p.id)" />
-              <span>{{ p.nombre }}</span>
+              <span>{{ etiquetaPermiso(p.nombre) }}</span>
               <small *ngIf="p.descripcion">{{ p.descripcion }}</small>
             </label>
           </div>
@@ -133,6 +137,26 @@
     <div class="modal__footer">
       <button class="btn btn--ghost" (click)="cerrarModalEliminar()">Cancelar</button>
       <button class="btn btn--danger" (click)="confirmarEliminar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalVerPermisosAbierto" (click)="cerrarModalVerPermisos()">
+  <div class="modal modal--lg" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">Permisos — {{ rolVerPermisos?.nombre }}</h2>
+      <button class="modal__close" (click)="cerrarModalVerPermisos()"><svg lucideIcon="x"></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="permisos-grupos" *ngFor="let grupo of agruparPermisos(rolVerPermisos?.permisos || [])">
+        <p class="permisos-grupos__titulo">{{ grupo.modulo | uppercase }}</p>
+        <div class="permisos-chips">
+          <span class="permiso-chip" *ngFor="let p of grupo.permisos">{{ etiquetaPermiso(p.nombre) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" (click)="cerrarModalVerPermisos()">Cerrar</button>
     </div>
   </div>
 </div>
