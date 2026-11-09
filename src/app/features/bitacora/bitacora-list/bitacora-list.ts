@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
 import { LucideDynamicIcon } from '@lucide/angular'
 import { BitacoraService } from '../../../core/services/bitacora'
-import { BitacoraEntry } from '../../../core/models/bitacora.model'
+import { ArchivoDiarioBitacora, BitacoraEntry } from '../../../core/models/bitacora.model'
 import { formatearFechaHora } from '../../../core/utils/fecha.utils'
 
 @Component({
@@ -22,6 +22,16 @@ export class BitacoraList implements OnInit {
   cargando = false
   totalPaginas = 1
   exportando = false
+
+  archivoDiarioAbierto = false
+  archivoDiarioCargado = false
+  archivosDiarios: ArchivoDiarioBitacora[] = []
+  cargandoArchivoDiario = false
+  errorArchivoDiario = ''
+  descargandoArchivoDiario: string | null = null
+  errorDescargaArchivoDiario = ''
+  sincronizandoArchivoDiario = false
+  mensajeSincronizacionArchivoDiario = ''
 
   filtros = {
     fecha_inicio: '',
@@ -160,6 +170,92 @@ export class BitacoraList implements OnInit {
 
   formatDate(dateStr: string): string {
     return formatearFechaHora(dateStr)
+  }
+
+  alternarArchivoDiario(): void {
+    this.archivoDiarioAbierto = !this.archivoDiarioAbierto
+    if (this.archivoDiarioAbierto && !this.archivoDiarioCargado && !this.sincronizandoArchivoDiario) {
+      this.cargarArchivoDiario()
+    }
+  }
+
+  cargarArchivoDiario(): void {
+    if (this.cargandoArchivoDiario) return
+
+    this.cargandoArchivoDiario = true
+    this.errorArchivoDiario = ''
+    this.bitacoraService.listarArchivoDiario().subscribe({
+      next: (res) => {
+        this.archivosDiarios = res
+        this.archivoDiarioCargado = true
+        this.cargandoArchivoDiario = false
+        this.cdr.detectChanges()
+      },
+      error: (err) => {
+        this.errorArchivoDiario = err.error?.detail || 'No se pudo consultar el archivo diario.'
+        this.cargandoArchivoDiario = false
+        this.cdr.detectChanges()
+      },
+    })
+  }
+
+  formatearFechaArchivoDiario(fecha: string): string {
+    const [anio, mes, dia] = fecha.split('-')
+    return `${dia}/${mes}/${anio}`
+  }
+
+  formatearTamanoArchivoDiario(tamano: number): string {
+    if (tamano < 1024) return `${tamano} B`
+    if (tamano < 1024 * 1024) return `${(tamano / 1024).toFixed(1)} KB`
+    return `${(tamano / (1024 * 1024)).toFixed(1)} MB`
+  }
+
+  descargarArchivoDiario(archivo: ArchivoDiarioBitacora): void {
+    if (this.descargandoArchivoDiario !== null) return
+
+    this.descargandoArchivoDiario = archivo.file_id
+    this.errorDescargaArchivoDiario = ''
+    this.bitacoraService.descargarArchivoDiario(archivo.file_id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `bitacora_${archivo.fecha}.xlsx`
+        a.click()
+        window.URL.revokeObjectURL(url)
+        this.descargandoArchivoDiario = null
+        this.cdr.detectChanges()
+      },
+      error: () => {
+        this.errorDescargaArchivoDiario = 'No se pudo descargar el archivo diario.'
+        this.descargandoArchivoDiario = null
+        this.cdr.detectChanges()
+      },
+    })
+  }
+
+  sincronizarArchivoDiario(): void {
+    if (this.sincronizandoArchivoDiario || this.cargandoArchivoDiario) return
+
+    this.sincronizandoArchivoDiario = true
+    this.mensajeSincronizacionArchivoDiario = ''
+    this.archivoDiarioAbierto = true
+    this.bitacoraService.sincronizarArchivoDiario().subscribe({
+      next: (res) => {
+        this.mensajeSincronizacionArchivoDiario = res.estado === 'ok'
+          ? `Sincronizado: ${res.creados?.length ?? 0} creado(s), ${res.eliminados?.length ?? 0} eliminado(s).`
+          : res.motivo || (res.estado === 'omitido' ? 'Sincronización omitida.' : 'No se pudo sincronizar el archivo diario.')
+        this.sincronizandoArchivoDiario = false
+        this.cargarArchivoDiario()
+        this.cdr.detectChanges()
+      },
+      error: (err) => {
+        this.mensajeSincronizacionArchivoDiario = err.error?.detail || 'No se pudo sincronizar el archivo diario.'
+        this.sincronizandoArchivoDiario = false
+        this.cargarArchivoDiario()
+        this.cdr.detectChanges()
+      },
+    })
   }
 
   exportarExcel(): void {

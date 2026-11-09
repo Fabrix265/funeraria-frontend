@@ -185,3 +185,31 @@ color: #c8b4e8; border: 1px solid rgba(200,180,232,.3); }
   .paginacion { gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
   .paginacion__total { display: none; }
 }
+
+.archivo-diario { min-width: 0; }
+.archivo-diario__cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.archivo-diario__intro { flex: 1 1 280px; min-width: 0; }
+.archivo-diario__titulo { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+.archivo-diario__subtitulo { color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; margin: 0; }
+.archivo-diario__acciones { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.archivo-diario__icono { width: 16px; height: 16px; flex-shrink: 0; }
+.archivo-diario__contenido { margin-top: 1rem; min-width: 0; }
+.archivo-diario__mensaje { margin: 1rem 0 0; color: var(--text-light); font-size: 0.85rem; overflow-wrap: anywhere; }
+.archivo-diario__estado { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; padding: 1rem 0; margin: 0; color: var(--text-muted); overflow-wrap: anywhere; }
+.archivo-diario__estado p { margin: 0; min-width: 0; }
+.archivo-diario__cargando { padding: 1.5rem; }
+.archivo-diario__tabla th, .archivo-diario__tabla td { padding: 0.6rem 0.75rem; }
+.archivo-diario .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 599px) {
+  .archivo-diario__intro { flex-basis: 100%; }
+  .archivo-diario__acciones { width: 100%; }
+  .archivo-diario__acciones .btn { flex: 1 1 auto; justify-content: center; min-width: 0; }
+  .archivo-diario__tabla, .archivo-diario__tabla tbody { display: block; width: 100%; }
+  .archivo-diario__tabla thead { display: none; }
+  .archivo-diario__tabla .tabla__fila { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .archivo-diario__tabla td { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+  .archivo-diario__tabla td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 0.25rem; color: var(--text-muted); font-size: 0.72rem; }
+  .archivo-diario__descarga { grid-column: 1 / -1; }
+  .archivo-diario__descarga .btn { width: 100%; justify-content: center; }
+}

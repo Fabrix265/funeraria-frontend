@@ -51,6 +51,75 @@
     </div>
   </section>
 
+  <section class="filtros-panel archivo-diario" aria-labelledby="archivo-diario-titulo">
+    <header class="archivo-diario__cabecera">
+      <div class="archivo-diario__intro">
+        <h3 class="filtros-panel__titulo archivo-diario__titulo" id="archivo-diario-titulo">
+          <svg lucideIcon="archive" class="archivo-diario__icono" aria-hidden="true"></svg>
+          Archivo diario (últimos 30 días)
+        </h3>
+        <p class="archivo-diario__subtitulo">Copia automática en Google Drive: un Excel por día, se conservan los últimos 30.</p>
+      </div>
+      <div class="archivo-diario__acciones">
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="sincronizandoArchivoDiario || cargandoArchivoDiario" (click)="sincronizarArchivoDiario()">
+          <svg lucideIcon="refresh-cw" class="archivo-diario__icono" aria-hidden="true"></svg>
+          {{ sincronizandoArchivoDiario ? 'Sincronizando...' : 'Sincronizar ahora' }}
+        </button>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="alternarArchivoDiario()"
+          [attr.aria-expanded]="archivoDiarioAbierto" aria-controls="archivo-diario-contenido"
+          [attr.aria-label]="archivoDiarioAbierto ? 'Cerrar archivo diario' : 'Abrir archivo diario'">
+          <svg [lucideIcon]="archivoDiarioAbierto ? 'chevron-up' : 'chevron-down'" class="archivo-diario__icono" aria-hidden="true"></svg>
+          {{ archivoDiarioAbierto ? 'Cerrar' : 'Abrir' }}
+        </button>
+      </div>
+    </header>
+
+    <p *ngIf="mensajeSincronizacionArchivoDiario" class="archivo-diario__mensaje" role="status">{{ mensajeSincronizacionArchivoDiario }}</p>
+
+    <div id="archivo-diario-contenido" *ngIf="archivoDiarioAbierto" class="archivo-diario__contenido"
+      [attr.aria-busy]="cargandoArchivoDiario || sincronizandoArchivoDiario">
+      <div class="table-loader archivo-diario__cargando" *ngIf="cargandoArchivoDiario" role="status" aria-label="Cargando archivo diario">
+        <div class="spinner" aria-hidden="true"></div>
+      </div>
+
+      <div *ngIf="!cargandoArchivoDiario && errorArchivoDiario" class="archivo-diario__estado">
+        <p role="alert">{{ errorArchivoDiario }}</p>
+        <button type="button" class="btn btn--ghost btn--sm" [disabled]="sincronizandoArchivoDiario" (click)="cargarArchivoDiario()">Reintentar</button>
+      </div>
+
+      <p *ngIf="!cargandoArchivoDiario && !sincronizandoArchivoDiario && !errorArchivoDiario && archivosDiarios.length === 0"
+        class="archivo-diario__estado" role="status">Aún no hay archivos diarios.</p>
+
+      <p *ngIf="errorDescargaArchivoDiario" class="archivo-diario__mensaje" role="alert">{{ errorDescargaArchivoDiario }}</p>
+
+      <div class="table-wrapper" *ngIf="!cargandoArchivoDiario && !errorArchivoDiario && archivosDiarios.length > 0">
+        <table class="tabla archivo-diario__tabla" aria-label="Archivos diarios de bitácora">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Tamaño</th>
+              <th scope="col">Archivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let archivo of archivosDiarios" class="tabla__fila">
+              <td class="tabla__fecha" data-label="Fecha">{{ formatearFechaArchivoDiario(archivo.fecha) }}</td>
+              <td data-label="Tamaño">{{ formatearTamanoArchivoDiario(archivo.tamano) }}</td>
+              <td class="archivo-diario__descarga">
+                <button type="button" class="btn btn--ghost btn--sm" [disabled]="descargandoArchivoDiario !== null"
+                  (click)="descargarArchivoDiario(archivo)" [attr.aria-label]="'Descargar archivo del ' + formatearFechaArchivoDiario(archivo.fecha)">
+                  <svg lucideIcon="download" class="archivo-diario__icono" aria-hidden="true"></svg>
+                  {{ descargandoArchivoDiario === archivo.file_id ? 'Descargando...' : 'Descargar' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <div class="table-loader" *ngIf="cargando">
     <div class="spinner"></div>
   </div>

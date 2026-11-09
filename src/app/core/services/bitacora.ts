@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { HttpClient, HttpParams } from '@angular/common/http'
-import { BitacoraListResponse } from '../models/bitacora.model'
+import { ArchivoDiarioBitacora, BitacoraListResponse, SincronizacionArchivoDiario } from '../models/bitacora.model'
 import { environment } from '../../../environments/environment'
 
 @Injectable({
@@ -25,6 +25,18 @@ export class BitacoraService {
 
   obtenerPorId(id: number) {
     return this.http.get(`${this.api}/${id}`)
+  }
+
+  listarArchivoDiario() {
+    return this.http.get<ArchivoDiarioBitacora[]>(`${this.api}/archivo-diario`)
+  }
+
+  descargarArchivoDiario(fileId: string) {
+    return this.http.get(`${this.api}/archivo-diario/${encodeURIComponent(fileId)}/descargar`, { responseType: 'blob' })
+  }
+
+  sincronizarArchivoDiario() {
+    return this.http.post<SincronizacionArchivoDiario>(`${this.api}/archivo-diario/sincronizar`, {})
   }
 
   exportar(filtros: any) {
