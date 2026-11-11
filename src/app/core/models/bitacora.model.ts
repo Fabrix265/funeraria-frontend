@@ -15,3 +15,18 @@ export interface BitacoraListResponse {
   pagina: number;
   total_paginas: number;
 }
+
+export interface ArchivoDiarioBitacora {
+  file_id: string;
+  nombre: string;
+  fecha: string;
+  tamano: number;
+}
+
+export interface SincronizacionArchivoDiario {
+  estado: 'ok' | 'omitido' | 'error';
+  creados?: string[];
+  eliminados?: string[];
+  total?: number;
+  motivo?: string;
+}
