@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
@@ -44,7 +44,7 @@ interface DatosContrato {
   templateUrl: './ia.html',
   styleUrls: ['./ia.css']
 })
-export class Ia implements OnInit {
+export class Ia implements OnInit, OnDestroy {
 
   private mainApi = environment.apiUrl
   private iaApi = environment.iaApiUrl
@@ -54,6 +54,10 @@ export class Ia implements OnInit {
   contadorId = 0
   procesandoCola = false
   vehiculosDB: Vehiculo[] = []
+
+  // Green software: sondeos activos y estado de destrucción para detener trabajo innecesario
+  private intervalosActivos = new Set<ReturnType<typeof setInterval>>()
+  private destruido = false
 
   readonly tiposPago: TipoPago[] = ['directo', 'seguro', 'mixto']
   readonly tiposVehiculo = [
@@ -118,7 +122,7 @@ export class Ia implements OnInit {
     if (this.procesandoCola) return
     this.procesandoCola = true
 
-    while (true) {
+    while (!this.destruido) {
       const pendiente = this.items.find(i => i.estado === 'pendiente')
       if (!pendiente) break
 
@@ -160,6 +164,7 @@ export class Ia implements OnInit {
         canvas.width = w
         canvas.height = h
         canvas.getContext('2d')!.drawImage(img, 0, 0, w, h)
+        URL.revokeObjectURL(img.src)
         canvas.toBlob(blob => {
           resolve(new File([blob!], archivo.name, { type: 'image/jpeg' }))
         }, 'image/jpeg', 0.85)
@@ -185,25 +190,43 @@ export class Ia implements OnInit {
 
     // Fase 2: polling cada 3 segundos hasta que termine
     return new Promise((resolve, reject) => {
+      const detener = () => {
+        clearInterval(interval)
+        this.intervalosActivos.delete(interval)
+      }
       const interval = setInterval(() => {
+        if (this.destruido) {
+          detener()
+          reject(new Error('Pantalla cerrada: sondeo detenido'))
+          return
+        }
         this.http.get(`${this.iaApi}/ia/task/${tareaId}`).subscribe({
           next: (tarea: any) => {
             if (tarea.estado === 'listo') {
-              clearInterval(interval)
+              detener()
               resolve(tarea.resultado)
             } else if (tarea.estado === 'error') {
-              clearInterval(interval)
+              detener()
               reject(new Error(tarea.error))
             }
             // si "procesando", sigue esperando
           },
           error: (err) => {
-            clearInterval(interval)
+            detener()
             reject(err)
           }
         })
       }, 3000)
+      this.intervalosActivos.add(interval)
     })
+  }
+
+  ngOnDestroy(): void {
+    // Green software: al salir de la pantalla se detienen los sondeos y se liberan las vistas previas
+    this.destruido = true
+    this.intervalosActivos.forEach(i => clearInterval(i))
+    this.intervalosActivos.clear()
+    this.items.forEach(i => URL.revokeObjectURL(i.previewUrl))
   }
 
   private mapearDatos(raw: any): DatosContrato {

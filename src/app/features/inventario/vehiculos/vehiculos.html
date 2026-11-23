@@ -54,7 +54,7 @@
       <div class="vehiculo-card" *ngFor="let v of vehiculosPaginados" [class.vehiculo-card--inactivo]="!v.activo">
 
         <div class="vehiculo-card__media" (click)="puedeEditar ? abrirModalImagenes(v) : null">
-          <img *ngIf="v.imagenes?.length" [src]="v.imagenes[0].url" alt="{{ etiqueta(v.tipo) }}" />
+          <img loading="lazy" decoding="async" *ngIf="v.imagenes?.length" [src]="v.imagenes[0].url" alt="{{ etiqueta(v.tipo) }}" />
           <div class="vehiculo-card__placeholder" *ngIf="!v.imagenes?.length">
             <svg lucideIcon="car"></svg>
             <span [class.vehiculo-card__placeholder-alerta]="v.activo">Sin imágenes</span>
@@ -197,7 +197,7 @@
           [class.carrete-tira__item--activo]="i === previewIndex"
           (click)="seleccionarPreview(i)"
         >
-          <img [src]="img.url" alt="Miniatura {{ i + 1 }}" />
+          <img loading="lazy" decoding="async" [src]="img.url" alt="Miniatura {{ i + 1 }}" />
         </div>
 
         <input #fileInput type="file" accept="image/*" multiple hidden [disabled]="subiendoImagen" (change)="onArchivosSeleccionados($event)" />

@@ -20,11 +20,11 @@ export class AtaudService {
       }
     });
 
-    return this.http.get<Ataud[]>(this.api, { params });
+    return this.http.get<Ataud[]>(`${this.api}/`, { params });
   }
 
   crear(data: any) {
-    return this.http.post<Ataud>(this.api, data);
+    return this.http.post<Ataud>(`${this.api}/`, data);
   }
 
   actualizar(id: number, data: any) {

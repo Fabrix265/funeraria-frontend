@@ -4,33 +4,11 @@ import { authGuard } from './core/guards/auth-guard'
 import { roleGuard } from './core/guards/role-guard'
 
 import { Login } from './features/auth/login/login'
-import { Recuperar } from './features/auth/recuperar/recuperar'
-import { Restablecer } from './features/auth/restablecer/restablecer'
-import { Dashboard } from './features/dashboard/dashboard'
 
-import { ServicioList } from './features/servicios/servicio-list/servicio-list'
-import { ServicioCreate } from './features/servicios/servicio-create/servicio-create'
-import { ServicioDetail } from './features/servicios/servicio-detail/servicio-detail'
-
-import { Ataudes } from './features/inventario/ataudes/ataudes'
-import { Capillas } from './features/inventario/capillas/capillas'
-import { Vehiculos } from './features/inventario/vehiculos/vehiculos'
-
-import { Contratantes } from './features/personas/contratantes/contratantes'
-import { Fallecidos } from './features/personas/fallecidos/fallecidos'
-
-import { UsuariosList } from './features/usuarios/usuarios-list/usuarios-list'
-
-import { Perfil } from './features/perfil/perfil'
-
-import { MainLayout } from './layout/main-layout/main-layout'
-
-import { Ia } from './features/ia/ia'
-import { Predicciones } from './features/predicciones/predicciones'
-import { BitacoraList } from './features/bitacora/bitacora-list/bitacora-list'
-import { RespaldoList } from './features/respaldos/respaldo-list/respaldo-list'
 import { permisoGuard } from './core/guards/permisos-guard';
 
+// Green software: todas las pantallas (salvo el login) se cargan bajo demanda (lazy loading)
+// para reducir el JavaScript inicial que descarga y ejecuta el navegador.
 export const routes: Routes = [
   {
     path: 'login',
@@ -39,83 +17,83 @@ export const routes: Routes = [
 
   {
     path: 'recuperar',
-    component: Recuperar,
+    loadComponent: () => import('./features/auth/recuperar/recuperar').then((m) => m.Recuperar),
   },
 
   {
     path: 'restablecer',
-    component: Restablecer,
+    loadComponent: () => import('./features/auth/restablecer/restablecer').then((m) => m.Restablecer),
   },
 
   {
     path: '',
-    component: MainLayout,
+    loadComponent: () => import('./layout/main-layout/main-layout').then((m) => m.MainLayout),
     canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
-        component: Dashboard,
+        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
 
       {
         path: 'servicios',
-        component: ServicioList,
+        loadComponent: () => import('./features/servicios/servicio-list/servicio-list').then((m) => m.ServicioList),
       },
 
       {
         path: 'servicios/crear',
-        component: ServicioCreate,
+        loadComponent: () => import('./features/servicios/servicio-create/servicio-create').then((m) => m.ServicioCreate),
         canActivate: [permisoGuard],
         data: { permiso: 'servicios:crear' },
       },
 
       {
         path: 'servicios/editar/:id',
-        component: ServicioCreate,
+        loadComponent: () => import('./features/servicios/servicio-create/servicio-create').then((m) => m.ServicioCreate),
         canActivate: [permisoGuard],
         data: { permiso: 'servicios:actualizar' },
       },
 
       {
         path: 'servicios/:id',
-        component: ServicioDetail,
+        loadComponent: () => import('./features/servicios/servicio-detail/servicio-detail').then((m) => m.ServicioDetail),
       },
 
       {
         path: 'ataudes',
-        component: Ataudes,
+        loadComponent: () => import('./features/inventario/ataudes/ataudes').then((m) => m.Ataudes),
       },
 
       {
         path: 'capillas',
-        component: Capillas,
+        loadComponent: () => import('./features/inventario/capillas/capillas').then((m) => m.Capillas),
       },
 
       {
         path: 'vehiculos',
-        component: Vehiculos,
+        loadComponent: () => import('./features/inventario/vehiculos/vehiculos').then((m) => m.Vehiculos),
       },
 
       {
         path: 'contratantes',
-        component: Contratantes,
+        loadComponent: () => import('./features/personas/contratantes/contratantes').then((m) => m.Contratantes),
       },
 
       {
         path: 'fallecidos',
-        component: Fallecidos,
+        loadComponent: () => import('./features/personas/fallecidos/fallecidos').then((m) => m.Fallecidos),
       },
 
       {
         path: 'usuarios',
-        component: UsuariosList,
+        loadComponent: () => import('./features/usuarios/usuarios-list/usuarios-list').then((m) => m.UsuariosList),
         canActivate: [roleGuard],
         data: { roles: ['administrador'] },
       },
 
       {
         path: 'perfil',
-        component: Perfil,
+        loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),
       },
 
       {
@@ -125,11 +103,11 @@ export const routes: Routes = [
       },
       {
         path: 'ia',
-        component: Ia,
+        loadComponent: () => import('./features/ia/ia').then((m) => m.Ia),
       },
       {
         path: 'predicciones',
-        component: Predicciones,
+        loadComponent: () => import('./features/predicciones/predicciones').then((m) => m.Predicciones),
       },
       {
         path: 'roles',
@@ -140,13 +118,13 @@ export const routes: Routes = [
       },
       {
         path: 'bitacora',
-        component: BitacoraList,
+        loadComponent: () => import('./features/bitacora/bitacora-list/bitacora-list').then((m) => m.BitacoraList),
         canActivate: [permisoGuard],
         data: { permiso: 'bitacora:listar' },
       },
       {
         path: 'respaldos',
-        component: RespaldoList,
+        loadComponent: () => import('./features/respaldos/respaldo-list/respaldo-list').then((m) => m.RespaldoList),
         canActivate: [permisoGuard],
         data: { permiso: 'respaldos:listar' },
       },
