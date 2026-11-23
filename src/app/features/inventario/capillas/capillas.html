@@ -97,7 +97,7 @@
             </td>
             <td>
               <div class="miniaturas" *ngIf="c.imagenes?.length; else sinImagenes" (click)="abrirLightboxDesdeTabla(c)">
-                <img [src]="c.imagenes[0].url" class="miniatura" alt="{{ c.modelo }}" />
+                <img loading="lazy" decoding="async" [src]="c.imagenes[0].url" class="miniatura" alt="{{ c.modelo }}" />
                 <span class="miniaturas__contador">{{ c.imagenes.length }}</span>
               </div>
               <ng-template #sinImagenes>
@@ -245,7 +245,7 @@
 
       <div class="galeria">
         <div class="galeria__item" *ngFor="let img of capillaImagenes?.imagenes; let i = index">
-          <img [src]="img.url" alt="{{ capillaImagenes?.modelo }}" (click)="abrirLightbox(i)" />
+          <img loading="lazy" decoding="async" [src]="img.url" alt="{{ capillaImagenes?.modelo }}" (click)="abrirLightbox(i)" />
           <button class="galeria__eliminar" title="Eliminar" (click)="eliminarImagen(img.id)">
             <svg lucideIcon="trash-2"></svg>
           </button>

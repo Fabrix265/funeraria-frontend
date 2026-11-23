@@ -19,7 +19,7 @@ export class PersonaService {
     if (dni) params = params.set('dni_fallecido', dni);
     if (activo !== undefined && activo !== null && activo !== '') params = params.set('activo', activo);
 
-    return this.http.get<any[]>(this.fallecidosApi, { params });
+    return this.http.get<any[]>(`${this.fallecidosApi}/`, { params });
   }
 
   obtenerFallecido(id: number): Observable<any> {
@@ -44,7 +44,7 @@ export class PersonaService {
     if (dni) params = params.set('dni', dni);
     if (activo !== undefined && activo !== null && activo !== '') params = params.set('activo', activo);
 
-    return this.http.get<Contratante[]>(this.contratantesApi, { params });
+    return this.http.get<Contratante[]>(`${this.contratantesApi}/`, { params });
   }
 
   obtenerContratante(id: number): Observable<Contratante> {

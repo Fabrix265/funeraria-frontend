@@ -21,7 +21,7 @@ export class Servicio {
       }
     });
 
-    return this.http.get<ServicioPaginado>(this.api, { params });
+    return this.http.get<ServicioPaginado>(`${this.api}/`, { params });
   }
 
   obtener(id: number) {
@@ -29,7 +29,7 @@ export class Servicio {
   }
 
   crear(data: any) {
-    return this.http.post(this.api, data);
+    return this.http.post(`${this.api}/`, data);
   }
 
   eliminar(id: number) {

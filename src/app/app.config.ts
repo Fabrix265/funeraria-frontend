@@ -58,6 +58,8 @@ import {
   LucideRotateCcw,
   LucideShieldAlert,
   LucideArchiveRestore,
+  LucideArchive,
+  LucideChevronUp,
 } from '@lucide/angular'
 
 import { routes } from './app.routes'
@@ -131,6 +133,8 @@ export const appConfig: ApplicationConfig = {
       LucideRotateCcw,
       LucideShieldAlert,
       LucideArchiveRestore,
+      LucideArchive,
+      LucideChevronUp,
     ),
 
   ]
