@@ -51,7 +51,7 @@ export class UserService {
   }
 
   listar(): Observable<UserLeer[]> {
-    return this.http.get<UserLeer[]>(this.api);
+    return this.http.get<UserLeer[]>(`${this.api}/`);
   }
 
   listarConFiltro(activo?: string): Observable<UserLeer[]> {
@@ -63,7 +63,7 @@ export class UserService {
   }
 
   crear(data: UserCrear): Observable<UserLeer> {
-    return this.http.post<UserLeer>(this.api, data);
+    return this.http.post<UserLeer>(`${this.api}/`, data);
   }
 
   eliminar(id: number): Observable<any> {

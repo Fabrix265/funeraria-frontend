@@ -157,7 +157,7 @@
               [class.detalle-tira__item--activo]="i === previewIndex"
               (click)="seleccionarPreview(i)"
             >
-              <img [src]="img.url" alt="Miniatura {{ i + 1 }}" />
+              <img loading="lazy" decoding="async" [src]="img.url" alt="Miniatura {{ i + 1 }}" />
             </div>
 
             <input #fileInput type="file" accept="image/*" multiple hidden [disabled]="subiendoImagen" (change)="onArchivosSeleccionados($event)" />

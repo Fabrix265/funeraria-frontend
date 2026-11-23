@@ -20,7 +20,7 @@ export class BitacoraService {
       }
     })
 
-    return this.http.get<BitacoraListResponse>(this.api, { params })
+    return this.http.get<BitacoraListResponse>(`${this.api}/`, { params })
   }
 
   obtenerPorId(id: number) {

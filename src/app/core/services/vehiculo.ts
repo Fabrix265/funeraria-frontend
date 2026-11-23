@@ -21,11 +21,11 @@ export class VehiculoService {
       params = params.set('activo', activo);
     }
 
-    return this.http.get<Vehiculo[]>(this.api, { params });
+    return this.http.get<Vehiculo[]>(`${this.api}/`, { params });
   }
 
   crear(data: any) {
-    return this.http.post<Vehiculo>(this.api, data);
+    return this.http.post<Vehiculo>(`${this.api}/`, data);
   }
 
   actualizar(id: number, data: any) {

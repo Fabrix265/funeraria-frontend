@@ -137,9 +137,9 @@ export class ServicioCreate implements OnInit {
 
   cargarCatalogos(): void {
     forkJoin({
-      ataudes: this.http.get<any[]>(`${this.mainApi}/coffins?activo=true`),
-      capillas: this.http.get<any[]>(`${this.mainApi}/chapels?activo=true`),
-      vehiculos: this.http.get<any[]>(`${this.mainApi}/vehicles?activo=true`),
+      ataudes: this.http.get<any[]>(`${this.mainApi}/coffins/?activo=true`),
+      capillas: this.http.get<any[]>(`${this.mainApi}/chapels/?activo=true`),
+      vehiculos: this.http.get<any[]>(`${this.mainApi}/vehicles/?activo=true`),
     }).subscribe({
       next: ({ ataudes, capillas, vehiculos }) => {
         this.zone.run(() => {

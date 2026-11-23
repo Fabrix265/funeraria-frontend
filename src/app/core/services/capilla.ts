@@ -21,11 +21,11 @@ export class CapillaService {
       params = params.set('activo', activo);
     }
 
-    return this.http.get<Capilla[]>(this.api, { params });
+    return this.http.get<Capilla[]>(`${this.api}/`, { params });
   }
 
   crear(data: any) {
-    return this.http.post<Capilla>(this.api, data);
+    return this.http.post<Capilla>(`${this.api}/`, data);
   }
 
   actualizar(id: number, data: any) {
